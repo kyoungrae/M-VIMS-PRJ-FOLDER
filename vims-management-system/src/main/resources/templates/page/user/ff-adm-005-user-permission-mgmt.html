@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-005 사용자 권한관리 (프로토타입)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #e1e6ef;
+      --text: #1c2434;
+      --muted: #5c677d;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --success: #0d9488;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(28, 36, 52, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+    .module-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid #c7d7fe;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .breadcrumb span { color: #94a3b8; margin: 0 6px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+    .flow-step strong { color: var(--text); font-weight: 600; }
+    .flow-arrow { color: #cbd5e1; font-size: 11px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr[data-selectable]:hover { background: #f8fafc; cursor: pointer; }
+    tr.selected { background: var(--accent-soft); outline: 1px solid #bfdbfe; }
+    .perm-matrix th.perm-col, .perm-matrix td.perm-col {
+      text-align: center;
+      width: 72px;
+      white-space: nowrap;
+    }
+    .perm-matrix th.page-col { min-width: 140px; }
+    .perm-matrix th.path-col { min-width: 160px; }
+    .perm-matrix tbody tr:hover { background: #fafbfc; }
+    .perm-matrix input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .perm-matrix .col-toggle { font-size: 11px; font-weight: 600; color: var(--accent); cursor: pointer; user-select: none; display: block; margin-top: 4px; }
+    .detail-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; }
+    .detail-row label { color: var(--muted); min-width: 100px; }
+    .detail-row span { font-weight: 600; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-success { background: var(--success); color: #fff; }
+    input[type="text"] {
+      flex: 1;
+      min-width: 140px;
+      max-width: 280px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .dirty-badge {
+      display: none;
+      font-size: 11px;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      border: 1px solid #fcd34d;
+    }
+    .dirty-badge.show { display: inline-block; }
+    .log-table-wrap { max-height: 240px; overflow: auto; margin-top: 8px; }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+    .note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px 14px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+    }
+    .note code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+    .muted-small { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="module-tag">FF-ADM-005 · M-VIMS (시스템관리)</div>
+    <div class="breadcrumb">
+      관리자 <span>›</span> 사용자관리 <span>›</span> 사용자 권한관리
+    </div>
+    <h1>사용자 권한관리</h1>
+    <p class="subtitle">
+      사용자별로 <strong>화면(페이지)</strong> 단위로 <strong>등록·수정·삭제·조회</strong> 권한을 부여합니다. (프로토타입: 브라우저 메모리만 사용, 실제 저장 API 없음)
+    </p>
+
+    <div class="flow-strip" aria-label="프로세스 단계">
+      <div class="flow-step"><strong>1</strong> 사용자 목록</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>2</strong> 사용자 선택</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>3</strong> 페이지별 CRUD 설정</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>4</strong> 저장 → 이력 반영</div>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-labelledby="list-title">
+        <h2 id="list-title">사용자 목록 <span class="hint">행 클릭으로 선택</span></h2>
+        <div class="toolbar" style="margin-bottom:0;">
+          <input type="text" id="user-filter" placeholder="이름·이메일 검색…" autocomplete="off" />
+        </div>
+        <div style="overflow:auto; margin-top:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>부여 화면</th>
+              </tr>
+            </thead>
+            <tbody id="user-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="perm-title">
+        <h2 id="perm-title">
+          페이지별 권한
+          <span class="hint" id="perm-hint">사용자를 선택하세요.</span>
+          <span class="dirty-badge" id="dirty-badge">저장 안 됨</span>
+        </h2>
+        <div id="perm-empty" class="empty">왼쪽에서 사용자를 선택하면, 아래 표에서 화면별 등록/수정/삭제/조회를 설정할 수 있습니다.</div>
+        <div id="perm-body" style="display:none;">
+          <div class="detail-row"><label>선택 사용자</label><span id="p-name"></span></div>
+          <div class="detail-row"><label>이메일</label><span id="p-email"></span></div>
+          <p class="muted-small">각 행은 하나의 화면(메뉴 URL)입니다. 열은 해당 화면에서 허용할 동작입니다.</p>
+          <div class="toolbar">
+            <input type="text" id="page-filter" placeholder="화면명·경로 검색…" autocomplete="off" />
+            <button type="button" class="btn btn-success" id="btn-save">권한 저장</button>
+            <button type="button" class="btn btn-ghost" id="btn-revert">변경 취소</button>
+          </div>
+          <div style="overflow:auto;">
+            <table class="perm-matrix" id="perm-table">
+              <thead>
+                <tr>
+                  <th class="page-col">화면</th>
+                  <th class="path-col">경로</th>
+                  <th class="perm-col" data-key="create">등록<span class="col-toggle" data-toggle-col="create">전체</span></th>
+                  <th class="perm-col" data-key="update">수정<span class="col-toggle" data-toggle-col="update">전체</span></th>
+                  <th class="perm-col" data-key="delete">삭제<span class="col-toggle" data-toggle-col="delete">전체</span></th>
+                  <th class="perm-col" data-key="read">조회<span class="col-toggle" data-toggle-col="read">전체</span></th>
+                </tr>
+              </thead>
+              <tbody id="perm-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px;" aria-labelledby="log-title">
+      <h2 id="log-title">권한 변경 이력 <span class="hint">저장 시 변경된 화면·동작만 요약</span></h2>
+      <div class="log-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>일시</th>
+              <th>사용자</th>
+              <th>유형</th>
+              <th>변경 내용</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+      <p id="log-empty" class="empty" style="margin:0;">아직 이력이 없습니다.</p>
+    </section>
+
+    <p class="note">
+      단일 HTML 파일 프로토타입입니다. 이 파일만 삭제하면 추가 기능 없이 이전 상태로 돌아갑니다.<br />
+      템플릿으로 두었을 때 URL은 배포 설정에 따릅니다. 정적 경로로 쓸 경우 예: <code>/page/user/ff-adm-005-user-permission-mgmt.html</code>
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var PERM_ORDER = ["create", "update", "delete", "read"];
+      var PERM_LABEL = { create: "등록", update: "수정", delete: "삭제", read: "조회" };
+
+      var PAGES = [
+        { id: "pg_user", name: "사용자 목록", path: "/sys/user/list" },
+        { id: "pg_user_reg", name: "사용자 등록", path: "/sys/user/register" },
+        { id: "pg_menu", name: "메뉴 설정", path: "/sys/menu/settings" },
+        { id: "pg_code", name: "공통코드 관리", path: "/sys/code/list" },
+        { id: "pg_board", name: "게시판 관리", path: "/oper/board/list" },
+        { id: "pg_notice", name: "공지사항", path: "/oper/board/notice" },
+        { id: "pg_file", name: "첨부파일 정책", path: "/sys/file/policy" },
+        { id: "pg_log", name: "접속 로그", path: "/sys/log/access" }
+      ];
+
+      function emptyPerm() {
+        return { create: false, update: false, delete: false, read: false };
+      }
+
+      function clonePerms(src) {
+        var out = {};
+        PAGES.forEach(function (p) {
+          var s = src[p.id] || emptyPerm();
+          out[p.id] = {
+            create: !!s.create,
+            update: !!s.update,
+            delete: !!s.delete,
+            read: !!s.read
+          };
+        });
+        return out;
+      }
+
+      var users = [
+        {
+          id: "u1",
+          name: "김관리",
+          email: "admin@example.gov",
+          permissions: (function () {
+            var o = {};
+            PAGES.forEach(function (p) { o[p.id] = emptyPerm(); });
+            o.pg_user = { create: true, update: true, delete: true, read: true };
+            o.pg_menu = { create: true, update: true, delete: false, read: true };
+            return o;
+          })()
+        },
+        {
+          id: "u2",
+          name: "이운영",
+          email: "mgr@example.gov",
+          permissions: (function () {
+            var o = {};
+            PAGES.forEach(function (p) { o[p.id] = emptyPerm(); });
+            o.pg_board = { create: true, update: true, delete: false, read: true };
+            o.pg_notice = { create: true, update: false, delete: false, read: true };
+            return o;
+          })()
+        },
+        {
+          id: "u3",
+          name: "박신규",
+          email: "newuser@example.gov",
+          permissions: (function () {
+            var o = {};
+            PAGES.forEach(function (p) { o[p.id] = emptyPerm(); });
+            o.pg_user = { create: false, update: false, delete: false, read: true };
+            return o;
+          })()
+        },
+        {
+          id: "u4",
+          name: "최일반",
+          email: "user@example.gov",
+          permissions: (function () {
+            var o = {};
+            PAGES.forEach(function (p) { o[p.id] = emptyPerm(); });
+            return o;
+          })()
+        }
+      ];
+
+      var historyLog = [];
+      var selectedId = null;
+      var savedSnapshot = null;
+      var draft = null;
+
+      function nowStr() {
+        var d = new Date();
+        function z(n) { return n < 10 ? "0" + n : "" + n; }
+        return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + " " +
+          z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+      }
+
+      function getUser(id) {
+        return users.find(function (u) { return u.id === id; });
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+
+      function countGrantedPages(perms) {
+        var n = 0;
+        PAGES.forEach(function (p) {
+          var x = perms[p.id];
+          if (x && (x.create || x.update || x.delete || x.read)) n++;
+        });
+        return n;
+      }
+
+      function isDirty() {
+        if (!selectedId || !savedSnapshot || !draft) return false;
+        return JSON.stringify(savedSnapshot) !== JSON.stringify(draft);
+      }
+
+      function setDirtyUi() {
+        var el = document.getElementById("dirty-badge");
+        if (isDirty()) el.classList.add("show");
+        else el.classList.remove("show");
+      }
+
+      function renderUsers() {
+        var q = (document.getElementById("user-filter").value || "").trim().toLowerCase();
+        var tbody = document.getElementById("user-tbody");
+        tbody.innerHTML = "";
+        users.forEach(function (u) {
+          if (q && (u.name + " " + u.email).toLowerCase().indexOf(q) < 0) return;
+          var tr = document.createElement("tr");
+          tr.setAttribute("data-selectable", "1");
+          tr.dataset.id = u.id;
+          if (u.id === selectedId) tr.classList.add("selected");
+          var cnt = countGrantedPages(u.permissions);
+          var cntLabel = cnt === 0 ? '<span style="color:#94a3b8;">0</span>' : '<strong>' + cnt + '</strong> / ' + PAGES.length;
+          tr.innerHTML =
+            "<td>" + escapeHtml(u.name) + "</td>" +
+            "<td>" + escapeHtml(u.email) + "</td>" +
+            "<td>" + cntLabel + "</td>";
+          tr.addEventListener("click", function () { selectUser(u.id); });
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderPermTable() {
+        var tbody = document.getElementById("perm-tbody");
+        tbody.innerHTML = "";
+        if (!draft) return;
+        var q = (document.getElementById("page-filter").value || "").trim().toLowerCase();
+        PAGES.forEach(function (p) {
+          if (q && (p.name + " " + p.path).toLowerCase().indexOf(q) < 0) return;
+          var row = draft[p.id] || emptyPerm();
+          var tr = document.createElement("tr");
+          tr.dataset.pageId = p.id;
+          tr.innerHTML =
+            "<td>" + escapeHtml(p.name) + "</td>" +
+            "<td><code style=\"font-size:11px;background:#f1f5f9;padding:2px 6px;border-radius:4px;\">" +
+            escapeHtml(p.path) + "</code></td>" +
+            PERM_ORDER.map(function (key) {
+              var id = "cb-" + p.id + "-" + key;
+              return "<td class=\"perm-col\"><input type=\"checkbox\" id=\"" + id + "\" data-page=\"" + p.id + "\" data-key=\"" + key + "\" " + (row[key] ? "checked" : "") + " /></td>";
+            }).join("");
+          tbody.appendChild(tr);
+        });
+      }
+
+      function selectUser(id) {
+        selectedId = id;
+        var u = getUser(id);
+        if (!u) return;
+        savedSnapshot = clonePerms(u.permissions);
+        draft = clonePerms(u.permissions);
+
+        document.getElementById("perm-empty").style.display = "none";
+        document.getElementById("perm-body").style.display = "block";
+        document.getElementById("perm-hint").textContent = u.name + " 님";
+        document.getElementById("p-name").textContent = u.name;
+        document.getElementById("p-email").textContent = u.email;
+        document.getElementById("page-filter").value = "";
+
+        renderPermTable();
+        setDirtyUi();
+        renderUsers();
+      }
+
+      function toggleColumn(key) {
+        if (!draft) return;
+        var visibleRows = Array.prototype.slice.call(document.querySelectorAll("#perm-tbody tr[data-page-id]"));
+        if (!visibleRows.length) return;
+        var allOn = visibleRows.every(function (tr) {
+          var pid = tr.getAttribute("data-page-id");
+          return draft[pid] && draft[pid][key];
+        });
+        visibleRows.forEach(function (tr) {
+          var pid = tr.getAttribute("data-page-id");
+          if (!draft[pid]) draft[pid] = emptyPerm();
+          draft[pid][key] = !allOn;
+        });
+        renderPermTable();
+        setDirtyUi();
+      }
+
+      function diffPerms(before, after) {
+        var lines = [];
+        PAGES.forEach(function (p) {
+          var a = after[p.id] || emptyPerm();
+          var b = before[p.id] || emptyPerm();
+          PERM_ORDER.forEach(function (key) {
+            if (!!a[key] !== !!b[key]) {
+              lines.push(p.name + " (" + p.path + ") · " + PERM_LABEL[key] + ": " + (b[key] ? "허용→거부" : "거부→허용"));
+            }
+          });
+        });
+        return lines;
+      }
+
+      function pushLog(type, detail) {
+        var u = getUser(selectedId);
+        historyLog.unshift({
+          at: nowStr(),
+          user: u ? u.email : "-",
+          type: type,
+          detail: detail
+        });
+        renderLog();
+      }
+
+      function renderLog() {
+        var tbody = document.getElementById("log-tbody");
+        var empty = document.getElementById("log-empty");
+        tbody.innerHTML = "";
+        if (!historyLog.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        historyLog.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + escapeHtml(row.at) + "</td>" +
+            "<td>" + escapeHtml(row.user) + "</td>" +
+            "<td>" + escapeHtml(row.type) + "</td>" +
+            "<td>" + escapeHtml(row.detail) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("user-filter").addEventListener("input", renderUsers);
+      document.getElementById("page-filter").addEventListener("input", function () {
+        renderPermTable();
+      });
+
+      document.getElementById("perm-tbody").addEventListener("change", function (e) {
+        var t = e.target;
+        if (!t || t.type !== "checkbox" || !draft) return;
+        var pid = t.getAttribute("data-page");
+        var key = t.getAttribute("data-key");
+        if (!pid || !key) return;
+        if (!draft[pid]) draft[pid] = emptyPerm();
+        draft[pid][key] = t.checked;
+        setDirtyUi();
+      });
+
+      document.getElementById("perm-table").addEventListener("click", function (e) {
+        var t = e.target;
+        if (t && t.getAttribute && t.getAttribute("data-toggle-col")) {
+          toggleColumn(t.getAttribute("data-toggle-col"));
+        }
+      });
+
+      document.getElementById("btn-save").addEventListener("click", function () {
+        if (!selectedId || !draft) return;
+        var u = getUser(selectedId);
+        if (!u) return;
+        var before = clonePerms(u.permissions);
+        var changes = diffPerms(before, draft);
+        if (!changes.length) {
+          alert("변경된 권한이 없습니다.");
+          return;
+        }
+        u.permissions = clonePerms(draft);
+        savedSnapshot = clonePerms(draft);
+        pushLog("페이지 권한 저장", changes.join(" | "));
+        setDirtyUi();
+        renderUsers();
+      });
+
+      document.getElementById("btn-revert").addEventListener("click", function () {
+        if (!selectedId || !savedSnapshot) return;
+        draft = clonePerms(savedSnapshot);
+        renderPermTable();
+        setDirtyUi();
+      });
+
+      renderUsers();
+      renderLog();
+    })();
+  </script>
+</body>
+</html>
