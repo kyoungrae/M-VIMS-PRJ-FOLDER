@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-018 사이트 팝업공지 관리 (프로토타입)</title>
+  <style>
+    /* new_vims sitePopupNotice* 레이아웃을 단일 파일에서 흉내 내는 최소 스타일 (실제 gi 전역 CSS 없음) */
+    :root {
+      --gi-border: #d8dee9;
+      --gi-bg: #f4f6f9;
+      --gi-title: #1e293b;
+      --gi-blue: #2563eb;
+      --gi-blue-hover: #1d4ed8;
+      --gi-muted: #64748b;
+      --gi-tag-blue-bg: #dbeafe;
+      --gi-tag-blue: #1d4ed8;
+      --gi-tag-gray-bg: #f1f5f9;
+      --gi-tag-gray: #475569;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--gi-bg); color: var(--gi-title); }
+    .ff-scope { max-width: 1200px; margin: 0 auto; padding: 16px 12px 40px; }
+    .ff-banner {
+      font-size: 12px; color: var(--gi-muted); margin-bottom: 12px; padding: 8px 12px;
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    }
+    .ff-banner code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+
+    .gi-article-content { background: #fff; border: 1px solid var(--gi-border); border-radius: 8px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06); padding: 0 0 16px; }
+    .gi-flex { display: flex; }
+    .gi-flex-center { align-items: center; justify-content: center; }
+    .gi-col-95 { width: 100%; }
+    .gi-row-90 { min-height: 400px; }
+    .gi-col-100 { width: 100%; }
+    .gi-row-100 { width: 100%; }
+    .gi-col-10 { padding: 20px 20px 8px; border-bottom: 1px solid var(--gi-border); }
+    .gi-page-title { margin: 0; font-size: 20px; font-weight: 700; text-align: center; }
+    .gi-col-90 { padding: 12px 16px 0; }
+
+    #search-area { padding: 8px 12px 16px; border-bottom: 1px solid #eef2f7; }
+    .gi-padding-left-right-20px { padding-left: 12px; padding-right: 12px; }
+    .gi-flex-space-around { flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; }
+    .gi-input-container { display: flex; flex-direction: column; gap: 4px; min-width: 160px; flex: 1; }
+    .gi-input-container-box-shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); border: 1px solid var(--gi-border); border-radius: 6px; padding: 8px 10px; background: #fff; }
+    .gi-input-label { font-size: 12px; color: var(--gi-muted); font-weight: 600; }
+    .gi-input { width: 100%; border: none; outline: none; font-size: 14px; padding: 4px 0; }
+    .gi-date-middle-symbol { color: var(--gi-muted); padding: 0 8px; font-size: 14px; }
+    .gi-btn-section { display: flex; gap: 8px; align-items: center; }
+    .gi-btn-reset, .gi-btn-search {
+      border: 1px solid var(--gi-border); border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff;
+    }
+    .gi-btn-search { background: var(--gi-blue); color: #fff; border-color: var(--gi-blue); }
+    .gi-btn-search:hover { background: var(--gi-blue-hover); }
+    .gi-btn-reset:hover { background: #f8fafc; }
+    .gi-btn { padding: 8px 18px; border-radius: 6px; border: 1px solid var(--gi-border); background: #fff; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .gi-float-right { float: right; }
+    .gi-col-30px { margin-top: 10px; padding: 0 12px; overflow: hidden; }
+
+    .ff-grid-wrap { padding: 8px 12px 0; overflow: auto; }
+    .ff-grid-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ff-grid-table th, .ff-grid-table td { border: 1px solid var(--gi-border); padding: 10px 8px; text-align: center; }
+    .ff-grid-table th { background: #f8fafc; color: var(--gi-muted); font-weight: 600; }
+    .ff-grid-table td.text-left { text-align: left; }
+    .ff-grid-table tr:hover { background: #f8fafc; }
+    .ff-grid-table button.gi-btn-mini { padding: 4px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--gi-blue); background: #fff; color: var(--gi-blue); cursor: pointer; }
+
+    /* 등록 / 상세 공통 */
+    .gi-grid-gap-10px-10px { display: flex; flex-direction: column; gap: 12px; }
+    .gi-padding-5px { padding: 4px; }
+    .gi-input-container-box-border { border: 1px solid var(--gi-border); border-radius: 4px; }
+    .gi-flex-center-left { align-items: center; justify-content: flex-start; gap: 8px; }
+    .gi-margin-left-20px { margin-left: 12px; }
+    .gi-layout-detail-title { background: #f1f5f9; font-weight: 700; font-size: 13px; padding: 12px; border: 1px solid var(--gi-border); border-right: none; }
+    .content-div { padding: 12px 16px; min-height: 200px; border: 1px solid var(--gi-border); border-top: none; background: #fff; }
+    .ff-content-textarea, .content-div textarea { width: 100%; min-height: 220px; border: none; resize: vertical; font-size: 14px; line-height: 1.5; outline: none; font-family: inherit; }
+    #detail-content-view img { max-width: 100%; height: auto; }
+    .gi-input-btn { padding: 8px 14px; border: 1px solid var(--gi-border); border-radius: 4px; background: #f8fafc; cursor: pointer; font-weight: 600; }
+    .gi-tag-blue, .gi-tag-gray {
+      display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; margin: 2px 4px 2px 0; font-weight: 600;
+    }
+    .gi-tag-blue { background: var(--gi-tag-blue-bg); color: var(--gi-tag-blue); }
+    .gi-tag-gray { background: var(--gi-tag-gray-bg); color: var(--gi-tag-gray); }
+
+    .gi-btn-back { background: #64748b; color: #fff; border: none; }
+    .gi-btn-register { background: var(--gi-blue); color: #fff; border: none; }
+    .gi-btn-blue { background: var(--gi-blue); color: #fff; border: none; }
+    .gi-btn-section.gi-flex-justify-content-center { justify-content: center; flex-wrap: wrap; gap: 10px; padding: 16px 0; }
+
+    .gi-span-container { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; }
+    .gi-span-container-box-border { border: 1px solid var(--gi-border); }
+    .gi-span-label { font-size: 12px; color: var(--gi-muted); font-weight: 600; }
+    .gi-span { font-size: 14px; font-weight: 600; min-height: 36px; display: block; }
+
+    /* 미리보기 (register와 동일 패턴) */
+    .popup { display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); }
+    .popup.is-open { display: block; }
+    #previewBox { position: absolute; overflow: auto; width: 100%; height: 100%; scrollbar-width: thin; }
+    #previewContent { background: #fff; position: absolute; border-radius: 8px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15); overflow: hidden; }
+
+    /* 그룹 선택 모달 */
+    .ff-modal-root { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 20px; }
+    .ff-modal-root.is-open { display: flex; }
+    .ff-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.45); }
+    .ff-modal-dialog { position: relative; z-index: 1; width: 100%; max-width: 520px; max-height: 80vh; background: #fff; border-radius: 8px; border: 1px solid var(--gi-border); display: flex; flex-direction: column; }
+    .ff-modal-hd { padding: 14px 16px; border-bottom: 1px solid var(--gi-border); font-weight: 700; }
+    .ff-modal-bd { padding: 12px 16px; overflow: auto; flex: 1; }
+    .ff-modal-ft { padding: 12px; border-top: 1px solid var(--gi-border); display: flex; justify-content: center; gap: 10px; }
+    .ff-group-list label { display: flex; gap: 10px; padding: 8px; border-bottom: 1px solid #eef2f7; cursor: pointer; font-size: 13px; }
+    .ff-hidden { display: none !important; }
+
+    /* 전역 Common.css(gi-*)와 충돌 방지: 라벨 absolute·고정 높이·% width 무력화 */
+    .ff-scope [class*="gi-row-"],
+    .ff-scope [class*="gi-col-"] {
+      width: auto !important;
+      height: auto !important;
+      min-height: 0;
+      flex: initial;
+    }
+    .ff-scope .gi-input-container,
+    .ff-scope .gi-span-container {
+      position: relative;
+      height: auto !important;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 10px 12px;
+      transform: none;
+    }
+    .ff-scope .gi-input-container::after,
+    .ff-scope .gi-select-container::after { display: none !important; }
+    .ff-scope .gi-input-label,
+    .ff-scope .gi-span-label,
+    .ff-scope label.gi-input-label,
+    .ff-scope label.gi-span-label {
+      position: static !important;
+      top: auto !important;
+      left: auto !important;
+      transform: none !important;
+      display: block;
+      margin: 0 0 4px;
+      color: var(--gi-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: default;
+      user-select: none;
+    }
+    .ff-scope .gi-input,
+    .ff-scope .gi-input[type="date"],
+    .ff-scope .gi-input[type="text"],
+    .ff-scope select.gi-input {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 34px;
+      padding: 6px 10px !important;
+      box-sizing: border-box;
+      border: 1px solid var(--gi-border);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 14px;
+    }
+    .ff-scope .gi-input[type="checkbox"] {
+      width: 18px !important;
+      height: 18px !important;
+      min-height: 18px;
+      padding: 0 !important;
+      flex-shrink: 0;
+    }
+    .ff-scope .gi-span {
+      display: block;
+      min-height: 0;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .ff-scope .gi-input-container.gi-flex-center-left,
+    .ff-scope .gi-input-container.ff-check-row {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 52px;
+    }
+    .ff-scope .gi-input-container.gi-flex-center-left .gi-input-label,
+    .ff-scope .gi-input-container.ff-check-row .gi-input-label {
+      margin: 0;
+    }
+
+    /* 목록 검색 */
+    .ff-search-area {
+      padding: 12px 16px 20px;
+      border-bottom: 1px solid #eef2f7;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+      background: #fff;
+    }
+    .ff-search-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 12px 16px;
+    }
+    .ff-search-field { flex: 1 1 200px; min-width: 180px; }
+    .ff-search-dates {
+      display: flex;
+      flex: 2 1 320px;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 280px;
+    }
+    .ff-search-dates .gi-input-container { flex: 1; min-width: 120px; }
+    .ff-search-actions {
+      display: flex;
+      flex-shrink: 0;
+      gap: 8px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .ff-grid-wrap { margin-top: 4px; padding: 0 12px; clear: both; position: relative; z-index: 1; }
+    .ff-list-footer { padding: 14px 16px 8px; text-align: right; clear: both; }
+    .ff-scope .gi-btn-reset {
+      border-color: var(--gi-blue);
+      color: var(--gi-blue);
+      background: #fff;
+    }
+
+    /* 팝업 옵션 패널 */
+    .ff-opt-panel {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      border: 1px solid var(--gi-border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .ff-opt-panel > .gi-layout-detail-title {
+      border: none;
+      border-right: 1px solid var(--gi-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+    }
+    .ff-opt-body { min-width: 0; }
+    .ff-opt-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      border-bottom: 1px solid var(--gi-border);
+      align-items: stretch;
+    }
+    .ff-opt-row.ff-opt-row-3 { grid-template-columns: 120px 1fr 80px; }
+    .ff-opt-row-label {
+      padding: 12px;
+      background: #f8fafc;
+      border-right: 1px solid var(--gi-border);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gi-muted);
+      display: flex;
+      align-items: center;
+    }
+    .ff-opt-row-value {
+      padding: 10px 12px;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ff-opt-row-value.ff-opt-row-value--tags { flex-direction: row; flex-wrap: wrap; align-items: center; }
+    .ff-opt-row-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px solid var(--gi-border);
+      padding: 8px;
+    }
+    .ff-opt-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--gi-border);
+    }
+    .ff-opt-grid-2 > .ff-field-cell {
+      border-right: 1px solid var(--gi-border);
+      border-bottom: 1px solid var(--gi-border);
+      padding: 10px 12px;
+      min-height: 68px;
+    }
+    .ff-opt-grid-2 > .ff-field-cell:nth-child(2n) { border-right: none; }
+    .ff-opt-grid-2 > .ff-field-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .ff-opt-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--gi-border);
+    }
+    .ff-opt-grid-4 > .ff-field-cell {
+      border-right: 1px solid var(--gi-border);
+      padding: 10px 12px;
+      min-height: 68px;
+    }
+    .ff-opt-grid-4 > .ff-field-cell:last-child { border-right: none; }
+    .ff-field-cell { display: flex; flex-direction: column; gap: 6px; }
+    .ff-field-cell .gi-input-label { margin-bottom: 0; }
+    .ff-opt-file-row {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ff-form-head {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .ff-form-head .gi-input-container-box-border {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 12px;
+    }
+    .ff-file-hint { font-size: 12px; color: var(--gi-muted); margin-top: 4px; }
+    .ff-detail-content { min-height: 120px; line-height: 1.5; }
+    .content-div .gi-input-label,
+    .content-div .gi-span-label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .ff-scope .content-div {
+      display: block;
+      padding: 12px 16px;
+    }
+    .ff-scope .ff-content-textarea,
+    .ff-scope .content-div textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 8px 10px !important;
+      border: 1px solid var(--gi-border);
+      border-radius: 4px;
+      resize: vertical;
+      font-size: 14px;
+      line-height: 1.5;
+      box-sizing: border-box;
+    }
+    .ff-scope input[type="file"] {
+      width: 100%;
+      padding: 4px 0 !important;
+      border: none !important;
+      min-height: auto;
+    }
+    .ff-scope .ff-opt-grid-2 .ff-field-cell.gi-span-container {
+      height: auto !important;
+      overflow: visible;
+    }
+    .ff-scope .gi-layout-detail-title.gi-flex-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ff-scope .gi-btn-mini {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid var(--gi-blue);
+      background: #fff;
+      color: var(--gi-blue);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="ff-scope">
+    <div class="ff-banner">
+      <strong>FF-ADM-018</strong> — <code>new_vims</code>의 <code>sitePopupNoticeList / Register / Detail</code> 화면 구조를 한 파일·목업 데이터로 조합했습니다. 실제 <code>formUtil</code>·그리드·Quill 없음.
+      <br />경로: <code>/page/user/ff-adm-018-popup-mgmt.html</code>
+    </div>
+
+    <!-- ========== 목록 (sitePopupNoticeList) ========== -->
+    <div id="view-list">
+      <article class="gi-article-content gi-col-95 gi-row-90">
+        <section class="gi-col-100 gi-row-100">
+          <header class="gi-flex gi-flex-center gi-col-10">
+            <h1 class="gi-page-title">사이트 팝업공지 관리</h1>
+          </header>
+          <article class="gi-col-90 gi-row-100">
+            <div id="search-area" class="ff-search-area">
+              <div class="ff-search-row">
+                <div class="ff-search-field">
+                  <div class="gi-input-container gi-input-container-box-shadow">
+                    <label for="cont1" class="gi-input-label" data-focus-label="false">제목</label>
+                    <input class="gi-input" type="text" id="cont1" name="cont1" autocomplete="off" />
+                  </div>
+                </div>
+                <div class="ff-search-dates">
+                  <div class="gi-input-container gi-input-container-box-shadow">
+                    <label for="from_date" class="gi-input-label" data-focus-label="false">작성 시작일</label>
+                    <input id="from_date" class="gi-input" type="date" name="from_date" />
+                  </div>
+                  <span class="gi-date-middle-symbol" style="padding-bottom:10px;">~</span>
+                  <div class="gi-input-container gi-input-container-box-shadow">
+                    <label for="to_date" class="gi-input-label" data-focus-label="false">작성 종료일</label>
+                    <input id="to_date" class="gi-input" type="date" name="to_date" />
+                  </div>
+                </div>
+                <div class="ff-search-actions">
+                  <button id="reset-btn" class="gi-btn-reset" type="button">초기화</button>
+                  <button id="search-btn" class="gi-btn-search" type="button">조회</button>
+                </div>
+              </div>
+            </div>
+            <div class="ff-grid-wrap">
+              <table class="ff-grid-table" id="list-table">
+                <thead>
+                  <tr>
+                    <th style="width:48px">No</th>
+                    <th>제목</th>
+                    <th>시작일자</th>
+                    <th>종료일자</th>
+                    <th>사용여부</th>
+                    <th>작성자</th>
+                    <th>작성일시</th>
+                    <th style="width:72px">상세</th>
+                  </tr>
+                </thead>
+                <tbody id="list-tbody"></tbody>
+              </table>
+              <p id="list-empty" class="ff-hidden" style="text-align:center;color:var(--gi-muted);padding:24px;">조회 결과가 없습니다.</p>
+            </div>
+            <div class="ff-list-footer">
+              <button id="register-btn" class="gi-btn" type="button">등록</button>
+            </div>
+          </article>
+        </section>
+      </article>
+    </div>
+
+    <!-- ========== 등록 (sitePopupNoticeRegister) ========== -->
+    <div id="view-register" class="ff-hidden">
+      <article class="gi-article-content gi-col-95 gi-row-90">
+        <section class="gi-col-100 gi-row-100">
+          <header class="gi-flex gi-flex-center gi-col-10">
+            <h1 class="gi-page-title">사이트 공지팝업 등록</h1>
+          </header>
+          <article class="gi-col-90 gi-row-100 gi-grid-gap-10px-10px">
+            <form id="sitePopupNoticeRegister" class="gi-row-100" onsubmit="return false;">
+              <div class="gi-row-100 gi-padding-5px">
+                <div class="gi-row-100 gi-grid-gap-10px-10px">
+                  <div class="ff-form-head">
+                    <div class="gi-input-container gi-input-container-box-border">
+                      <label for="reg-title" class="gi-input-label" data-focus-label="false">제목</label>
+                      <input class="gi-input" id="reg-title" type="text" autocomplete="off" />
+                    </div>
+                    <div class="gi-input-container gi-input-container-box-border ff-check-row">
+                      <input type="checkbox" id="reg-use-yn" class="gi-input" checked />
+                      <label for="reg-use-yn" class="gi-input-label" data-focus-label="false">사용여부</label>
+                    </div>
+                  </div>
+                  <div class="gi-input-container-box-border content-div">
+                    <label for="reg-content" class="gi-input-label" data-focus-label="false">내용 (HTML 가능)</label>
+                    <textarea id="reg-content" class="ff-content-textarea" placeholder="내용을 작성해 주세요"></textarea>
+                  </div>
+                  <div class="ff-opt-panel">
+                    <div class="gi-layout-detail-title gi-flex-center">팝업 옵션</div>
+                    <div class="ff-opt-body">
+                      <div class="ff-opt-row ff-opt-row-3">
+                        <div class="ff-opt-row-label">업무구분</div>
+                        <div class="ff-opt-row-value"><select id="reg-biz" class="gi-input"></select></div>
+                        <div></div>
+                      </div>
+                      <div class="ff-opt-row ff-opt-row-3">
+                        <div class="ff-opt-row-label">대상그룹</div>
+                        <div id="reg-target-group-div" class="ff-opt-row-value ff-opt-row-value--tags"></div>
+                        <div class="ff-opt-row-action"><button id="reg-select-group-btn" class="gi-input-btn" type="button">추가</button></div>
+                      </div>
+                      <div class="ff-opt-grid-2">
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-start-ymd" data-focus-label="false">시작일자</label><input class="gi-input" type="date" id="reg-start-ymd" /></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-end-ymd" data-focus-label="false">종료일자</label><input class="gi-input" type="date" id="reg-end-ymd" /></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-start-time" data-focus-label="false">시작시간</label><select class="gi-input" id="reg-start-time"></select></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-end-time" data-focus-label="false">종료시간</label><select class="gi-input" id="reg-end-time"></select></div>
+                      </div>
+                      <div class="ff-opt-grid-4">
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-left" data-focus-label="false">수평위치(%)</label><input class="gi-input" id="reg-left" maxlength="2" placeholder="10" /></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-top" data-focus-label="false">수직위치(%)</label><input class="gi-input" id="reg-top" maxlength="2" placeholder="5" /></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-width" data-focus-label="false">너비(px)</label><input class="gi-input" id="reg-width" maxlength="4" placeholder="400" /></div>
+                        <div class="ff-field-cell"><label class="gi-input-label" for="reg-height" data-focus-label="false">높이(px)</label><input class="gi-input" id="reg-height" maxlength="4" placeholder="320" /></div>
+                      </div>
+                      <div class="ff-opt-file-row">
+                        <label class="gi-input-label" for="reg-file" data-focus-label="false">팝업 이미지 파일</label>
+                        <input type="file" id="reg-file" accept="image/*" />
+                        <div id="reg-file-hint" class="ff-file-hint"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class="gi-btn-section gi-flex-justify-content-center">
+              <button id="reg-back-btn" class="gi-btn gi-btn-back" type="button">목록</button>
+              <button id="reg-preview-btn" class="gi-btn" type="button">미리보기</button>
+              <button id="reg-submit-btn" class="gi-btn gi-btn-register" type="button"><span id="reg-submit-label">등록</span></button>
+            </div>
+          </article>
+        </section>
+      </article>
+      <div id="previewPopup" class="popup">
+        <div id="previewContent">
+          <div id="previewBox"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 상세 (sitePopupNoticeDetail) ========== -->
+    <div id="view-detail" class="ff-hidden">
+      <article class="gi-article-content gi-col-95 gi-row-90">
+        <section class="gi-col-100 gi-row-100">
+          <header class="gi-flex gi-flex-center gi-col-10">
+            <h1 class="gi-page-title">사이트 공지팝업 상세</h1>
+          </header>
+          <article class="gi-col-90 gi-row-100 gi-grid-gap-10px-10px">
+            <div class="gi-row-100 gi-padding-5px">
+              <div class="ff-form-head">
+                <div class="gi-span-container gi-span-container-box-border">
+                  <label class="gi-span-label" data-focus-label="false">제목</label>
+                  <span class="gi-span" id="det-title"></span>
+                </div>
+                <div class="gi-input-container gi-input-container-box-border ff-check-row">
+                  <input type="checkbox" id="det-use-yn" disabled class="gi-input" />
+                  <label for="det-use-yn" class="gi-input-label" data-focus-label="false">사용여부</label>
+                </div>
+              </div>
+              <div class="gi-input-container-box-border content-div" style="margin-top:12px;">
+                <label class="gi-span-label" data-focus-label="false">내용</label>
+                <div id="detail-content-view" class="gi-row-100 ff-detail-content"></div>
+              </div>
+              <div class="ff-opt-panel" style="margin-top:12px;">
+                <div class="gi-layout-detail-title gi-flex-center">팝업 옵션</div>
+                <div class="ff-opt-body">
+                  <div class="ff-opt-row">
+                    <div class="ff-opt-row-label">업무구분</div>
+                    <div class="ff-opt-row-value"><span id="det-biz"></span></div>
+                  </div>
+                  <div class="ff-opt-row">
+                    <div class="ff-opt-row-label">대상그룹</div>
+                    <div id="det-target-group-div" class="ff-opt-row-value ff-opt-row-value--tags"></div>
+                  </div>
+                  <div class="ff-opt-grid-2">
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">시작일자</label><span class="gi-span" id="det-start"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">종료일자</label><span class="gi-span" id="det-end"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">시작시간</label><span class="gi-span" id="det-stime"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">종료시간</label><span class="gi-span" id="det-etime"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">수평(%)</label><span class="gi-span" id="det-left"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">수직(%)</label><span class="gi-span" id="det-top"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">너비(px)</label><span class="gi-span" id="det-width"></span></div>
+                    <div class="gi-span-container gi-span-container-box-border ff-field-cell"><label class="gi-span-label" data-focus-label="false">높이(px)</label><span class="gi-span" id="det-height"></span></div>
+                  </div>
+                  <div class="ff-opt-file-row">
+                    <strong>첨부 이미지:</strong> <span id="det-file"></span>
+                    <button type="button" class="gi-btn-mini" id="det-download-btn" style="margin-left:10px;">다운로드</button>
+                  </div>
+                </div>
+              </div>
+            </div>            <div class="gi-btn-section gi-flex-justify-content-center">
+              <button id="det-back-btn" class="gi-btn gi-btn-back" type="button">목록</button>
+              <button id="det-modify-btn" class="gi-btn gi-btn-blue" type="button">수정</button>
+              <button id="det-remove-btn" class="gi-btn gi-btn-blue" type="button">삭제</button>
+            </div>
+          </article>
+        </section>
+      </article>
+    </div>
+
+    <!-- 공지 대상 그룹 선택 팝업 -->
+    <div id="group-modal" class="ff-modal-root" aria-hidden="true">
+      <div class="ff-modal-backdrop" id="group-modal-bg"></div>
+      <div class="ff-modal-dialog">
+        <div class="ff-modal-hd">공지 대상 그룹 선택</div>
+        <div class="ff-modal-bd">
+          <div class="gi-flex" style="justify-content:flex-end;margin-bottom:10px;gap:8px;align-items:center;">
+            <input id="group-count" value="0개 선택" readonly style="text-align:right;padding:6px 10px;border:1px solid var(--gi-border);border-radius:6px;width:120px;" />
+            <button type="button" class="gi-btn-reset" id="group-reset-btn">초기화</button>
+          </div>
+          <div class="ff-group-list" id="group-check-list"></div>
+        </div>
+        <div class="ff-modal-ft">
+          <button type="button" class="gi-btn-search" id="group-add-btn">추가</button>
+          <button type="button" class="gi-btn" id="group-close-btn">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var BIZ = [
+        { cd: "POP_MAIN", nm: "메인 배너" },
+        { cd: "POP_LOGIN", nm: "로그인 전 안내" },
+        { cd: "POP_EVT", nm: "이벤트·공지" }
+      ];
+      var MOCK_GROUPS = [
+        { group_id: "G_ROOT", group_name: "전체", group_level: 0, top_group_id: "" },
+        { group_id: "G_ADM", group_name: "관리자", group_level: 1, top_group_id: "G_ROOT" },
+        { group_id: "G_OPS", group_name: "운영", group_level: 1, top_group_id: "G_ROOT" },
+        { group_id: "G_USR", group_name: "일반", group_level: 1, top_group_id: "G_ROOT" }
+      ];
+
+      var TIME_OPTIONS = [];
+      for (var h = 6; h <= 22; h++) {
+        var hh = (h < 10 ? "0" : "") + h;
+        TIME_OPTIONS.push({ v: hh + "00", l: hh + ":00" });
+      }
+
+      var nextId = 10;
+      var items = [];
+      var selectedId = null;
+      var regEditId = null;
+      var tempGroupPick = {};
+      var regTargetGroups = [];
+      var pendingFile = { name: "", mime: "", b64: "" };
+
+      function pad(n) { return n < 10 ? "0" + n : "" + n; }
+      function nowYmd() {
+        var d = new Date();
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+
+      function bizLabel(cd) {
+        var b = BIZ.find(function (x) { return x.cd === cd; });
+        return b ? b.nm + " (" + cd + ")" : cd;
+      }
+
+      function fillBizSelect(el) {
+        el.innerHTML = "<option value=\"\">— 선택 —</option>";
+        BIZ.forEach(function (b) {
+          var o = document.createElement("option");
+          o.value = b.cd;
+          o.textContent = b.nm;
+          el.appendChild(o);
+        });
+      }
+
+      function fillTimeSelects() {
+        ["reg-start-time", "reg-end-time"].forEach(function (id) {
+          var s = document.getElementById(id);
+          s.innerHTML = "";
+          TIME_OPTIONS.forEach(function (t) {
+            var o = document.createElement("option");
+            o.value = t.v;
+            o.textContent = t.l;
+            s.appendChild(o);
+          });
+        });
+      }
+
+      function initDummy() {
+        items = [
+          {
+            id: "1",
+            bizCd: "POP_MAIN",
+            title: "5월 시스템 점검 안내",
+            content: "<p><strong>점검</strong> 일시: 5/20 02:00~04:00</p>",
+            useYn: "1",
+            start_ymd: "2026-05-01",
+            end_ymd: "2026-05-31",
+            start_time_code: "0900",
+            end_time_code: "1800",
+            left: "10",
+            top: "8",
+            width: "420",
+            height: "320",
+            targetGroups: [{ group_id: "G_ROOT", group_name: "전체", group_level: 0 }],
+            imageFileName: "popup_may.png",
+            imageMime: "image/png",
+            imageDataBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+            system_create_userid: "admin",
+            system_create_date: "2026-05-01 09:00:00"
+          },
+          {
+            id: "2",
+            bizCd: "POP_LOGIN",
+            title: "개인정보 처리방침 개정",
+            content: "<p>로그인 시 확인해 주세요.</p>",
+            useYn: "1",
+            start_ymd: "2026-04-15",
+            end_ymd: "2026-06-30",
+            start_time_code: "0800",
+            end_time_code: "2000",
+            left: "15",
+            top: "12",
+            width: "360",
+            height: "300",
+            targetGroups: [
+              { group_id: "G_ADM", group_name: "관리자", group_level: 1 },
+              { group_id: "G_OPS", group_name: "운영", group_level: 1 }
+            ],
+            imageFileName: "privacy.png",
+            imageMime: "image/png",
+            imageDataBase64: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            system_create_userid: "operator",
+            system_create_date: "2026-04-20 14:22:00"
+          }
+        ];
+      }
+
+      function showView(name) {
+        document.getElementById("view-list").classList.toggle("ff-hidden", name !== "list");
+        document.getElementById("view-register").classList.toggle("ff-hidden", name !== "register");
+        document.getElementById("view-detail").classList.toggle("ff-hidden", name !== "detail");
+      }
+
+      function renderTags(container, groups) {
+        container.innerHTML = "";
+        (groups || []).forEach(function (g) {
+          var span = document.createElement("span");
+          var cls = Number(g.group_level) === 0 ? "gi-tag-blue" : "gi-tag-gray";
+          span.className = cls + " gi-col-24px";
+          span.textContent = g.group_name;
+          span.dataset.groupId = g.group_id;
+          span.dataset.groupLevel = g.group_level;
+          span.dataset.groupName = g.group_name;
+          container.appendChild(span);
+        });
+      }
+
+      function findList() {
+        var t = (document.getElementById("cont1").value || "").trim().toLowerCase();
+        var fd = document.getElementById("from_date").value;
+        var td = document.getElementById("to_date").value;
+        var rows = items.filter(function (it) {
+          if (t && it.title.toLowerCase().indexOf(t) < 0) return false;
+          if (fd && it.system_create_date.slice(0, 10) < fd) return false;
+          if (td && it.system_create_date.slice(0, 10) > td) return false;
+          return true;
+        });
+        var tbody = document.getElementById("list-tbody");
+        var empty = document.getElementById("list-empty");
+        tbody.innerHTML = "";
+        if (!rows.length) {
+          empty.classList.remove("ff-hidden");
+          return;
+        }
+        empty.classList.add("ff-hidden");
+        rows.forEach(function (it, idx) {
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + (idx + 1) + "</td>" +
+            "<td class=\"text-left\">" + escapeHtml(it.title) + "</td>" +
+            "<td>" + escapeHtml(it.start_ymd) + "</td>" +
+            "<td>" + escapeHtml(it.end_ymd) + "</td>" +
+            "<td>" + (it.useYn === "1" ? "사용" : "미사용") + "</td>" +
+            "<td>" + escapeHtml(it.system_create_userid) + "</td>" +
+            "<td>" + escapeHtml(it.system_create_date) + "</td>" +
+            "<td><button type=\"button\" class=\"gi-btn-mini\" data-id=\"" + escapeHtml(it.id) + "\">상세</button></td>";
+          tr.querySelector("button").addEventListener("click", function (e) {
+            e.stopPropagation();
+            openDetail(it.id);
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      function resetSearch() {
+        document.getElementById("cont1").value = "";
+        document.getElementById("from_date").value = "";
+        document.getElementById("to_date").value = "";
+        findList();
+      }
+
+      function openDetail(id) {
+        selectedId = id;
+        var it = items.find(function (x) { return x.id === id; });
+        if (!it) return;
+        document.getElementById("det-title").textContent = it.title;
+        document.getElementById("det-use-yn").checked = it.useYn === "1";
+        document.getElementById("detail-content-view").innerHTML = it.content || "";
+        document.getElementById("det-biz").textContent = bizLabel(it.bizCd);
+        renderTags(document.getElementById("det-target-group-div"), it.targetGroups);
+        document.getElementById("det-start").textContent = it.start_ymd;
+        document.getElementById("det-end").textContent = it.end_ymd;
+        document.getElementById("det-stime").textContent = (it.start_time_code || "").slice(0, 2) + ":" + (it.start_time_code || "").slice(2);
+        document.getElementById("det-etime").textContent = (it.end_time_code || "").slice(0, 2) + ":" + (it.end_time_code || "").slice(2);
+        document.getElementById("det-left").textContent = it.left;
+        document.getElementById("det-top").textContent = it.top;
+        document.getElementById("det-width").textContent = it.width;
+        document.getElementById("det-height").textContent = it.height;
+        document.getElementById("det-file").textContent = it.imageFileName || "(없음)";
+        showView("detail");
+      }
+
+      function readFile(f, cb) {
+        var fr = new FileReader();
+        fr.onload = function () {
+          var s = String(fr.result || "");
+          var i = s.indexOf(",");
+          cb(i >= 0 ? s.slice(i + 1) : s, f.type, f.name);
+        };
+        fr.onerror = function () { cb("", "", ""); };
+        fr.readAsDataURL(f);
+      }
+
+      function clearRegisterForm() {
+        regEditId = null;
+        var sl = document.getElementById("reg-submit-label");
+        if (sl) sl.textContent = "등록";
+        document.getElementById("reg-title").value = "";
+        document.getElementById("reg-content").value = "";
+        document.getElementById("reg-use-yn").checked = true;
+        document.getElementById("reg-start-ymd").value = "";
+        document.getElementById("reg-end-ymd").value = "";
+        document.getElementById("reg-biz").value = "";
+        document.getElementById("reg-left").value = "";
+        document.getElementById("reg-top").value = "";
+        document.getElementById("reg-width").value = "";
+        document.getElementById("reg-height").value = "";
+        document.getElementById("reg-file").value = "";
+        document.getElementById("reg-file-hint").textContent = "";
+        pendingFile = { name: "", mime: "", b64: "" };
+        regTargetGroups = [];
+        renderTags(document.getElementById("reg-target-group-div"), regTargetGroups);
+        fillTimeSelects();
+      }
+
+      function openRegisterForNew() {
+        regEditId = null;
+        clearRegisterForm();
+        var h = document.querySelector("#view-register .gi-page-title");
+        if (h) h.textContent = "사이트 공지팝업 등록";
+        showView("register");
+      }
+
+      function openRegisterForEdit() {
+        if (!selectedId) return;
+        var it = items.find(function (x) { return x.id === selectedId; });
+        if (!it) return;
+        regEditId = it.id;
+        var sl = document.getElementById("reg-submit-label");
+        if (sl) sl.textContent = "수정";
+        document.getElementById("reg-title").value = it.title;
+        document.getElementById("reg-content").value = it.content || "";
+        document.getElementById("reg-use-yn").checked = it.useYn === "1";
+        document.getElementById("reg-start-ymd").value = it.start_ymd;
+        document.getElementById("reg-end-ymd").value = it.end_ymd;
+        document.getElementById("reg-biz").value = it.bizCd;
+        document.getElementById("reg-start-time").value = it.start_time_code;
+        document.getElementById("reg-end-time").value = it.end_time_code;
+        document.getElementById("reg-left").value = it.left;
+        document.getElementById("reg-top").value = it.top;
+        document.getElementById("reg-width").value = it.width;
+        document.getElementById("reg-height").value = it.height;
+        regTargetGroups = JSON.parse(JSON.stringify(it.targetGroups || []));
+        renderTags(document.getElementById("reg-target-group-div"), regTargetGroups);
+        document.getElementById("reg-file").value = "";
+        pendingFile = { name: it.imageFileName, mime: it.imageMime, b64: it.imageDataBase64 };
+        document.getElementById("reg-file-hint").textContent = it.imageFileName ? "기존: " + it.imageFileName : "";
+        var h = document.querySelector("#view-register .gi-page-title");
+        if (h) h.textContent = "사이트 공지팝업 수정";
+        showView("register");
+      }
+
+      function validateRegister() {
+        if (!document.getElementById("reg-title").value.trim()) {
+          alert("제목은 필수입니다."); return false;
+        }
+        if (!document.getElementById("reg-content").value.trim()) {
+          alert("내용은 필수입니다."); return false;
+        }
+        if (!document.getElementById("reg-biz").value) {
+          alert("업무구분을 선택해 주세요."); return false;
+        }
+        if (!regTargetGroups.length) {
+          alert("대상 그룹을 한 개 이상 추가해 주세요."); return false;
+        }
+        if (!document.getElementById("reg-start-ymd").value || !document.getElementById("reg-end-ymd").value) {
+          alert("시작·종료일자는 필수입니다."); return false;
+        }
+        var w = parseInt(document.getElementById("reg-width").value, 10);
+        var h = parseInt(document.getElementById("reg-height").value, 10);
+        if (isNaN(w) || isNaN(h) || w < 300 || h < 300) {
+          alert("너비·높이는 300px 이상으로 입력해 주세요. (new_vims 검증과 동일 가정)");
+          return false;
+        }
+        if (!pendingFile.b64) {
+          alert("팝업 이미지 파일을 선택해 주세요."); return false;
+        }
+        var st = parseInt(document.getElementById("reg-start-time").value, 10);
+        var et = parseInt(document.getElementById("reg-end-time").value, 10);
+        if (st > et) {
+          alert("시작시간이 종료시간보다 클 수 없습니다."); return false;
+        }
+        return true;
+      }
+
+      function saveRegister() {
+        if (!validateRegister()) return;
+        var body = document.getElementById("reg-content").value.trim();
+        if (body.indexOf("<") < 0) body = "<p>" + escapeHtml(body) + "</p>";
+        var row = {
+          id: regEditId || String(++nextId),
+          bizCd: document.getElementById("reg-biz").value,
+          title: document.getElementById("reg-title").value.trim(),
+          content: body,
+          useYn: document.getElementById("reg-use-yn").checked ? "1" : "0",
+          start_ymd: document.getElementById("reg-start-ymd").value,
+          end_ymd: document.getElementById("reg-end-ymd").value,
+          start_time_code: document.getElementById("reg-start-time").value,
+          end_time_code: document.getElementById("reg-end-time").value,
+          left: document.getElementById("reg-left").value.trim(),
+          top: document.getElementById("reg-top").value.trim(),
+          width: document.getElementById("reg-width").value.trim(),
+          height: document.getElementById("reg-height").value.trim(),
+          targetGroups: JSON.parse(JSON.stringify(regTargetGroups)),
+          imageFileName: pendingFile.name,
+          imageMime: pendingFile.mime,
+          imageDataBase64: pendingFile.b64,
+          system_create_userid: regEditId ? (items.find(function (x) { return x.id === regEditId; }) || {}).system_create_userid || "admin" : "admin",
+          system_create_date: regEditId ? (items.find(function (x) { return x.id === regEditId; }) || {}).system_create_date : nowYmd() + " 00:00:00"
+        };
+        if (regEditId) {
+          var ix = items.findIndex(function (x) { return x.id === regEditId; });
+          if (ix >= 0) items[ix] = row;
+        } else {
+          items.push(row);
+        }
+        showView("list");
+        findList();
+      }
+
+      function preview() {
+        var w = parseInt(document.getElementById("reg-width").value, 10);
+        var h = parseInt(document.getElementById("reg-height").value, 10);
+        var l = document.getElementById("reg-left").value;
+        var t = document.getElementById("reg-top").value;
+        if (!l || !t || !w || !h) {
+          alert("수평·수직·너비·높이를 입력한 뒤 미리보기 해 주세요.");
+          return;
+        }
+        var box = document.getElementById("previewBox");
+        box.innerHTML = "";
+        var html = document.getElementById("reg-content").value.trim();
+        if (!html) html = "<p>(내용 없음)</p>";
+        var wrap = document.createElement("div");
+        wrap.className = "ql-editor";
+        wrap.style.padding = "12px";
+        wrap.innerHTML = html;
+        box.appendChild(wrap);
+        var pc = document.getElementById("previewContent");
+        pc.style.left = l + "%";
+        pc.style.top = t + "%";
+        pc.style.width = w + "px";
+        pc.style.height = h + "px";
+        document.getElementById("previewPopup").classList.add("is-open");
+      }
+
+      function buildGroupModal() {
+        var box = document.getElementById("group-check-list");
+        box.innerHTML = "";
+        tempGroupPick = {};
+        MOCK_GROUPS.forEach(function (g) {
+          var id = "gchk-" + g.group_id;
+          var lab = document.createElement("label");
+          lab.innerHTML =
+            "<input type=\"checkbox\" data-gid=\"" + escapeHtml(g.group_id) + "\" />" +
+            "<span><strong>" + escapeHtml(g.group_name) + "</strong> <small style=\"color:#94a3b8;\">" + escapeHtml(g.group_id) + " · L" + g.group_level + "</small></span>";
+          box.appendChild(lab);
+        });
+        box.querySelectorAll("input[type=\"checkbox\"]").forEach(function (cb) {
+          cb.addEventListener("change", function () {
+            var gid = cb.getAttribute("data-gid");
+            if (cb.checked) tempGroupPick[gid] = true; else delete tempGroupPick[gid];
+            var n = Object.keys(tempGroupPick).length;
+            document.getElementById("group-count").value = n + "개 선택";
+          });
+        });
+        document.getElementById("group-count").value = "0개 선택";
+        tempGroupPick = {};
+      }
+
+      function openGroupModal() {
+        buildGroupModal();
+        document.getElementById("group-modal").classList.add("is-open");
+      }
+      function closeGroupModal() {
+        document.getElementById("group-modal").classList.remove("is-open");
+      }
+
+      document.getElementById("search-btn").addEventListener("click", findList);
+      document.getElementById("reset-btn").addEventListener("click", resetSearch);
+      document.getElementById("register-btn").addEventListener("click", openRegisterForNew);
+
+      document.getElementById("reg-back-btn").addEventListener("click", function () {
+        document.getElementById("previewPopup").classList.remove("is-open");
+        showView("list");
+        findList();
+      });
+      document.getElementById("reg-preview-btn").addEventListener("click", preview);
+      document.getElementById("previewPopup").addEventListener("click", function (e) {
+        if (e.target.id === "previewPopup") document.getElementById("previewPopup").classList.remove("is-open");
+      });
+      document.getElementById("reg-submit-btn").addEventListener("click", saveRegister);
+
+      document.getElementById("reg-file").addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        if (!f) {
+          if (!regEditId) {
+            pendingFile = { name: "", mime: "", b64: "" };
+            document.getElementById("reg-file-hint").textContent = "";
+          }
+          return;
+        }
+        readFile(f, function (b64, mime, name) {
+          pendingFile = { name: name, mime: mime, b64: b64 };
+          document.getElementById("reg-file-hint").textContent = "선택: " + name;
+        });
+      });
+
+      document.getElementById("reg-select-group-btn").addEventListener("click", openGroupModal);
+      document.getElementById("group-modal-bg").addEventListener("click", closeGroupModal);
+      document.getElementById("group-close-btn").addEventListener("click", closeGroupModal);
+      document.getElementById("group-reset-btn").addEventListener("click", function () {
+        document.querySelectorAll("#group-check-list input[type=\"checkbox\"]").forEach(function (cb) { cb.checked = false; });
+        tempGroupPick = {};
+        document.getElementById("group-count").value = "0개 선택";
+      });
+      document.getElementById("group-add-btn").addEventListener("click", function () {
+        MOCK_GROUPS.forEach(function (g) {
+          if (!tempGroupPick[g.group_id]) return;
+          if (!regTargetGroups.some(function (x) { return x.group_id === g.group_id; })) {
+            regTargetGroups.push({ group_id: g.group_id, group_name: g.group_name, group_level: g.group_level });
+          }
+        });
+        renderTags(document.getElementById("reg-target-group-div"), regTargetGroups);
+        closeGroupModal();
+      });
+
+      document.getElementById("det-back-btn").addEventListener("click", function () {
+        showView("list");
+        findList();
+      });
+      document.getElementById("det-modify-btn").addEventListener("click", openRegisterForEdit);
+      document.getElementById("det-remove-btn").addEventListener("click", function () {
+        if (!selectedId || !confirm("삭제할까요?")) return;
+        items = items.filter(function (x) { return x.id !== selectedId; });
+        selectedId = null;
+        showView("list");
+        findList();
+      });
+      document.getElementById("det-download-btn").addEventListener("click", function () {
+        var it = items.find(function (x) { return x.id === selectedId; });
+        if (!it || !it.imageDataBase64) return;
+        var a = document.createElement("a");
+        a.href = "data:" + it.imageMime + ";base64," + it.imageDataBase64;
+        a.download = it.imageFileName || "popup.png";
+        a.click();
+      });
+
+      fillBizSelect(document.getElementById("reg-biz"));
+      fillTimeSelects();
+      initDummy();
+      findList();
+    })();
+  </script>
+</body>
+</html>

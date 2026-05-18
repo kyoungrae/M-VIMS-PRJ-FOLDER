@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-016 문자발송관리 (프로토타입)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #e1e6ef;
+      --text: #1c2434;
+      --muted: #5c677d;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --success: #0d9488;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(28, 36, 52, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
+    .module-tag {
+      display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--accent); background: var(--accent-soft); border: 1px solid #c7d7fe;
+      padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .breadcrumb span { color: #94a3b8; margin: 0 6px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .tab {
+      padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; background: transparent;
+      color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+    .panel { display: none; }
+    .panel.is-active { display: block; }
+
+    .card {
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 18px 16px; margin-bottom: 18px;
+    }
+    .card h2 { margin: 0 0 14px; font-size: 15px; font-weight: 700; }
+    .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+    .field input[type="text"],
+    .field input[type="datetime-local"],
+    .field textarea {
+      width: 100%; max-width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+      font-size: 13px; font-family: inherit;
+    }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .row-inline { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .radio-group label { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--text); margin-right: 14px; cursor: pointer; }
+    .btn {
+      border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-success { background: var(--success); color: #fff; }
+    .flow-mini {
+      font-size: 12px; color: var(--muted); padding: 10px 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);
+      margin-bottom: 16px; line-height: 1.6;
+    }
+
+    .user-pick {
+      border: 1px dashed var(--border); border-radius: var(--radius); padding: 14px; background: #fafbfc; margin-top: 8px;
+    }
+    .user-pick h3 { margin: 0 0 10px; font-size: 13px; }
+    .user-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .user-toolbar input { flex: 1; min-width: 160px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+    .user-list { max-height: 200px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+    .user-list label {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer;
+    }
+    .user-list label:hover { background: #f8fafc; }
+    .selected-recipients { font-size: 12px; color: var(--muted); margin-top: 8px; white-space: pre-wrap; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12px; }
+    .empty { color: var(--muted); font-size: 13px; padding: 16px 0; }
+    .note { font-size: 12px; color: var(--muted); padding: 12px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); }
+    .note code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="module-tag">FF-ADM-016 · M-VIMS (관리기능)</div>
+    <div class="breadcrumb">관리자 <span>›</span> 관리기능 <span>›</span> 문자발송관리</div>
+    <h1>문자발송관리</h1>
+    <p class="subtitle">
+      <strong>문자 발송</strong>: 신규 발송 → 발송 버튼 → 단건/다중 분기. 다중 시 단계명은 <strong>사용자 조회 및 다중 선택</strong> → 문자서비스 연계(가정) → 발송 이력 반영.<br />
+      <strong>발송 이력</strong>: 일자 입력 → 정보 검색 → 문자 발송 이력 조회.
+    </p>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab is-active" role="tab" aria-selected="true" data-tab="send">문자 발송</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-tab="history">발송 이력</button>
+    </div>
+
+    <!-- 문자 발송 -->
+    <div id="panel-send" class="panel is-active" role="tabpanel">
+      <div class="flow-mini">
+        시작 → 신규 발송(Y) → <strong>문자 발송 버튼</strong> → 문자 다중 전송 여부 —
+        <strong>N</strong>: 보내는 사람·받는 사람·메시지·실시간/예약 /
+        <strong>Y</strong>: <strong>사용자 조회 및 다중 선택</strong> → 보내는 사람·받는 사람 목록·메시지·실시간/예약 → 문자서비스 연계 → 발송 이력 → 종료
+      </div>
+
+      <section class="card">
+        <h2>문자 발송 <span class="hint">프로토타입: 실제 SMS 연동 없음</span></h2>
+
+        <div class="field">
+          <label>문자 다중 전송 여부</label>
+          <div class="row-inline radio-group">
+            <label><input type="radio" name="multi" value="N" checked /> 단건 (받는 사람 1명 직접 입력)</label>
+            <label><input type="radio" name="multi" value="Y" /> 다중 (<strong>사용자 조회 및 다중 선택</strong>)</label>
+          </div>
+        </div>
+
+        <div id="block-multi-users" class="user-pick" style="display:none;">
+          <h3>사용자 조회 및 다중 선택</h3>
+          <p class="hint" style="margin:0 0 10px;">기존 명칭 「문자 다중 전송 시 사용자 조회」를 본 문구로 정리한 화면입니다.</p>
+          <div class="user-toolbar">
+            <input type="text" id="user-q" placeholder="이름·전화번호 검색…" autocomplete="off" />
+            <button type="button" class="btn btn-secondary" id="btn-user-filter">조회</button>
+          </div>
+          <div class="user-list" id="user-list"></div>
+          <div class="selected-recipients" id="selected-preview">선택된 수신자가 없습니다.</div>
+        </div>
+
+        <div class="field">
+          <label for="sender">보내는 사람</label>
+          <input type="text" id="sender" placeholder="발신 번호 또는 명의" autocomplete="off" />
+        </div>
+
+        <div id="block-single-rcv" class="field">
+          <label for="receiver-one">받는 사람</label>
+          <input type="text" id="receiver-one" placeholder="01012345678" autocomplete="off" />
+        </div>
+
+        <div id="block-multi-rcv" class="field" style="display:none;">
+          <label>받는 사람 목록</label>
+          <textarea id="receiver-list" readonly rows="3" placeholder="위에서 사용자를 다중 선택하면 채워집니다."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="msg-body">메시지 내용</label>
+          <textarea id="msg-body" maxlength="2000" placeholder="SMS 본문"></textarea>
+        </div>
+
+        <div class="field">
+          <label>실시간 / 예약</label>
+          <div class="row-inline radio-group">
+            <label><input type="radio" name="sched" value="now" checked /> 실시간 발송</label>
+            <label><input type="radio" name="sched" value="later" /> 예약</label>
+          </div>
+          <input type="datetime-local" id="sched-at" style="margin-top:10px; max-width:280px; display:none; padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:13px;" />
+        </div>
+
+        <button type="button" class="btn btn-primary" id="btn-send">문자 발송 버튼 클릭</button>
+      </section>
+    </div>
+
+    <!-- 발송 이력 -->
+    <div id="panel-history" class="panel" role="tabpanel">
+      <div class="flow-mini">시작 → <strong>일자 입력</strong> → 정보 검색 → 문자 발송 이력 → 종료</div>
+
+      <section class="card">
+        <h2>발송 이력 조회 <span class="hint">일자 범위로 문자 발송 이력 검색</span></h2>
+        <div class="row-inline" style="margin-bottom:14px;">
+          <div class="field" style="margin:0; max-width:200px;">
+            <label for="h-from">시작 일자</label>
+            <input type="date" id="h-from" />
+          </div>
+          <div class="field" style="margin:0; max-width:200px;">
+            <label for="h-to">종료 일자</label>
+            <input type="date" id="h-to" />
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-history-search" style="align-self:flex-end;">정보 검색</button>
+        </div>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>발송일시</th>
+                <th>구분</th>
+                <th>보낸 사람</th>
+                <th>수신</th>
+                <th>메시지 요약</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+        <p id="history-empty" class="empty" style="margin:0;">조건을 입력하고 검색하거나, 아직 이력이 없습니다.</p>
+      </section>
+    </div>
+
+    <p class="note">
+      단일 HTML 프로토타입. 이 파일만 삭제하면 제거됩니다.<br />
+      <code>/page/user/ff-adm-016-sms-mgmt.html</code>
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var directoryUsers = [
+        { id: "u1", name: "김민수", phone: "010-1111-2222" },
+        { id: "u2", name: "이영희", phone: "010-3333-4444" },
+        { id: "u3", name: "박검사", phone: "010-5555-6666" },
+        { id: "u4", name: "최담당", phone: "010-7777-8888" }
+      ];
+      var selectedUserIds = {};
+      var historyRows = [
+        {
+          at: "2026-05-14T09:15:00.000Z",
+          kind: "다중·실시간",
+          sender: "M-VIMS (1544-0000)",
+          recv: "3명",
+          summary: "[M-VIMS] 검사 예약 안내: 5/16 14:00 정기검사 예약이 확정되었습니다."
+        },
+        {
+          at: "2026-05-13T11:42:22.000Z",
+          kind: "단건·실시간",
+          sender: "M-VIMS (1544-0000)",
+          recv: "010-3333-4444",
+          summary: "등록 서류 보완 요청: 제출 서류 중 차량등록원부 사본이 누락되었습니다."
+        },
+        {
+          at: "2026-05-12T08:00:00.000Z",
+          kind: "단건·예약",
+          sender: "시스템 (1588-0000)",
+          recv: "010-1111-2222",
+          summary: "월간 점검 안내: 5/15 02:00~04:00 일시적 서비스 중단 예정입니다."
+        },
+        {
+          at: "2026-05-10T16:20:00.000Z",
+          kind: "다중·실시간",
+          sender: "M-VIMS (1544-0000)",
+          recv: "4명",
+          summary: "공지: 개인정보 처리방침 개정 안내(2026.5.1 시행)."
+        },
+        {
+          at: "2026-04-28T13:05:30.000Z",
+          kind: "단건·실시간",
+          sender: "M-VIMS (1544-0000)",
+          recv: "010-5555-6666",
+          summary: "임시비밀번호 발급: 로그인 후 반드시 변경해 주세요."
+        }
+      ];
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+      function formatDisplay(iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return iso;
+        function z(n) { return n < 10 ? "0" + n : "" + n; }
+        return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + " " +
+          z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+      }
+      function datePart(iso) {
+        return iso.slice(0, 10);
+      }
+
+      function renderUserList(filter) {
+        var q = (filter || "").trim().toLowerCase();
+        var box = document.getElementById("user-list");
+        box.innerHTML = "";
+        directoryUsers.forEach(function (u) {
+          if (q && (u.name + u.phone).toLowerCase().indexOf(q) < 0) return;
+          var id = "chk-" + u.id;
+          var lab = document.createElement("label");
+          lab.innerHTML =
+            "<input type=\"checkbox\" data-id=\"" + escapeHtml(u.id) + "\" " + (selectedUserIds[u.id] ? "checked" : "") + " />" +
+            "<span><strong>" + escapeHtml(u.name) + "</strong> · " + escapeHtml(u.phone) + "</span>";
+          box.appendChild(lab);
+        });
+        box.querySelectorAll("input[type=\"checkbox\"]").forEach(function (cb) {
+          cb.addEventListener("change", function () {
+            var uid = cb.getAttribute("data-id");
+            if (cb.checked) selectedUserIds[uid] = true;
+            else delete selectedUserIds[uid];
+            syncRecipientList();
+          });
+        });
+      }
+
+      function syncRecipientList() {
+        var lines = [];
+        directoryUsers.forEach(function (u) {
+          if (selectedUserIds[u.id]) lines.push(u.name + " <" + u.phone + ">");
+        });
+        document.getElementById("receiver-list").value = lines.join("\n");
+        document.getElementById("selected-preview").textContent =
+          lines.length ? "선택 " + lines.length + "명: " + lines.join(", ") : "선택된 수신자가 없습니다.";
+      }
+
+      function updateMultiUi() {
+        var multi = document.querySelector("input[name=\"multi\"]:checked").value === "Y";
+        document.getElementById("block-multi-users").style.display = multi ? "block" : "none";
+        document.getElementById("block-single-rcv").style.display = multi ? "none" : "block";
+        document.getElementById("block-multi-rcv").style.display = multi ? "block" : "none";
+        if (!multi) {
+          selectedUserIds = {};
+          renderUserList(document.getElementById("user-q").value);
+          syncRecipientList();
+        } else {
+          renderUserList(document.getElementById("user-q").value);
+          syncRecipientList();
+        }
+      }
+
+      document.querySelectorAll("input[name=\"multi\"]").forEach(function (r) {
+        r.addEventListener("change", updateMultiUi);
+      });
+
+      document.getElementById("btn-user-filter").addEventListener("click", function () {
+        renderUserList(document.getElementById("user-q").value);
+      });
+
+      document.querySelectorAll("input[name=\"sched\"]").forEach(function (r) {
+        r.addEventListener("change", function () {
+          document.getElementById("sched-at").style.display =
+            document.querySelector("input[name=\"sched\"]:checked").value === "later" ? "inline-block" : "none";
+        });
+      });
+
+      document.querySelectorAll(".tab").forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          var id = tab.getAttribute("data-tab");
+          document.querySelectorAll(".tab").forEach(function (t) {
+            t.classList.toggle("is-active", t === tab);
+            t.setAttribute("aria-selected", t === tab ? "true" : "false");
+          });
+          document.querySelectorAll(".panel").forEach(function (p) {
+            p.classList.toggle("is-active", p.id === "panel-" + id);
+          });
+        });
+      });
+
+      document.getElementById("btn-send").addEventListener("click", function () {
+        var sender = (document.getElementById("sender").value || "").trim();
+        var body = (document.getElementById("msg-body").value || "").trim();
+        var multi = document.querySelector("input[name=\"multi\"]:checked").value === "Y";
+        var schedLater = document.querySelector("input[name=\"sched\"]:checked").value === "later";
+        var schedAt = document.getElementById("sched-at").value;
+
+        if (!sender || !body) {
+          alert("보내는 사람과 메시지 내용은 필수입니다.");
+          return;
+        }
+        var recipients = [];
+        if (multi) {
+          directoryUsers.forEach(function (u) {
+            if (selectedUserIds[u.id]) recipients.push(u.phone);
+          });
+          if (!recipients.length) {
+            alert("다중 발송일 때는 「사용자 조회 및 다중 선택」에서 수신자를 한 명 이상 선택해 주세요.");
+            return;
+          }
+        } else {
+          var one = (document.getElementById("receiver-one").value || "").trim();
+          if (!one) {
+            alert("받는 사람을 입력해 주세요.");
+            return;
+          }
+          recipients.push(one);
+        }
+        if (schedLater && !schedAt) {
+          alert("예약 발송일 때는 예약 일시를 선택해 주세요.");
+          return;
+        }
+
+        var sentAt = schedLater && schedAt ? new Date(schedAt).toISOString() : nowIso();
+        var kind = multi ? "다중" : "단건";
+        var recvLabel = multi ? recipients.length + "명" : recipients[0];
+        historyRows.unshift({
+          at: sentAt,
+          kind: kind + (schedLater ? "·예약" : "·실시간"),
+          sender: sender,
+          recv: recvLabel,
+          summary: body.length > 40 ? body.slice(0, 40) + "…" : body
+        });
+        pushLogTable();
+        alert("문자서비스 연계(가정) 완료. 발송 이력에 반영되었습니다.");
+        document.getElementById("msg-body").value = "";
+      });
+
+      function pushLogTable() {
+        var tbody = document.getElementById("history-tbody");
+        var empty = document.getElementById("history-empty");
+        tbody.innerHTML = "";
+        if (!historyRows.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        historyRows.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + escapeHtml(formatDisplay(row.at)) + "</td>" +
+            "<td>" + escapeHtml(row.kind) + "</td>" +
+            "<td>" + escapeHtml(row.sender) + "</td>" +
+            "<td>" + escapeHtml(row.recv) + "</td>" +
+            "<td>" + escapeHtml(row.summary) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+
+      function runHistorySearch() {
+        var from = document.getElementById("h-from").value;
+        var to = document.getElementById("h-to").value;
+        var tbody = document.getElementById("history-tbody");
+        var empty = document.getElementById("history-empty");
+        tbody.innerHTML = "";
+        var filtered = historyRows.filter(function (row) {
+          var d = datePart(row.at);
+          if (from && d < from) return false;
+          if (to && d > to) return false;
+          return true;
+        });
+        if (!filtered.length) {
+          empty.style.display = "block";
+          empty.textContent = from || to ? "해당 일자 범위에 이력이 없습니다." : "조건을 입력하고 검색하거나, 아직 이력이 없습니다.";
+          return;
+        }
+        empty.style.display = "none";
+        filtered.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + escapeHtml(formatDisplay(row.at)) + "</td>" +
+            "<td>" + escapeHtml(row.kind) + "</td>" +
+            "<td>" + escapeHtml(row.sender) + "</td>" +
+            "<td>" + escapeHtml(row.recv) + "</td>" +
+            "<td>" + escapeHtml(row.summary) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("btn-history-search").addEventListener("click", runHistorySearch);
+
+      renderUserList("");
+      updateMultiUi();
+      pushLogTable();
+    })();
+  </script>
+</body>
+</html>

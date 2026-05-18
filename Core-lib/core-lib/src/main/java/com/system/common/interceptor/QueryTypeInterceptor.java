@@ -17,9 +17,13 @@ import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /*
  * writer : 이경태
@@ -35,6 +39,9 @@ import java.util.Properties;
 })
 public class QueryTypeInterceptor implements Interceptor {
     private static final Logger logger = LoggerFactory.getLogger(QueryTypeInterceptor.class);
+    private static final Map<String, InterCeptorRemoveDataValueTransformFieldNameList> REMOVE_TRANSFORM_FIELDS =
+            Arrays.stream(InterCeptorRemoveDataValueTransformFieldNameList.values())
+                    .collect(Collectors.toUnmodifiableMap(Enum::name, Function.identity()));
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -113,13 +120,7 @@ public class QueryTypeInterceptor implements Interceptor {
 
     // Remove Annotation
     private static InterCeptorRemoveDataValueTransformFieldNameList findRemoveEnumConstant(String fieldName) {
-        for (InterCeptorRemoveDataValueTransformFieldNameList constant : InterCeptorRemoveDataValueTransformFieldNameList
-                .values()) {
-            if (constant.name().equals(fieldName)) {
-                return constant;
-            }
-        }
-        return null;
+        return REMOVE_TRANSFORM_FIELDS.get(fieldName);
     }
 
     // 데이터 가공 [삭제]

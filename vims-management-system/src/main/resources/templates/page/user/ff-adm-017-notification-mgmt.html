@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-017 알림관리(내/외부) (프로토타입)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #e1e6ef;
+      --text: #1c2434;
+      --muted: #5c677d;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --success: #0d9488;
+      --danger: #dc2626;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(28, 36, 52, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+    .module-tag {
+      display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--accent); background: var(--accent-soft); border: 1px solid #c7d7fe;
+      padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .breadcrumb span { color: #94a3b8; margin: 0 6px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+    .flow-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; font-size: 12px; }
+    .flow-step {
+      display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 999px; color: var(--muted);
+    }
+    .flow-step strong { color: var(--text); font-weight: 600; }
+    .flow-arrow { color: #cbd5e1; font-size: 11px; }
+    .card {
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 18px 16px; margin-bottom: 18px;
+    }
+    .card h2 { margin: 0 0 14px; font-size: 15px; font-weight: 700; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 140px; flex: 1; max-width: 220px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .field input, .field select, .field textarea {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-family: inherit; max-width: 100%;
+    }
+    .btn {
+      border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr[data-selectable]:hover { background: #f8fafc; cursor: pointer; }
+    tr.selected { background: var(--accent-soft); outline: 1px solid #bfdbfe; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .detail-row { margin-bottom: 10px; font-size: 13px; }
+    .detail-row label { color: var(--muted); display: block; font-size: 12px; margin-bottom: 4px; }
+    .detail-row .val { font-weight: 600; white-space: pre-wrap; }
+    .form-panel { border: 1px dashed var(--border); border-radius: var(--radius); padding: 16px; background: #fafbfc; }
+    .form-panel h3 { margin: 0 0 12px; font-size: 14px; }
+    .code-hint { font-size: 11px; color: #94a3b8; font-weight: 400; }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+    .log-table-wrap { max-height: 200px; overflow: auto; }
+    .note { font-size: 12px; color: var(--muted); padding: 12px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); }
+    .note code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+    .entry-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+
+    .ff-modal-root { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .ff-modal-root.is-open { display: flex; }
+    .ff-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.5); cursor: pointer; }
+    .ff-modal-dialog {
+      position: relative; z-index: 1; width: 100%; max-width: 640px; max-height: min(92vh, 900px);
+      display: flex; flex-direction: column; background: var(--card); border-radius: var(--radius);
+      border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28); overflow: hidden;
+    }
+    .ff-modal-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+    .ff-modal-title { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; }
+    .ff-modal-title .hint { display: block; margin-top: 4px; font-weight: 400; font-size: 12px; }
+    .ff-modal-close { width: 36px; height: 36px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-size: 22px; cursor: pointer; font-family: inherit; }
+    .ff-modal-close:hover { background: #e2e8f0; color: var(--text); }
+    .ff-modal-body { flex: 1; overflow: auto; padding: 16px 18px 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="module-tag">FF-ADM-017 · M-VIMS (관리기능)</div>
+    <div class="breadcrumb">관리자 <span>›</span> 관리기능 <span>›</span> 알림관리(내/외부)</div>
+    <h1>알림관리(내/외부)</h1>
+    <p class="subtitle">
+      흐름도 기준: 신규 등록 → 등록버튼 → 시작·종료일자·수수료·제목·내용·구분(공통코드)·알림 대상 사용자 그룹 → 알림정보 반영.
+      조회는 일자·제목·구분·알림 대상 그룹으로 검색(알림정보·공통코드·사용자 그룹 목업) 후 상세·수정·삭제(기존 정보 삭제).
+    </p>
+
+    <div class="flow-strip">
+      <div class="flow-step"><strong>1</strong> 신규?</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>Y</strong> 등록·알림정보</div>
+      <span class="flow-arrow">|</span>
+      <div class="flow-step"><strong>N</strong> 검색·상세</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>2</strong> 수정 / 삭제</div>
+    </div>
+
+    <div class="entry-btns">
+      <button type="button" class="btn btn-primary" id="btn-entry-new">신규 등록 (등록버튼)</button>
+      <button type="button" class="btn btn-secondary" id="btn-entry-search">조회·관리</button>
+    </div>
+
+    <section class="card">
+      <h2>정보 검색 <span class="hint">일자(기준일이 기간에 포함되는 알림), 제목, 구분, 알림 대상 그룹</span></h2>
+      <div class="toolbar">
+        <div class="field"><label for="q-day">일자</label><input type="date" id="q-day" /></div>
+        <div class="field"><label for="q-title">제목</label><input type="text" id="q-title" placeholder="검색어" autocomplete="off" /></div>
+        <div class="field">
+          <label for="q-cat">구분 <span class="code-hint">공통코드</span></label>
+          <select id="q-cat">
+            <option value="">전체</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="q-group">알림 대상 그룹</label>
+          <select id="q-group">
+            <option value="">전체</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-search">정보 검색</button>
+      </div>
+      <p id="search-msg" class="empty" style="margin:0; display:none;"></p>
+    </section>
+
+    <div class="grid-2">
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 결과</h2>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>제목</th>
+                <th>구분</th>
+                <th>대상 그룹</th>
+                <th>적용기간</th>
+              </tr>
+            </thead>
+            <tbody id="result-tbody"></tbody>
+          </table>
+        </div>
+        <p id="result-empty" class="empty" style="margin-bottom:0;">검색 결과가 없습니다.</p>
+      </section>
+
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 상세 <span class="hint" id="detail-hint">행 선택</span></h2>
+        <div id="detail-empty" class="empty">목록에서 알림을 선택하세요.</div>
+        <div id="detail-body" style="display:none;">
+          <div class="detail-row"><label>제목</label><div class="val" id="d-title"></div></div>
+          <div class="detail-row"><label>구분</label><div class="val" id="d-cat"></div></div>
+          <div class="detail-row"><label>알림 대상 사용자 그룹</label><div class="val" id="d-group"></div></div>
+          <div class="detail-row"><label>시작일자 / 종료일자</label><div class="val" id="d-period"></div></div>
+          <div class="detail-row"><label>수수료</label><div class="val" id="d-fee"></div></div>
+          <div class="detail-row"><label>내용</label><div class="val" id="d-content"></div></div>
+          <div class="toolbar" style="margin-top:14px;">
+            <button type="button" class="btn btn-success" id="btn-modify">수정버튼 클릭</button>
+            <button type="button" class="btn btn-danger" id="btn-delete">삭제버튼 클릭</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>작업 이력</h2>
+      <div class="log-table-wrap">
+        <table>
+          <thead><tr><th>일시</th><th>유형</th><th>내용</th></tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+      <p id="log-empty" class="empty" style="margin:0;">이력 없음</p>
+    </section>
+
+    <p class="note">단일 HTML 프로토타입. 이 파일만 삭제하면 제거됩니다.<br /><code>/page/user/ff-adm-017-notification-mgmt.html</code></p>
+  </div>
+
+  <div id="form-modal-root" class="ff-modal-root" aria-hidden="true">
+    <div class="ff-modal-backdrop" id="form-modal-backdrop"></div>
+    <div class="ff-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+      <div class="ff-modal-header">
+        <h2 class="ff-modal-title" id="form-modal-title">등록 / 수정 <span class="hint" id="form-mode-hint"></span></h2>
+        <button type="button" class="ff-modal-close" id="form-modal-x" aria-label="닫기">×</button>
+      </div>
+      <div class="ff-modal-body">
+        <div class="form-panel">
+          <h3>알림정보 입력 <span class="code-hint">구분·대상 그룹은 공통코드 / 사용자 그룹 목업</span></h3>
+          <div class="toolbar" style="align-items:stretch;">
+            <div class="field" style="max-width:100%;"><label for="f-start">시작일자</label><input type="date" id="f-start" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-end">종료일자</label><input type="date" id="f-end" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-fee">수수료</label><input type="number" id="f-fee" min="0" step="1" /></div>
+          </div>
+          <div class="field" style="max-width:100%; margin-top:12px;">
+            <label for="f-title">제목</label>
+            <input type="text" id="f-title" autocomplete="off" />
+          </div>
+          <div class="field" style="max-width:100%; margin-top:12px;">
+            <label for="f-content">내용</label>
+            <textarea id="f-content" rows="5"></textarea>
+          </div>
+          <div class="toolbar" style="margin-top:12px; align-items:stretch;">
+            <div class="field" style="max-width:100%;">
+              <label for="f-cat">구분 <span class="code-hint">공통코드</span></label>
+              <select id="f-cat"></select>
+            </div>
+            <div class="field" style="max-width:100%;">
+              <label for="f-group">알림 대상 사용자 그룹</label>
+              <select id="f-group"></select>
+            </div>
+          </div>
+          <div class="toolbar" style="margin-top:16px;">
+            <button type="button" class="btn btn-success" id="btn-submit">등록(수정)</button>
+            <button type="button" class="btn btn-ghost" id="btn-form-cancel">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var CATEGORIES = [
+        { cd: "NOTI_INT", nm: "내부 알림" },
+        { cd: "NOTI_EXT", nm: "외부 알림" },
+        { cd: "NOTI_SYS", nm: "시스템 공지" }
+      ];
+      var GROUPS = [
+        { id: "G_ADM", nm: "전체 관리자" },
+        { id: "G_OPS", nm: "운영 담당" },
+        { id: "G_USR", nm: "일반 사용자" },
+        { id: "G_ALL", nm: "전체 사용자" }
+      ];
+
+      function catLabel(cd) {
+        var c = CATEGORIES.find(function (x) { return x.cd === cd; });
+        return c ? c.nm + " (" + cd + ")" : cd;
+      }
+      function groupLabel(id) {
+        var g = GROUPS.find(function (x) { return x.id === id; });
+        return g ? g.nm + " (" + id + ")" : id;
+      }
+
+      function fillCategorySelect(sel, withAll) {
+        var s = document.getElementById(sel);
+        s.innerHTML = withAll ? "<option value=\"\">전체</option>" : "<option value=\"\">— 선택 —</option>";
+        CATEGORIES.forEach(function (c) {
+          var o = document.createElement("option");
+          o.value = c.cd;
+          o.textContent = c.nm + " — " + c.cd;
+          s.appendChild(o);
+        });
+      }
+      function fillGroupSelect(sel, withAll) {
+        var s = document.getElementById(sel);
+        s.innerHTML = withAll ? "<option value=\"\">전체</option>" : "<option value=\"\">— 선택 —</option>";
+        GROUPS.forEach(function (g) {
+          var o = document.createElement("option");
+          o.value = g.id;
+          o.textContent = g.nm + " — " + g.id;
+          s.appendChild(o);
+        });
+      }
+
+      var nextId = 10;
+      var items = [
+        {
+          id: "1",
+          startDate: "2026-05-01",
+          endDate: "2026-12-31",
+          fee: 0,
+          title: "시스템 정기 점검 안내",
+          content: "2026년 5월 20일 새벽 2시~4시 M-VIMS 점검 예정입니다.",
+          categoryCd: "NOTI_SYS",
+          targetGroupId: "G_ALL"
+        },
+        {
+          id: "2",
+          startDate: "2026-05-10",
+          endDate: "2026-05-31",
+          fee: 500,
+          title: "외부 기관 데이터 연계 지연",
+          content: "국세청 API 응답 지연이 발생할 수 있습니다. 재시도 정책을 확인하세요.",
+          categoryCd: "NOTI_EXT",
+          targetGroupId: "G_OPS"
+        },
+        {
+          id: "3",
+          startDate: "2026-04-01",
+          endDate: "2026-06-30",
+          fee: 0,
+          title: "내부 보안 정책 변경",
+          content: "VPN 필수 접속 구간이 확대됩니다. 자세한 내용은 내부 위키를 참고하세요.",
+          categoryCd: "NOTI_INT",
+          targetGroupId: "G_ADM"
+        }
+      ];
+
+      var historyLog = [];
+      var lastRows = [];
+      var selectedId = null;
+      var formMode = null;
+
+      function nowStr() {
+        var d = new Date();
+        function z(n) { return n < 10 ? "0" + n : "" + n; }
+        return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + " " + z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+      }
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+      function getRow(id) { return items.find(function (r) { return r.id === id; }); }
+
+      function pushLog(type, detail) {
+        historyLog.unshift({ at: nowStr(), type: type, detail: detail });
+        var tbody = document.getElementById("log-tbody");
+        var empty = document.getElementById("log-empty");
+        tbody.innerHTML = "";
+        empty.style.display = historyLog.length ? "none" : "block";
+        historyLog.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td>" + escapeHtml(row.at) + "</td><td>" + escapeHtml(row.type) + "</td><td>" + escapeHtml(row.detail) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+
+      function dayInRange(day, start, end) {
+        if (!day) return true;
+        return start <= day && day <= end;
+      }
+
+      function runSearch() {
+        var day = document.getElementById("q-day").value;
+        var qt = (document.getElementById("q-title").value || "").trim().toLowerCase();
+        var qc = document.getElementById("q-cat").value;
+        var qg = document.getElementById("q-group").value;
+        var msg = document.getElementById("search-msg");
+        msg.style.display = "none";
+
+        var rows = items.filter(function (it) {
+          if (!dayInRange(day, it.startDate, it.endDate)) return false;
+          if (qt && it.title.toLowerCase().indexOf(qt) < 0) return false;
+          if (qc && it.categoryCd !== qc) return false;
+          if (qg && it.targetGroupId !== qg) return false;
+          return true;
+        });
+        lastRows = rows;
+        renderTable();
+        clearDetail();
+        if (!rows.length) {
+          msg.style.display = "block";
+          msg.textContent = "조회 결과 유무: 없음 → 종료";
+        }
+      }
+
+      function renderTable() {
+        var tbody = document.getElementById("result-tbody");
+        var emptyEl = document.getElementById("result-empty");
+        tbody.innerHTML = "";
+        if (!lastRows.length) {
+          emptyEl.style.display = "block";
+          return;
+        }
+        emptyEl.style.display = "none";
+        lastRows.forEach(function (it) {
+          var tr = document.createElement("tr");
+          tr.setAttribute("data-selectable", "1");
+          tr.dataset.rowId = it.id;
+          if (it.id === selectedId) tr.classList.add("selected");
+          tr.innerHTML =
+            "<td>" + escapeHtml(it.title) + "</td>" +
+            "<td>" + escapeHtml(catLabel(it.categoryCd)) + "</td>" +
+            "<td>" + escapeHtml(groupLabel(it.targetGroupId)) + "</td>" +
+            "<td>" + escapeHtml(it.startDate) + " ~ " + escapeHtml(it.endDate) + "</td>";
+          tr.addEventListener("click", function () { selectDetail(it.id); });
+          tbody.appendChild(tr);
+        });
+      }
+
+      function selectDetail(id) {
+        selectedId = id;
+        var it = getRow(id);
+        if (!it) return;
+        document.getElementById("detail-empty").style.display = "none";
+        document.getElementById("detail-body").style.display = "block";
+        document.getElementById("detail-hint").textContent = it.title;
+        document.getElementById("d-title").textContent = it.title;
+        document.getElementById("d-cat").textContent = catLabel(it.categoryCd);
+        document.getElementById("d-group").textContent = groupLabel(it.targetGroupId);
+        document.getElementById("d-period").textContent = it.startDate + " ~ " + it.endDate;
+        document.getElementById("d-fee").textContent = it.fee.toLocaleString() + "원";
+        document.getElementById("d-content").textContent = it.content;
+        renderTable();
+      }
+
+      function clearDetail() {
+        selectedId = null;
+        document.getElementById("detail-empty").style.display = "block";
+        document.getElementById("detail-body").style.display = "none";
+        document.getElementById("detail-hint").textContent = "행 선택";
+        renderTable();
+      }
+
+      function openModal() {
+        var root = document.getElementById("form-modal-root");
+        root.classList.add("is-open");
+        root.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+      function closeModal() {
+        var root = document.getElementById("form-modal-root");
+        root.classList.remove("is-open");
+        root.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        formMode = null;
+      }
+
+      function openFormNew() {
+        formMode = "new";
+        document.getElementById("form-mode-hint").textContent = "신규 → 알림정보 저장";
+        fillCategorySelect("f-cat", false);
+        fillGroupSelect("f-group", false);
+        document.getElementById("f-start").value = "";
+        document.getElementById("f-end").value = "";
+        document.getElementById("f-fee").value = "0";
+        document.getElementById("f-title").value = "";
+        document.getElementById("f-content").value = "";
+        document.getElementById("f-cat").value = "";
+        document.getElementById("f-group").value = "";
+        openModal();
+        setTimeout(function () { document.getElementById("f-title").focus(); }, 0);
+      }
+
+      function openFormEdit() {
+        if (!selectedId) return;
+        var it = getRow(selectedId);
+        if (!it) return;
+        formMode = "edit";
+        document.getElementById("form-mode-hint").textContent = "수정 → 알림정보 반영";
+        fillCategorySelect("f-cat", false);
+        fillGroupSelect("f-group", false);
+        document.getElementById("f-start").value = it.startDate;
+        document.getElementById("f-end").value = it.endDate;
+        document.getElementById("f-fee").value = String(it.fee);
+        document.getElementById("f-title").value = it.title;
+        document.getElementById("f-content").value = it.content;
+        document.getElementById("f-cat").value = it.categoryCd;
+        document.getElementById("f-group").value = it.targetGroupId;
+        openModal();
+      }
+
+      fillCategorySelect("q-cat", true);
+      fillGroupSelect("q-group", true);
+
+      document.getElementById("btn-entry-new").addEventListener("click", openFormNew);
+      document.getElementById("btn-entry-search").addEventListener("click", function () {
+        closeModal();
+        document.getElementById("q-title").focus();
+      });
+      document.getElementById("btn-search").addEventListener("click", runSearch);
+      document.getElementById("btn-modify").addEventListener("click", openFormEdit);
+      document.getElementById("btn-delete").addEventListener("click", function () {
+        if (!selectedId) return;
+        if (!confirm("기존 정보를 삭제하고 알림정보를 갱신합니다. 계속할까요?")) return;
+        var it = getRow(selectedId);
+        var idx = items.findIndex(function (x) { return x.id === selectedId; });
+        if (idx >= 0) items.splice(idx, 1);
+        pushLog("알림 삭제", it ? it.title : selectedId);
+        selectedId = null;
+        runSearch();
+        clearDetail();
+      });
+
+      document.getElementById("btn-submit").addEventListener("click", function () {
+        var start = document.getElementById("f-start").value;
+        var end = document.getElementById("f-end").value;
+        var fee = parseInt(document.getElementById("f-fee").value, 10);
+        var title = (document.getElementById("f-title").value || "").trim();
+        var content = (document.getElementById("f-content").value || "").trim();
+        var cat = document.getElementById("f-cat").value;
+        var grp = document.getElementById("f-group").value;
+        if (!start || !end || !title || !content || !cat || !grp) {
+          alert("시작·종료일자, 제목, 내용, 구분, 알림 대상 그룹은 필수입니다.");
+          return;
+        }
+        if (isNaN(fee) || fee < 0) {
+          alert("수수료는 0 이상 숫자로 입력해 주세요.");
+          return;
+        }
+        if (formMode === "new") {
+          items.push({
+            id: String(++nextId),
+            startDate: start,
+            endDate: end,
+            fee: fee,
+            title: title,
+            content: content,
+            categoryCd: cat,
+            targetGroupId: grp
+          });
+          pushLog("알림 등록", title);
+        } else if (formMode === "edit" && selectedId) {
+          var p = getRow(selectedId);
+          if (!p) return;
+          p.startDate = start;
+          p.endDate = end;
+          p.fee = fee;
+          p.title = title;
+          p.content = content;
+          p.categoryCd = cat;
+          p.targetGroupId = grp;
+          pushLog("알림 수정", title);
+        }
+        closeModal();
+        runSearch();
+        if (selectedId && getRow(selectedId)) selectDetail(selectedId);
+      });
+
+      document.getElementById("btn-form-cancel").addEventListener("click", closeModal);
+      document.getElementById("form-modal-backdrop").addEventListener("click", closeModal);
+      document.getElementById("form-modal-x").addEventListener("click", closeModal);
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && document.getElementById("form-modal-root").classList.contains("is-open")) closeModal();
+      });
+
+      runSearch();
+    })();
+  </script>
+</body>
+</html>

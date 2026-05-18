@@ -71,6 +71,13 @@ db:
         maintenance:
             enabled: true  # DB파티너닝을 management system 에서만 동작 하도록 하기위함
 
+event-log:
+    executor:
+        core-pool-size: 2
+        max-pool-size: 5
+        queue-capacity: 1000
+    max-json-length: 8000
+
 mybatis:
     config-location: classpath:/mybatis-config.xml
     mapper-locations: classpath*:/mybatis*/**/*.xml
@@ -78,7 +85,8 @@ mybatis:
 logging:
     level:
         root: INFO
-        com: DEBUG
+        com: INFO
+        com.system.common.interceptor.EventLogInterceptor: WARN
         com.zaxxer.hikari: ERROR
         org.apache.ibatis: WARN
         java.sql: WARN

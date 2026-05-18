@@ -13,13 +13,17 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PreDestroy;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * CRUD 감사 로그 인터셉터
@@ -32,9 +36,24 @@ import java.util.concurrent.Executors;
 public class EventLogInterceptor implements Interceptor {
     private static final Logger logger = LoggerFactory.getLogger(EventLogInterceptor.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int DEFAULT_QUEUE_CAPACITY = 1000;
+    private static final int DEFAULT_MAX_JSON_LENGTH = 8000;
+    private static final long REJECTION_WARN_INTERVAL_MS = 60_000L;
+    private static final AtomicLong lastRejectWarnAt = new AtomicLong(0L);
 
-    // 로그 저장을 위한 전용 스레드 풀 (메인 비즈니스 로직에 영향을 주지 않음)
-    private final ExecutorService logExecutor = Executors.newFixedThreadPool(5);
+    @Value("${event-log.executor.core-pool-size:2}")
+    private int corePoolSize;
+
+    @Value("${event-log.executor.max-pool-size:5}")
+    private int maxPoolSize;
+
+    @Value("${event-log.executor.queue-capacity:" + DEFAULT_QUEUE_CAPACITY + "}")
+    private int queueCapacity;
+
+    @Value("${event-log.max-json-length:" + DEFAULT_MAX_JSON_LENGTH + "}")
+    private int maxJsonLength;
+
+    private volatile ThreadPoolExecutor logExecutor;
 
     @Autowired
     @Lazy
@@ -47,6 +66,11 @@ public class EventLogInterceptor implements Interceptor {
 
         // 1. 감사 로그 자체가 다시 기록되는 무한 루프 방지
         if (ms.getId().contains("SysEventLog")) {
+            return invocation.proceed();
+        }
+
+        String targetTable = extractTableName(ms);
+        if (isExcludedTable(targetTable)) {
             return invocation.proceed();
         }
 
@@ -117,7 +141,7 @@ public class EventLogInterceptor implements Interceptor {
                     org.apache.ibatis.session.RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER);
 
             if (list != null && !list.isEmpty()) {
-                String captured = objectMapper.writeValueAsString(list.get(0));
+                String captured = toLimitedJson(list.get(0));
                 logger.debug("EventLog: Successfully captured bfr_data from {}. Length: {}", selectMapperId,
                         captured.length());
                 return captured;
@@ -253,8 +277,7 @@ public class EventLogInterceptor implements Interceptor {
         }
         final String userRoles = userRolesTemp;
 
-        // 실제 저장은 스레드 풀에서 비동기로 처리 (성능 최적화 핵심)
-        logExecutor.execute(() -> {
+        getLogExecutor().execute(() -> {
             try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
                 Map<String, Object> logData = new HashMap<>();
                 logData.put("id", UUID.randomUUID().toString().replace("-", ""));
@@ -269,10 +292,10 @@ public class EventLogInterceptor implements Interceptor {
 
                 try {
                     if (parameter != null) {
-                        logData.put("aft_data", objectMapper.writeValueAsString(parameter));
+                        logData.put("aft_data", toLimitedJson(parameter));
                     }
                 } catch (Exception e) {
-                    logData.put("aft_data", parameter != null ? parameter.toString() : "");
+                    logData.put("aft_data", truncate(parameter != null ? parameter.toString() : ""));
                 }
 
                 sqlSession.insert("com.system.common.eventlog.SysEventLogMapper.INSERT", logData);
@@ -281,6 +304,68 @@ public class EventLogInterceptor implements Interceptor {
                 logger.error("Async EventLog INSERT failed: ", e);
             }
         });
+    }
+
+    private ThreadPoolExecutor getLogExecutor() {
+        ThreadPoolExecutor current = logExecutor;
+        if (current != null) {
+            return current;
+        }
+
+        synchronized (this) {
+            if (logExecutor == null) {
+                int safeCorePoolSize = Math.max(1, corePoolSize);
+                int safeMaxPoolSize = Math.max(safeCorePoolSize, maxPoolSize);
+                int safeQueueCapacity = Math.max(1, queueCapacity);
+
+                logExecutor = new ThreadPoolExecutor(
+                        safeCorePoolSize,
+                        safeMaxPoolSize,
+                        60L,
+                        TimeUnit.SECONDS,
+                        new ArrayBlockingQueue<>(safeQueueCapacity),
+                        runnable -> {
+                            Thread thread = new Thread(runnable, "event-log-writer");
+                            thread.setDaemon(true);
+                            return thread;
+                        },
+                        (runnable, executor) -> {
+                            long now = System.currentTimeMillis();
+                            long previous = lastRejectWarnAt.get();
+                            if (now - previous >= REJECTION_WARN_INTERVAL_MS
+                                    && lastRejectWarnAt.compareAndSet(previous, now)) {
+                                logger.warn(
+                                        "EventLog queue is full. Dropping audit log tasks to protect application CPU. active={}, queued={}, completed={}",
+                                        executor.getActiveCount(), executor.getQueue().size(),
+                                        executor.getCompletedTaskCount());
+                            }
+                        });
+            }
+            return logExecutor;
+        }
+    }
+
+    private String toLimitedJson(Object value) throws Exception {
+        return truncate(objectMapper.writeValueAsString(value));
+    }
+
+    private String truncate(String value) {
+        if (value == null) {
+            return null;
+        }
+        int safeMaxJsonLength = Math.max(0, maxJsonLength);
+        if (safeMaxJsonLength == 0 || value.length() <= safeMaxJsonLength) {
+            return value;
+        }
+        return value.substring(0, safeMaxJsonLength) + "...[truncated]";
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        ThreadPoolExecutor current = logExecutor;
+        if (current != null) {
+            current.shutdown();
+        }
     }
 
     private boolean isExcludedTable(String tableName) {

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-013 권한관리 (프로토타입)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #e1e6ef;
+      --text: #1c2434;
+      --muted: #5c677d;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --success: #0d9488;
+      --danger: #dc2626;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(28, 36, 52, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+    .module-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid #c7d7fe;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .breadcrumb span { color: #94a3b8; margin: 0 6px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+    .flow-step strong { color: var(--text); font-weight: 600; }
+    .flow-arrow { color: #cbd5e1; font-size: 11px; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      margin-bottom: 18px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 160px; flex: 1; max-width: 260px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .field input, .field textarea {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .field textarea { min-height: 72px; resize: vertical; max-width: 100%; }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr[data-selectable]:hover { background: #f8fafc; cursor: pointer; }
+    tr.selected { background: var(--accent-soft); outline: 1px solid #bfdbfe; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+    .badge-use { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-unused { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .detail-row { margin-bottom: 10px; font-size: 13px; }
+    .detail-row label { color: var(--muted); display: block; font-size: 12px; margin-bottom: 4px; }
+    .detail-row .val { font-weight: 600; white-space: pre-wrap; }
+    .menu-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .menu-chip {
+      font-size: 11px;
+      padding: 4px 8px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .form-panel {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fafbfc;
+      margin-top: 8px;
+    }
+    .form-panel h3 { margin: 0 0 12px; font-size: 14px; }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      max-height: 200px;
+      overflow: auto;
+      padding: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .menu-grid label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .menu-grid input { accent-color: var(--accent); }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+    .log-table-wrap { max-height: 220px; overflow: auto; margin-top: 8px; }
+    .note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px 14px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+    }
+    .note code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+    .entry-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .entry-btns .btn { min-width: 140px; }
+
+    /* 등록/수정: 뷰포트 중앙 고정 모달 (인라인 하단 삽입으로 레이아웃 깨짐 방지) */
+    .ff-modal-root {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .ff-modal-root.is-open {
+      display: flex;
+    }
+    .ff-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      cursor: pointer;
+    }
+    .ff-modal-dialog {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 680px;
+      max-height: min(92vh, 880px);
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+    }
+    .ff-modal-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .ff-modal-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .ff-modal-title .hint { display: block; margin-top: 4px; font-weight: 400; }
+    .ff-modal-close {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .ff-modal-close:hover { background: #e2e8f0; color: var(--text); }
+    .ff-modal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 18px 18px;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="module-tag">FF-ADM-013 · M-VIMS (시스템관리)</div>
+    <div class="breadcrumb">
+      관리자 <span>›</span> 관리기능 <span>›</span> 권한관리
+    </div>
+    <h1>권한관리</h1>
+    <p class="subtitle">
+      흐름도 기준: <strong>신규 등록</strong>(등록버튼 → 입력 → 권한정보 저장) 또는 <strong>조회·관리</strong>(권한 아이디·권한명 검색 → 상세 → 수정 / 삭제 시 코드 미사용 처리). 프로토타입은 브라우저 메모리만 사용합니다.
+    </p>
+
+    <div class="flow-strip" aria-label="프로세스 단계">
+      <div class="flow-step"><strong>1</strong> 시작</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>2</strong> 신규 등록?</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>Y</strong> 등록버튼·입력·저장</div>
+      <span class="flow-arrow">|</span>
+      <div class="flow-step"><strong>N</strong> 검색·결과·상세</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>3</strong> 수정 / 삭제(미사용)</div>
+    </div>
+
+    <div class="entry-btns">
+      <button type="button" class="btn btn-primary" id="btn-entry-new">신규 등록 (등록버튼 클릭)</button>
+      <button type="button" class="btn btn-secondary" id="btn-entry-search">조회·관리 (검색으로 진행)</button>
+    </div>
+
+    <section class="card" aria-labelledby="search-title">
+      <h2 id="search-title">정보 검색 <span class="hint">권한 아이디·권한명으로 권한정보 조회</span></h2>
+      <div class="toolbar">
+        <div class="field">
+          <label for="q-id">권한 아이디</label>
+          <input type="text" id="q-id" placeholder="예: PERM_SYS_ADMIN" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="q-name">권한명</label>
+          <input type="text" id="q-name" placeholder="예: 시스템" autocomplete="off" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-search">정보 검색</button>
+      </div>
+      <p id="search-msg" class="empty" style="margin:0; display:none;"></p>
+    </section>
+
+    <div class="grid-2">
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 결과 <span class="hint">행 선택 시 상세 확인</span></h2>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>권한 아이디</th>
+                <th>권한명</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="result-tbody"></tbody>
+          </table>
+        </div>
+        <p id="result-empty" class="empty" style="margin-bottom:0;">검색 전이거나 결과가 없습니다.</p>
+      </section>
+
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 상세 <span class="hint" id="detail-hint">목록에서 선택하세요.</span></h2>
+        <div id="detail-empty" class="empty">조회 결과가 있을 때 행을 클릭하면 상세가 표시됩니다.</div>
+        <div id="detail-body" style="display:none;">
+          <div class="detail-row"><label>권한 아이디</label><div class="val" id="d-id"></div></div>
+          <div class="detail-row"><label>권한명</label><div class="val" id="d-name"></div></div>
+          <div class="detail-row"><label>권한 별 메뉴</label><div class="menu-chips" id="d-menus"></div></div>
+          <div class="detail-row"><label>권한 상세내용</label><div class="val" id="d-detail"></div></div>
+          <div class="detail-row"><label>상태</label><div id="d-status"></div></div>
+          <div class="toolbar" style="margin-top:14px;">
+            <button type="button" class="btn btn-success" id="btn-modify">수정버튼 클릭</button>
+            <button type="button" class="btn btn-danger" id="btn-delete">삭제 (코드 미사용 처리)</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="log-title">
+      <h2 id="log-title">작업 이력 <span class="hint">저장·미사용 처리 시 기록</span></h2>
+      <div class="log-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>일시</th>
+              <th>유형</th>
+              <th>내용</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+      <p id="log-empty" class="empty" style="margin:0;">아직 이력이 없습니다.</p>
+    </section>
+
+    <p class="note">
+      단일 HTML 프로토타입입니다. 제거 시 이 파일만 삭제하면 됩니다.<br />
+      예시 경로: <code>/page/user/ff-adm-013-permission-mgmt.html</code> (컨텍스트·라우팅은 배포 설정에 따름)
+    </p>
+  </div>
+
+  <!-- 등록/수정: 본문 밖 고정 레이어로 중앙 표시 -->
+  <div id="form-modal-root" class="ff-modal-root" aria-hidden="true">
+    <div class="ff-modal-backdrop" id="form-modal-backdrop" tabindex="-1"></div>
+    <div class="ff-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+      <div class="ff-modal-header">
+        <h2 class="ff-modal-title" id="form-modal-title">
+          등록 / 수정
+          <span class="hint" id="form-mode-hint"></span>
+        </h2>
+        <button type="button" class="ff-modal-close" id="form-modal-x" aria-label="닫기">×</button>
+      </div>
+      <div class="ff-modal-body">
+        <div class="form-panel" style="margin-top:0;">
+          <h3>입력 항목</h3>
+          <div class="toolbar" style="align-items:stretch;">
+            <div class="field" style="max-width:100%;">
+              <label for="f-id">권한 아이디</label>
+              <input type="text" id="f-id" autocomplete="off" />
+            </div>
+            <div class="field" style="max-width:100%;">
+              <label for="f-name">권한명</label>
+              <input type="text" id="f-name" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field" style="max-width:100%; margin-top:12px;">
+            <label>권한 별 메뉴 (복수 선택)</label>
+            <div class="menu-grid" id="menu-grid"></div>
+          </div>
+          <div class="field" style="max-width:100%; margin-top:12px;">
+            <label for="f-detail">권한 상세내용</label>
+            <textarea id="f-detail" rows="4"></textarea>
+          </div>
+          <div class="toolbar" style="margin-top:16px;">
+            <button type="button" class="btn btn-success" id="btn-submit">등록(수정)</button>
+            <button type="button" class="btn btn-ghost" id="btn-form-cancel">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var MENU_OPTIONS = [
+        { id: "M_SYS_USER", label: "사용자 관리" },
+        { id: "M_SYS_MENU", label: "메뉴 설정" },
+        { id: "M_SYS_CODE", label: "공통코드" },
+        { id: "M_OPER_BOARD", label: "게시판 관리" },
+        { id: "M_OPER_NOTICE", label: "공지사항" },
+        { id: "M_SYS_LOG", label: "접속 로그" },
+        { id: "M_AUTH_ROLE", label: "권한 그룹" },
+        { id: "M_FILE_POLICY", label: "파일 정책" }
+      ];
+
+      var permissions = [
+        {
+          permId: "PERM_SYS_ADMIN",
+          permName: "시스템 전체 관리자",
+          menuIds: ["M_SYS_USER", "M_SYS_MENU", "M_SYS_CODE", "M_SYS_LOG", "M_AUTH_ROLE", "M_FILE_POLICY"],
+          detail: "시스템 관리 메뉴 전체 접근 및 설정 변경 가능.",
+          useYn: "Y"
+        },
+        {
+          permId: "PERM_OPER_ONLY",
+          permName: "운영 게시만",
+          menuIds: ["M_OPER_BOARD", "M_OPER_NOTICE"],
+          detail: "게시판·공지 관련 화면만 허용.",
+          useYn: "Y"
+        },
+        {
+          permId: "PERM_OLD_TMP",
+          permName: "구버전 임시 권한",
+          menuIds: ["M_SYS_CODE"],
+          detail: "더 이상 사용하지 않는 권한(미사용 처리 예시).",
+          useYn: "N"
+        }
+      ];
+
+      var historyLog = [];
+      var lastSearchRows = [];
+      var selectedPermId = null;
+      var formMode = null;
+
+      function nowStr() {
+        var d = new Date();
+        function z(n) { return n < 10 ? "0" + n : "" + n; }
+        return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + " " +
+          z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+
+      function getById(pid) {
+        return permissions.find(function (p) { return p.permId === pid; });
+      }
+
+      function menuLabel(mid) {
+        var m = MENU_OPTIONS.find(function (x) { return x.id === mid; });
+        return m ? m.label : mid;
+      }
+
+      function pushLog(type, detail) {
+        historyLog.unshift({ at: nowStr(), type: type, detail: detail });
+        var tbody = document.getElementById("log-tbody");
+        var empty = document.getElementById("log-empty");
+        tbody.innerHTML = "";
+        empty.style.display = "none";
+        historyLog.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + escapeHtml(row.at) + "</td>" +
+            "<td>" + escapeHtml(row.type) + "</td>" +
+            "<td>" + escapeHtml(row.detail) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderMenuGrid(selectedIds) {
+        var box = document.getElementById("menu-grid");
+        box.innerHTML = "";
+        var set = {};
+        (selectedIds || []).forEach(function (id) { set[id] = true; });
+        MENU_OPTIONS.forEach(function (m) {
+          var id = "mg-" + m.id;
+          var lab = document.createElement("label");
+          lab.innerHTML =
+            "<input type=\"checkbox\" value=\"" + escapeHtml(m.id) + "\" " + (set[m.id] ? "checked" : "") + " /> " +
+            "<span>" + escapeHtml(m.label) + " <small style=\"color:#94a3b8;\">(" + escapeHtml(m.id) + ")</small></span>";
+          box.appendChild(lab);
+        });
+      }
+
+      function readSelectedMenus() {
+        var ids = [];
+        document.querySelectorAll("#menu-grid input[type=\"checkbox\"]").forEach(function (cb) {
+          if (cb.checked) ids.push(cb.value);
+        });
+        return ids;
+      }
+
+      function renderResults(rows) {
+        lastSearchRows = rows;
+        var tbody = document.getElementById("result-tbody");
+        var emptyEl = document.getElementById("result-empty");
+        tbody.innerHTML = "";
+        if (!rows.length) {
+          emptyEl.style.display = "block";
+          emptyEl.textContent = "조회 결과가 없습니다. (미사용 권한은 검색 조건에 포함 시에만 표시됩니다)";
+          return;
+        }
+        emptyEl.style.display = "none";
+        rows.forEach(function (p) {
+          var tr = document.createElement("tr");
+          tr.setAttribute("data-selectable", "1");
+          tr.dataset.permId = p.permId;
+          if (p.permId === selectedPermId) tr.classList.add("selected");
+          var st = p.useYn === "Y"
+            ? "<span class=\"badge badge-use\">사용</span>"
+            : "<span class=\"badge badge-unused\">미사용</span>";
+          tr.innerHTML =
+            "<td>" + escapeHtml(p.permId) + "</td>" +
+            "<td>" + escapeHtml(p.permName) + "</td>" +
+            "<td>" + st + "</td>";
+          tr.addEventListener("click", function () { selectDetail(p.permId); });
+          tbody.appendChild(tr);
+        });
+      }
+
+      function selectDetail(permId) {
+        selectedPermId = permId;
+        var p = getById(permId);
+        if (!p) return;
+        document.getElementById("detail-empty").style.display = "none";
+        document.getElementById("detail-body").style.display = "block";
+        document.getElementById("detail-hint").textContent = p.permName;
+        document.getElementById("d-id").textContent = p.permId;
+        document.getElementById("d-name").textContent = p.permName;
+        var chips = document.getElementById("d-menus");
+        chips.innerHTML = "";
+        p.menuIds.forEach(function (mid) {
+          var span = document.createElement("span");
+          span.className = "menu-chip";
+          span.textContent = menuLabel(mid);
+          chips.appendChild(span);
+        });
+        document.getElementById("d-detail").textContent = p.detail || "(없음)";
+        var statusEl = document.getElementById("d-status");
+        statusEl.innerHTML = p.useYn === "Y"
+          ? "<span class=\"badge badge-use\">사용 중</span>"
+          : "<span class=\"badge badge-unused\">코드 미사용</span>";
+
+        document.getElementById("btn-modify").disabled = p.useYn !== "Y";
+        document.getElementById("btn-delete").disabled = p.useYn !== "Y";
+
+        renderResults(lastSearchRows);
+      }
+
+      function clearDetail() {
+        selectedPermId = null;
+        document.getElementById("detail-empty").style.display = "block";
+        document.getElementById("detail-body").style.display = "none";
+        document.getElementById("detail-hint").textContent = "목록에서 선택하세요.";
+        renderResults(lastSearchRows);
+      }
+
+      function doSearch() {
+        var qid = (document.getElementById("q-id").value || "").trim().toLowerCase();
+        var qnm = (document.getElementById("q-name").value || "").trim().toLowerCase();
+        var msg = document.getElementById("search-msg");
+        msg.style.display = "none";
+
+        var rows = permissions.filter(function (p) {
+          var idOk = !qid || p.permId.toLowerCase().indexOf(qid) >= 0;
+          var nmOk = !qnm || p.permName.toLowerCase().indexOf(qnm) >= 0;
+          if (!idOk || !nmOk) return false;
+          if (p.useYn === "N") {
+            return !!(qid || qnm);
+          }
+          return true;
+        });
+
+        if (!qid && !qnm) {
+          rows = permissions.filter(function (p) { return p.useYn === "Y"; });
+        }
+
+        renderResults(rows);
+        clearDetail();
+
+        if (!rows.length) {
+          msg.style.display = "block";
+          msg.textContent = "조회 결과 유무: 없음 → 종료(흐름도 상 N 분기)";
+        }
+      }
+
+      function openForm(mode, permId) {
+        formMode = mode;
+        var root = document.getElementById("form-modal-root");
+        var idInput = document.getElementById("f-id");
+        var nameInput = document.getElementById("f-name");
+        var detailInput = document.getElementById("f-detail");
+        document.getElementById("form-mode-hint").textContent =
+          mode === "new" ? "신규 → 권한정보 저장" : "수정 → 권한정보 반영";
+
+        if (mode === "new") {
+          idInput.value = "";
+          idInput.readOnly = false;
+          nameInput.value = "";
+          detailInput.value = "";
+          renderMenuGrid([]);
+        } else {
+          var p = getById(permId);
+          if (!p) return;
+          idInput.value = p.permId;
+          idInput.readOnly = true;
+          nameInput.value = p.permName;
+          detailInput.value = p.detail || "";
+          renderMenuGrid(p.menuIds.slice());
+        }
+        root.classList.add("is-open");
+        root.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        setTimeout(function () {
+          idInput.focus();
+        }, 0);
+      }
+
+      function closeForm() {
+        var root = document.getElementById("form-modal-root");
+        root.classList.remove("is-open");
+        root.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        formMode = null;
+      }
+
+      document.getElementById("btn-entry-new").addEventListener("click", function () {
+        openForm("new", null);
+      });
+
+      document.getElementById("btn-entry-search").addEventListener("click", function () {
+        closeForm();
+        document.getElementById("q-id").focus();
+      });
+
+      document.getElementById("btn-search").addEventListener("click", doSearch);
+
+      document.getElementById("btn-modify").addEventListener("click", function () {
+        if (!selectedPermId) return;
+        openForm("edit", selectedPermId);
+      });
+
+      document.getElementById("btn-delete").addEventListener("click", function () {
+        if (!selectedPermId) return;
+        var p = getById(selectedPermId);
+        if (!p || p.useYn !== "Y") return;
+        if (!confirm("삭제 시 권한정보를 코드 미사용 처리합니다. 계속할까요?")) return;
+        p.useYn = "N";
+        pushLog("코드 미사용 처리", "권한 아이디: " + p.permId + " → useYn=N");
+        doSearch();
+        var still = lastSearchRows.some(function (r) { return r.permId === selectedPermId; });
+        if (still && getById(selectedPermId)) selectDetail(selectedPermId);
+        else clearDetail();
+      });
+
+      document.getElementById("btn-submit").addEventListener("click", function () {
+        var idInput = document.getElementById("f-id");
+        var nameInput = document.getElementById("f-name");
+        var detailInput = document.getElementById("f-detail");
+        var pid = (idInput.value || "").trim();
+        var pname = (nameInput.value || "").trim();
+        var detail = (detailInput.value || "").trim();
+        var menus = readSelectedMenus();
+
+        if (!pid || !pname) {
+          alert("권한 아이디와 권한명은 필수입니다.");
+          return;
+        }
+        if (!menus.length) {
+          alert("권한 별 메뉴를 한 개 이상 선택해 주세요.");
+          return;
+        }
+
+        if (formMode === "new") {
+          if (getById(pid)) {
+            alert("이미 존재하는 권한 아이디입니다.");
+            return;
+          }
+          permissions.push({
+            permId: pid,
+            permName: pname,
+            menuIds: menus,
+            detail: detail,
+            useYn: "Y"
+          });
+          pushLog("권한정보 저장(등록)", pid + " / " + pname + " / 메뉴 " + menus.length + "건");
+        } else if (formMode === "edit") {
+          var p = getById(pid);
+          if (!p) return;
+          p.permName = pname;
+          p.menuIds = menus;
+          p.detail = detail;
+          p.useYn = "Y";
+          pushLog("권한정보 저장(수정)", pid + " / " + pname + " / 메뉴 " + menus.length + "건");
+        }
+        closeForm();
+        doSearch();
+        if (getById(pid)) selectDetail(pid);
+      });
+
+      document.getElementById("btn-form-cancel").addEventListener("click", closeForm);
+      document.getElementById("form-modal-backdrop").addEventListener("click", closeForm);
+      document.getElementById("form-modal-x").addEventListener("click", closeForm);
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && document.getElementById("form-modal-root").classList.contains("is-open")) {
+          closeForm();
+        }
+      });
+
+      doSearch();
+    })();
+  </script>
+</body>
+</html>

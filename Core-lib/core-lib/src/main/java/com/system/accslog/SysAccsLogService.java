@@ -3,21 +3,23 @@
  */
 package com.system.accslog;
 
-import com.system.common.base.AbstractCommonService;
-import com.system.common.exception.CustomException;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
+
+import com.system.common.base.AbstractCommonService;
+import com.system.common.exception.CustomException;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SysAccsLogService extends AbstractCommonService<SysAccsLog> {
     private final SysAccsLogMapper sysAccsLogMapper;
-    private final SysAccsLogRepository sysAccsLogRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

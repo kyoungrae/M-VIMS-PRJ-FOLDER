@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF-ADM-011 검사서비스 수수료 (프로토타입)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #e1e6ef;
+      --text: #1c2434;
+      --muted: #5c677d;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --success: #0d9488;
+      --danger: #dc2626;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(28, 36, 52, 0.08);
+      --font: "Segoe UI", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+    .module-tag {
+      display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--accent); background: var(--accent-soft); border: 1px solid #c7d7fe;
+      padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .breadcrumb span { color: #94a3b8; margin: 0 6px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+    .flow-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; font-size: 12px; }
+    .flow-step {
+      display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 999px; color: var(--muted);
+    }
+    .flow-step strong { color: var(--text); font-weight: 600; }
+    .flow-arrow { color: #cbd5e1; font-size: 11px; }
+    .card {
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 18px 16px; margin-bottom: 18px;
+    }
+    .card h2 { margin: 0 0 14px; font-size: 15px; font-weight: 700; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; }
+    .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 140px; flex: 1; max-width: 220px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .field input { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-family: inherit; max-width: 100%; }
+    .btn {
+      border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr[data-selectable]:hover { background: #f8fafc; cursor: pointer; }
+    tr.selected { background: var(--accent-soft); outline: 1px solid #bfdbfe; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+    .badge-y { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-n { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .detail-row { margin-bottom: 10px; font-size: 13px; }
+    .detail-row label { color: var(--muted); display: block; font-size: 12px; margin-bottom: 4px; }
+    .detail-row .val { font-weight: 600; }
+    .form-panel { border: 1px dashed var(--border); border-radius: var(--radius); padding: 16px; background: #fafbfc; }
+    .form-panel h3 { margin: 0 0 12px; font-size: 14px; }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+    .log-table-wrap { max-height: 200px; overflow: auto; }
+    .note { font-size: 12px; color: var(--muted); padding: 12px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); }
+    .note code { font-size: 11px; background: #fff7ed; padding: 2px 6px; border-radius: 4px; }
+    .entry-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .ff-modal-root { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .ff-modal-root.is-open { display: flex; }
+    .ff-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.5); cursor: pointer; }
+    .ff-modal-dialog {
+      position: relative; z-index: 1; width: 100%; max-width: 560px; max-height: min(92vh, 860px);
+      display: flex; flex-direction: column; background: var(--card); border-radius: var(--radius);
+      border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28); overflow: hidden;
+    }
+    .ff-modal-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+    .ff-modal-title { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; }
+    .ff-modal-title .hint { display: block; margin-top: 4px; font-weight: 400; font-size: 12px; }
+    .ff-modal-close { width: 36px; height: 36px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-size: 22px; cursor: pointer; font-family: inherit; }
+    .ff-modal-close:hover { background: #e2e8f0; color: var(--text); }
+    .ff-modal-body { flex: 1; overflow: auto; padding: 16px 18px 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="module-tag">FF-ADM-011 · M-VIMS (비용관리)</div>
+    <div class="breadcrumb">관리자 <span>›</span> 비용관리 <span>›</span> 검사서비스</div>
+    <h1>검사서비스 수수료 관리</h1>
+    <p class="subtitle">
+      등록서비스와 <strong>동일한 업무 흐름</strong>(FF-ADM-010과 동일 가정). 신규 등록·일자·코드·명 검색·상세·수정(미사용 후 재등록)·삭제(미사용). 프로토타입은 브라우저 메모리만 사용합니다.
+    </p>
+
+    <div class="flow-strip">
+      <div class="flow-step"><strong>1</strong> 신규?</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>Y</strong> 등록·저장</div>
+      <span class="flow-arrow">|</span>
+      <div class="flow-step"><strong>N</strong> 일자·코드·명 검색</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step"><strong>2</strong> 상세·수정/삭제</div>
+    </div>
+
+    <div class="entry-btns">
+      <button type="button" class="btn btn-primary" id="btn-entry-new">신규 등록 (등록버튼)</button>
+      <button type="button" class="btn btn-secondary" id="btn-entry-search">조회·관리</button>
+    </div>
+
+    <section class="card">
+      <h2>정보 검색 <span class="hint">시작·종료일자, 수수료 코드, 수수료명</span></h2>
+      <div class="toolbar">
+        <div class="field"><label for="q-start">시작일자</label><input type="date" id="q-start" /></div>
+        <div class="field"><label for="q-end">종료일자</label><input type="date" id="q-end" /></div>
+        <div class="field"><label for="q-code">수수료 코드</label><input type="text" id="q-code" placeholder="INSP001" autocomplete="off" /></div>
+        <div class="field"><label for="q-name">수수료명</label><input type="text" id="q-name" placeholder="종합검사" autocomplete="off" /></div>
+        <button type="button" class="btn btn-primary" id="btn-search">정보 검색</button>
+      </div>
+      <p id="search-msg" class="empty" style="margin:0; display:none;"></p>
+    </section>
+
+    <div class="grid-2">
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 결과 <span class="hint">사용 중(use) 우선 표시</span></h2>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>수수료 코드</th>
+                <th>수수료명</th>
+                <th>적용기간</th>
+                <th>수수료</th>
+                <th>부가세</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="result-tbody"></tbody>
+          </table>
+        </div>
+        <p id="result-empty" class="empty" style="margin-bottom:0;">검색 결과가 없습니다.</p>
+      </section>
+
+      <section class="card" style="margin-bottom:0;">
+        <h2>조회 상세 <span class="hint" id="detail-hint">행 선택</span></h2>
+        <div id="detail-empty" class="empty">목록에서 행을 선택하세요.</div>
+        <div id="detail-body" style="display:none;">
+          <div class="detail-row"><label>수수료 코드</label><div class="val" id="d-code"></div></div>
+          <div class="detail-row"><label>수수료명</label><div class="val" id="d-name"></div></div>
+          <div class="detail-row"><label>시작일자</label><div class="val" id="d-start"></div></div>
+          <div class="detail-row"><label>종료일자</label><div class="val" id="d-end"></div></div>
+          <div class="detail-row"><label>수수료 / 부가세</label><div class="val" id="d-fee-vat"></div></div>
+          <div class="detail-row"><label>상태</label><div id="d-status"></div></div>
+          <div class="toolbar" style="margin-top:14px;">
+            <button type="button" class="btn btn-success" id="btn-modify">수정 (미사용 처리 후 폼)</button>
+            <button type="button" class="btn btn-danger" id="btn-delete">삭제 (미사용)</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>수수료코드 변경 이력</h2>
+      <div class="log-table-wrap">
+        <table>
+          <thead><tr><th>일시</th><th>유형</th><th>내용</th></tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+      <p id="log-empty" class="empty" style="margin:0;">이력 없음</p>
+    </section>
+
+    <p class="note">단일 HTML 프로토타입. 삭제 시 이 파일만 제거.<br /><code>/page/user/ff-adm-011-insp-service-fee-mgmt.html</code></p>
+  </div>
+
+  <div id="form-modal-root" class="ff-modal-root" aria-hidden="true">
+    <div class="ff-modal-backdrop" id="form-modal-backdrop"></div>
+    <div class="ff-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+      <div class="ff-modal-header">
+        <h2 class="ff-modal-title" id="form-modal-title">등록 / 수정 <span class="hint" id="form-mode-hint"></span></h2>
+        <button type="button" class="ff-modal-close" id="form-modal-x" aria-label="닫기">×</button>
+      </div>
+      <div class="ff-modal-body">
+        <div class="form-panel">
+          <h3>수수료 코드 · 금액 · 기간</h3>
+          <div class="toolbar" style="align-items:stretch;">
+            <div class="field" style="max-width:100%;"><label for="f-code">수수료 코드</label><input type="text" id="f-code" autocomplete="off" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-name">수수료명</label><input type="text" id="f-name" autocomplete="off" /></div>
+          </div>
+          <div class="toolbar" style="margin-top:12px; align-items:stretch;">
+            <div class="field" style="max-width:100%;"><label for="f-start">시작일자</label><input type="date" id="f-start" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-end">종료일자</label><input type="date" id="f-end" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-fee">수수료</label><input type="number" id="f-fee" min="0" step="1" /></div>
+            <div class="field" style="max-width:100%;"><label for="f-vat">부가세</label><input type="number" id="f-vat" min="0" step="1" /></div>
+          </div>
+          <div class="toolbar" style="margin-top:16px;">
+            <button type="button" class="btn btn-success" id="btn-submit">등록(수정)</button>
+            <button type="button" class="btn btn-ghost" id="btn-form-cancel">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var nextId = 100;
+      var fees = [
+        { id: "1", feeCode: "INSP001", feeName: "종합검사 수수료", startDate: "2025-01-01", endDate: "2025-12-31", fee: 45000, vat: 4500, useYn: "Y" },
+        { id: "2", feeCode: "INSP002", feeName: "정기검사 수수료", startDate: "2025-01-01", endDate: "2025-12-31", fee: 35000, vat: 3500, useYn: "Y" }
+      ];
+      var historyLog = [];
+      var lastRows = [];
+      var selectedId = null;
+      var formMode = null;
+
+      function nowStr() {
+        var d = new Date();
+        function z(n) { return n < 10 ? "0" + n : "" + n; }
+        return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + " " + z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+      }
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+        });
+      }
+      function getRow(id) { return fees.find(function (r) { return r.id === id; }); }
+      function pushLog(type, detail) {
+        historyLog.unshift({ at: nowStr(), type: type, detail: detail });
+        var tbody = document.getElementById("log-tbody");
+        var empty = document.getElementById("log-empty");
+        tbody.innerHTML = "";
+        empty.style.display = historyLog.length ? "none" : "block";
+        historyLog.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td>" + escapeHtml(row.at) + "</td><td>" + escapeHtml(row.type) + "</td><td>" + escapeHtml(row.detail) + "</td>";
+          tbody.appendChild(tr);
+        });
+      }
+      function dateInRange(rowStart, rowEnd, qStart, qEnd) {
+        if (!qStart && !qEnd) return true;
+        if (qStart && rowEnd < qStart) return false;
+        if (qEnd && rowStart > qEnd) return false;
+        return true;
+      }
+      function runSearch() {
+        var qStart = document.getElementById("q-start").value;
+        var qEnd = document.getElementById("q-end").value;
+        var qc = (document.getElementById("q-code").value || "").trim().toLowerCase();
+        var qn = (document.getElementById("q-name").value || "").trim().toLowerCase();
+        var msg = document.getElementById("search-msg");
+        msg.style.display = "none";
+
+        var rows = fees.filter(function (f) {
+          if (!dateInRange(f.startDate, f.endDate, qStart, qEnd)) return false;
+          if (qc && f.feeCode.toLowerCase().indexOf(qc) < 0) return false;
+          if (qn && f.feeName.toLowerCase().indexOf(qn) < 0) return false;
+          return true;
+        });
+        rows.sort(function (a, b) {
+          if (a.useYn !== b.useYn) return a.useYn === "Y" ? -1 : 1;
+          return b.startDate.localeCompare(a.startDate);
+        });
+        lastRows = rows;
+        renderTable();
+        clearDetail();
+        if (!rows.length) {
+          msg.style.display = "block";
+          msg.textContent = "조회 결과 유무: 없음 → 종료";
+        }
+      }
+      function renderTable() {
+        var tbody = document.getElementById("result-tbody");
+        var emptyEl = document.getElementById("result-empty");
+        tbody.innerHTML = "";
+        if (!lastRows.length) {
+          emptyEl.style.display = "block";
+          return;
+        }
+        emptyEl.style.display = "none";
+        lastRows.forEach(function (f) {
+          var tr = document.createElement("tr");
+          tr.setAttribute("data-selectable", "1");
+          tr.dataset.rowId = f.id;
+          if (f.id === selectedId) tr.classList.add("selected");
+          var st = f.useYn === "Y" ? "<span class=\"badge badge-y\">사용</span>" : "<span class=\"badge badge-n\">미사용</span>";
+          tr.innerHTML =
+            "<td>" + escapeHtml(f.feeCode) + "</td>" +
+            "<td>" + escapeHtml(f.feeName) + "</td>" +
+            "<td>" + escapeHtml(f.startDate) + " ~ " + escapeHtml(f.endDate) + "</td>" +
+            "<td class=\"num\">" + escapeHtml(String(f.fee)) + "</td>" +
+            "<td class=\"num\">" + escapeHtml(String(f.vat)) + "</td>" +
+            "<td>" + st + "</td>";
+          tr.addEventListener("click", function () { selectDetail(f.id); });
+          tbody.appendChild(tr);
+        });
+      }
+      function selectDetail(id) {
+        selectedId = id;
+        var f = getRow(id);
+        if (!f) return;
+        document.getElementById("detail-empty").style.display = "none";
+        document.getElementById("detail-body").style.display = "block";
+        document.getElementById("detail-hint").textContent = f.feeName;
+        document.getElementById("d-code").textContent = f.feeCode;
+        document.getElementById("d-name").textContent = f.feeName;
+        document.getElementById("d-start").textContent = f.startDate;
+        document.getElementById("d-end").textContent = f.endDate;
+        document.getElementById("d-fee-vat").textContent = f.fee.toLocaleString() + "원 / 부가세 " + f.vat.toLocaleString() + "원";
+        document.getElementById("d-status").innerHTML = f.useYn === "Y"
+          ? "<span class=\"badge badge-y\">사용</span>" : "<span class=\"badge badge-n\">미사용</span>";
+        document.getElementById("btn-modify").disabled = f.useYn !== "Y";
+        document.getElementById("btn-delete").disabled = f.useYn !== "Y";
+        renderTable();
+      }
+      function clearDetail() {
+        selectedId = null;
+        document.getElementById("detail-empty").style.display = "block";
+        document.getElementById("detail-body").style.display = "none";
+        document.getElementById("detail-hint").textContent = "행 선택";
+        renderTable();
+      }
+      function openModal() {
+        var root = document.getElementById("form-modal-root");
+        root.classList.add("is-open");
+        root.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+      function closeModal() {
+        var root = document.getElementById("form-modal-root");
+        root.classList.remove("is-open");
+        root.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        formMode = null;
+      }
+      function openFormNew() {
+        formMode = "new";
+        document.getElementById("form-mode-hint").textContent = "신규 → 수수료 코드·이력 반영";
+        document.getElementById("f-code").value = "";
+        document.getElementById("f-code").readOnly = false;
+        document.getElementById("f-name").value = "";
+        document.getElementById("f-start").value = "";
+        document.getElementById("f-end").value = "";
+        document.getElementById("f-fee").value = "";
+        document.getElementById("f-vat").value = "";
+        openModal();
+        setTimeout(function () { document.getElementById("f-code").focus(); }, 0);
+      }
+      function openFormAfterUnused(f) {
+        formMode = "editNewVersion";
+        document.getElementById("form-mode-hint").textContent = "기존 건 미사용 처리됨 → 동일 코드로 재등록";
+        document.getElementById("f-code").value = f.feeCode;
+        document.getElementById("f-code").readOnly = true;
+        document.getElementById("f-name").value = f.feeName;
+        document.getElementById("f-start").value = f.startDate;
+        document.getElementById("f-end").value = f.endDate;
+        document.getElementById("f-fee").value = String(f.fee);
+        document.getElementById("f-vat").value = String(f.vat);
+        openModal();
+        setTimeout(function () { document.getElementById("f-start").focus(); }, 0);
+      }
+
+      document.getElementById("btn-entry-new").addEventListener("click", openFormNew);
+      document.getElementById("btn-entry-search").addEventListener("click", function () { closeModal(); document.getElementById("q-code").focus(); });
+      document.getElementById("btn-search").addEventListener("click", runSearch);
+      document.getElementById("btn-modify").addEventListener("click", function () {
+        if (!selectedId) return;
+        var f = getRow(selectedId);
+        if (!f || f.useYn !== "Y") return;
+        f.useYn = "N";
+        pushLog("코드 미사용 처리", f.feeCode + " (id=" + f.id + ") 수정 절차 시작");
+        openFormAfterUnused(f);
+        runSearch();
+        clearDetail();
+      });
+      document.getElementById("btn-delete").addEventListener("click", function () {
+        if (!selectedId) return;
+        var f = getRow(selectedId);
+        if (!f || f.useYn !== "Y") return;
+        if (!confirm("수수료 코드를 미사용 처리합니다. 계속할까요?")) return;
+        f.useYn = "N";
+        pushLog("삭제(미사용)", f.feeCode + " / " + f.feeName);
+        runSearch();
+        clearDetail();
+      });
+      document.getElementById("btn-submit").addEventListener("click", function () {
+        var code = (document.getElementById("f-code").value || "").trim();
+        var name = (document.getElementById("f-name").value || "").trim();
+        var start = document.getElementById("f-start").value;
+        var end = document.getElementById("f-end").value;
+        var fee = parseInt(document.getElementById("f-fee").value, 10);
+        var vat = parseInt(document.getElementById("f-vat").value, 10);
+        if (!code || !name || !start || !end) {
+          alert("수수료 코드, 수수료명, 시작·종료일자는 필수입니다.");
+          return;
+        }
+        if (isNaN(fee) || isNaN(vat) || fee < 0 || vat < 0) {
+          alert("수수료·부가세는 0 이상 숫자로 입력해 주세요.");
+          return;
+        }
+        if (formMode === "new") {
+          if (fees.some(function (x) { return x.feeCode === code && x.useYn === "Y"; })) {
+            alert("동일 수수료 코드로 사용 중인 건이 있습니다. 수정 흐름을 이용하세요.");
+            return;
+          }
+          fees.push({ id: String(++nextId), feeCode: code, feeName: name, startDate: start, endDate: end, fee: fee, vat: vat, useYn: "Y" });
+          pushLog("수수료코드 등록", code + " / " + name + " / " + start + "~" + end);
+        } else if (formMode === "editNewVersion") {
+          fees.push({ id: String(++nextId), feeCode: code, feeName: name, startDate: start, endDate: end, fee: fee, vat: vat, useYn: "Y" });
+          pushLog("수수료코드 등록(수정)", code + " / " + name + " / " + start + "~" + end + " (신규 버전)");
+        }
+        closeModal();
+        runSearch();
+      });
+      document.getElementById("btn-form-cancel").addEventListener("click", closeModal);
+      document.getElementById("form-modal-backdrop").addEventListener("click", closeModal);
+      document.getElementById("form-modal-x").addEventListener("click", closeModal);
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && document.getElementById("form-modal-root").classList.contains("is-open")) closeModal();
+      });
+
+      runSearch();
+    })();
+  </script>
+</body>
+</html>
