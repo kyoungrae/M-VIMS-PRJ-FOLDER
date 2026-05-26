@@ -3,7 +3,6 @@ package com.system.accslog;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,6 +18,7 @@ import java.util.Arrays;
 @SuperBuilder
 public class SysAccsLog extends Common {
     @Transient
+    @Builder.Default
     private String keys = Arrays
             .toString(new String[] { "id", "user_id", "sys_login_dt", "dev_type", "os_nm" });
 
