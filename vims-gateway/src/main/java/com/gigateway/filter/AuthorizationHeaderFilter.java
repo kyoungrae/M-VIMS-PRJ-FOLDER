@@ -91,7 +91,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                 if (request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     String authorizationHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
                     if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
-                        jwt = authorizationHeader.replace("Bearer", "").trim();
+                        // NOTE: prefix("Bearer")만 제거. replace 사용 시 토큰 내부의 동일 문자열까지 제거되는 문제 방지
+                        jwt = authorizationHeader.substring("Bearer".length()).trim();
                     }
                 }
 
@@ -101,10 +102,11 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                     if (cookie != null) {
                         String cookieVal = cookie.getValue();
                         // 쿠키 값에 Bearer prefix가 있을 수도 있고 없을 수도 있음.
-                        // URL 디코딩이 필요할 수도 있음 (Java의 Cookie는 기본적으로 인코딩됨).
-                        // 여기서는 단순 값 추출 후 Bearer 제거 시도
-                        jwt = cookieVal.replace("Bearer", "").trim();
-                        // 혹시 URL Encoding된 경우 체크 (선택사항, 필요시 Java.net.URLDecoder 사용)
+                        // prefix("Bearer")가 있으면 그 부분만 제거하고, 없으면 값을 그대로 사용
+                        if (cookieVal != null && cookieVal.startsWith("Bearer")) {
+                            cookieVal = cookieVal.substring("Bearer".length());
+                        }
+                        jwt = (cookieVal != null) ? cookieVal.trim() : null;
                     }
                 }
 

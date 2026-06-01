@@ -94,7 +94,9 @@ spring:
                 strip-version: NEVER_STRIP
 
 token:
-  secret: YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az # Login 서비스와 동일한 키 값 사용
+  # 운영 시 TOKEN_SECRET 환경변수로 주입 권장. 미설정 시 아래 기본값 사용(현행 동작 유지).
+  secret: ${TOKEN_SECRET:YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az} # Login 서비스와 동일한 키 값 사용
 
 gateway:
-  api-key: vims-internal-secret-key-1234 # 시스템 간 통신용 API KEY (운영 시 변경 필수)
+  # 운영 시 GATEWAY_API_KEY 환경변수로 주입 권장. 미설정 시 아래 기본값 사용.
+  api-key: ${GATEWAY_API_KEY:vims-internal-secret-key-1234} # 시스템 간 통신용 API KEY (운영 시 변경 필수)

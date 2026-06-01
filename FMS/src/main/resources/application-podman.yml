@@ -9,10 +9,10 @@ server:
 
 fms:
     internal:
-        api-key: "your-secure-internal-api-key-here"  # management와 동일한 키 사용
+        api-key: "${INTERNAL_API_KEY:your-secure-internal-api-key-here}"  # management와 동일한 키 사용
 
-# Token Secret key
-secret-key: YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az
+# Token Secret key (운영 시 TOKEN_SECRET 환경변수로 주입 권장)
+secret-key: ${TOKEN_SECRET:YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az}
 expiration-milliseconds: 36000000
 
 spring:
@@ -24,8 +24,8 @@ spring:
     datasource:
         # MariaDB JDBC URL - Podman 컨테이너 환경
         url: jdbc:mariadb://host.containers.internal:3306/NEW_MVIMS
-        username: mvims2
-        password: 1234
+        username: ${DB_USERNAME:mvims2}
+        password: ${DB_PASSWORD:1234}
         driver-class-name: org.mariadb.jdbc.Driver
 
         hikari:

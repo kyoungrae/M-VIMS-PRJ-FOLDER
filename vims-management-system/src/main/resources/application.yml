@@ -17,7 +17,8 @@ fms:
     service:
         url: http://localhost:8082  # FMS 서비스 주소
     internal:
-        api-key: "your-secure-internal-api-key-here"  # 내부 서비스 간 인증용 API 키
+        # 운영 시 INTERNAL_API_KEY 환경변수로 주입. FMS와 동일 값을 공유해야 함.
+        api-key: "${INTERNAL_API_KEY:your-secure-internal-api-key-here}"  # 내부 서비스 간 인증용 API 키
 
 spring:
     profiles:
@@ -29,8 +30,8 @@ spring:
     datasource:
         # MariaDB JDBC URL
         url: jdbc:mariadb://192.168.0.232:3306/NEW_MVIMS?autoReconnect=true&tcpKeepAlive=true
-        username: mvims2
-        password: 1234   # 비밀번호가 그대로라면 유지, 아니면 MariaDB용으로 변경
+        username: ${DB_USERNAME:mvims2}
+        password: ${DB_PASSWORD:1234}   # 운영 시 DB_PASSWORD 환경변수로 주입 권장
         driver-class-name: org.mariadb.jdbc.Driver
 
         hikari:

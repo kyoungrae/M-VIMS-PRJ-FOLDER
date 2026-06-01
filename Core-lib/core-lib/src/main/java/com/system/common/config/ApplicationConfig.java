@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -43,6 +44,11 @@ public class ApplicationConfig {
 
     @Bean
     public RestTemplate restTemplate(){
-        return new RestTemplate();
+        // NOTE: 무한 대기 방지. 다운스트림 지연이 호출 스레드를 묶어 연쇄 장애로 번지는 것을 막기 위해
+        //       connect/read 타임아웃을 명시한다. 필요 시 application.yml의 값으로 외부화 가능.
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000);  // 연결 타임아웃 3초
+        factory.setReadTimeout(10000);    // 응답 읽기 타임아웃 10초
+        return new RestTemplate(factory);
     }
 }

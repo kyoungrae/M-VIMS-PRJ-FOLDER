@@ -137,6 +137,18 @@ public class FileProcessManager implements FileProcessManagerImpl {
                 directoryPath = directory;
             }
 
+            // NOTE: 경로 조작(Path Traversal) 방어 - folder_name에 "../" 등이 포함되어
+            //       베이스 디렉터리 밖으로 벗어나는 경우를 차단한다. (정규화된 경로 기준 포함 검사)
+            File baseDir = new File(directory);
+            File targetDir = new File(directoryPath);
+            String baseCanonical = baseDir.getCanonicalPath();
+            String targetCanonical = targetDir.getCanonicalPath();
+            if (!targetCanonical.equals(baseCanonical)
+                    && !targetCanonical.startsWith(baseCanonical + File.separator)) {
+                throw new IOException("Invalid folder_name: path traversal detected");
+            }
+            directoryPath = targetCanonical;
+
             if (!isValidDirectory(directoryPath)) {
                 try {
                     Files.createDirectories(Paths.get(directoryPath));
@@ -152,6 +164,12 @@ public class FileProcessManager implements FileProcessManagerImpl {
                 if (!file.isEmpty()) {
                     System.out.println("file.getOriginalFilename():" + file.getOriginalFilename());
                     System.out.println("file.getSize():" + file.getSize());
+
+                    // NOTE: 최대 파일 크기 검증 복원. MAX_FILE_SZ가 0(프로퍼티 미설정)이면 검증을 건너뛴다.
+                    if (MAX_FILE_SZ > 0 && file.getSize() > MAX_FILE_SZ) {
+                        throw new IOException("File size exceeds the limit (" + MAX_FILE_SZ + " bytes): "
+                                + file.getOriginalFilename());
+                    }
 
                     UUID fileUUID = UUID.randomUUID();
                     Map<String, Object> map = new HashMap<>();

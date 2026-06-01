@@ -9,10 +9,11 @@ server:
 
 fms:
     internal:
-        api-key: "your-secure-internal-api-key-here"  # management와 동일한 키 사용
+        # 운영 시 INTERNAL_API_KEY 환경변수로 주입. management와 동일 값을 공유해야 함.
+        api-key: "${INTERNAL_API_KEY:your-secure-internal-api-key-here}"  # management와 동일한 키 사용
 
-# Token Secret key
-secret-key: YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az
+# Token Secret key (운영 시 TOKEN_SECRET 환경변수로 주입 권장)
+secret-key: ${TOKEN_SECRET:YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az}
 expiration-milliseconds: 36000000
 
 spring:
@@ -25,8 +26,8 @@ spring:
     datasource:
         # MariaDB JDBC URL
         url: jdbc:mariadb://192.168.0.232:3306/NEW_MVIMS
-        username: mvims2
-        password: 1234   # 비밀번호가 그대로라면 유지, 아니면 MariaDB용으로 변경
+        username: ${DB_USERNAME:mvims2}
+        password: ${DB_PASSWORD:1234}   # 운영 시 DB_PASSWORD 환경변수로 주입 권장
         driver-class-name: org.mariadb.jdbc.Driver
 
         hikari:

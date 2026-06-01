@@ -17,7 +17,7 @@ fms:
     service:
         url: http://host.containers.internal:9083  # FMS 서비스 주소 (호스트 매핑 포트)
     internal:
-        api-key: "your-secure-internal-api-key-here"
+        api-key: "${INTERNAL_API_KEY:your-secure-internal-api-key-here}"
 
 spring:
 
@@ -28,8 +28,8 @@ spring:
     datasource:
         # MariaDB JDBC URL - Podman 컨테이너 환경
         url: jdbc:mariadb://host.containers.internal:3306/NEW_MVIMS?autoReconnect=true&tcpKeepAlive=true
-        username: mvims2
-        password: 1234
+        username: ${DB_USERNAME:mvims2}
+        password: ${DB_PASSWORD:1234}
         driver-class-name: org.mariadb.jdbc.Driver
 
         hikari:

@@ -20,10 +20,10 @@ import java.util.function.Function;
 public class JwtService {
 
     private final String SECRET_KEY;
-    private final int expiration_milliseconds;
+    private final long expiration_milliseconds;
 
     JwtService(@Value("${secret-key}") String SECRET_KEY,
-            @Value("${expiration-milliseconds}") int expiration_milliseconds) {
+            @Value("${expiration-milliseconds}") long expiration_milliseconds) {
         this.SECRET_KEY = SECRET_KEY;
         this.expiration_milliseconds = expiration_milliseconds;
     }

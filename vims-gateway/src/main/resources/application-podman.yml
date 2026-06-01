@@ -53,7 +53,7 @@ spring:
                 rewrite-uri: http://210.168.92.92:2000/
 
 token:
-  secret: YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az
+  secret: ${TOKEN_SECRET:YeyKgN7Oa0dfKJCR0Xr3Sp45WdU8BCv2Zd0X6KxRTfFgfPZ3MH3xccjC3WCt90Az}
 
 gateway:
-  api-key: vims-internal-secret-key-1234
+  api-key: ${GATEWAY_API_KEY:vims-internal-secret-key-1234}
