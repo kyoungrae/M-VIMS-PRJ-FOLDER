@@ -3,6 +3,7 @@
 //Message.Label.Array = {};
 Message.Label.Array["SYS_OFFC.TITLE_DETAIL"] = "기관 상세";
 Message.Label.Array["SYS_OFFC.TITLE_LIST"] = "기관 목록";
+Message.Label.Array["SYS_OFFC.TITLE"] = "기관";
 Message.Label.Array["SYS_OFFC.SUB_TITLE"] = "지사 및 사무소 정보를 통합적으로 관리합니다.";
 Message.Label.Array["SYS_OFFC.TITLE_UPDATE"] = "기관 수정";
 Message.Label.Array["SYS_OFFC.TITLE_REGISTER"] = "기관 등록";

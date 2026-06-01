@@ -1,6 +1,7 @@
 //const Message = {};
 //Message.Label = {};
 //Message.Label.Array = {};
+Message.Label.Array["SYS_ACS_LOG.TITLE"] = "접속 로그";
 Message.Label.Array["SYS_ACS_LOG.TITLE_DETAIL"] = "사용자 접속 및 기기 통계 테이블 상세";
 Message.Label.Array["SYS_ACS_LOG.TITLE_LIST"] = "사용자 접속 및 기기 통계 테이블 목록";
 Message.Label.Array["SYS_ACS_LOG.TITLE_UPDATE"] = "사용자 접속 및 기기 통계 테이블 수정";

@@ -74,6 +74,32 @@ spring:
                 rewrite-uri: http://localhost:8080/
                 strip-version: NEVER_STRIP
 
+        # NOTE: 검사 서비스 라우팅 (vims-inspection)
+        - id: vims-inspection_route
+          uri: http://localhost:8086
+          predicates:
+            - Path=/inspection/**
+          filters:
+            - AddRequestHeader=X-Source, Gateway
+            - name: RewriteLocationResponseHeader
+              args:
+                name: Location
+                rewrite-uri: http://localhost:8080/
+                strip-version: NEVER_STRIP
+
+        # NOTE: 등록 서비스 라우팅 (vims-register)
+        - id: vims-register_route
+          uri: http://localhost:8085
+          predicates:
+            - Path=/register/**
+          filters:
+            - AddRequestHeader=X-Source, Gateway
+            - name: RewriteLocationResponseHeader
+              args:
+                name: Location
+                rewrite-uri: http://localhost:8080/
+                strip-version: NEVER_STRIP
+
         # NOTE: 대국민 웹 서비스 라우팅 (vims-web-app)
         - id: vims-web-app_route
           uri: http://localhost:8084

@@ -1,0 +1,67 @@
+server:
+    port: 8086
+    servlet:
+        context-path: /
+        encoding:
+            charset: UTF-8
+            enabled: true
+            force: true
+
+gateway:
+    url: http://localhost:8080
+
+spring:
+    profiles:
+        active: local
+    application:
+        name: vims-inspection
+    jackson:
+        property-naming-strategy: LOWER_CAMEL_CASE
+        date-format: yyyy-MM-dd HH:mm:ss
+        time-zone: Asia/Seoul
+    datasource:
+        url: jdbc:mariadb://192.168.0.232:3306/NEW_MVIMS?autoReconnect=true&tcpKeepAlive=true
+        username: ${DB_USERNAME:mvims2}
+        password: ${DB_PASSWORD:1234}
+        driver-class-name: org.mariadb.jdbc.Driver
+
+        hikari:
+            maximum-pool-size: 10
+            idle-timeout: 120000
+            max-lifetime: 180000
+            connection-timeout: 30000
+            keepalive-time: 60000
+
+    jpa:
+        show-sql: false
+        properties:
+            hibernate:
+                hbm2ddl:
+                    auto: none
+                format_sql: true
+                use_sql_comments: false
+        database: mysql
+        database-platform: org.hibernate.dialect.MariaDB103Dialect
+    thymeleaf:
+        cache: false
+        check-template-location: true
+        prefix: classpath:/templates/
+        suffix: .html
+    devtools:
+        livereload:
+            enabled: true
+        restart:
+            enabled: true
+    messages:
+        basename: exceptionMessage
+        encoding: UTF-8
+
+fms:
+    service:
+        url: http://localhost:8082
+    internal:
+        api-key: "${INTERNAL_API_KEY:your-secure-internal-api-key-here}"
+
+mybatis:
+    config-location: classpath:/mybatis-config.xml
+    mapper-locations: classpath*:/mybatis*/**/*.xml

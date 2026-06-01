@@ -1,6 +1,7 @@
 //const Message = {};
 //Message.Label = {};
 //Message.Label.Array = {};
+Message.Label.Array["SYS_ICON.TITLE"] = "아이콘";
 Message.Label.Array["SYS_ICON.TITLE_DETAIL"] = "아이콘 상세";
 Message.Label.Array["SYS_ICON.TITLE_LIST"] = "아이콘 목록";
 Message.Label.Array["SYS_ICON.TITLE_MODIFY"] = "아이콘 수정";
