@@ -45,7 +45,7 @@ class SecurityConfiguration {
                                 .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
                                                 .addLogoutHandler(logoutHandler)
                                                 .logoutSuccessHandler((request, response, authentication) -> {
-                                                        SecurityContextHolder.clearContext(); // 보안 컨텍스트를 클리어
+                                                        SecurityContextHolder.clearContext();
                                                         response.setStatus(302);
                                                         response.setHeader("Location", "/");
                                                 })

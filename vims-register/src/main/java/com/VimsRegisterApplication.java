@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-@EnableFeignClients(basePackages = "com.fmsClient")
+@EnableFeignClients(basePackages = "com.vims.fmsClient")
 public class VimsRegisterApplication {
 
 	public static void main(String[] args) {

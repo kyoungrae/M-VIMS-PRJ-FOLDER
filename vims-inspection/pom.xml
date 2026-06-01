@@ -169,13 +169,11 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
-		<!-- Core-lib (로컬 JAR) -->
+		<!-- Core-lib -->
 		<dependency>
 			<groupId>com.lib</groupId>
 			<artifactId>core-lib</artifactId>
 			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/lib/core-lib-1.0.jar</systemPath>
 		</dependency>
 
 		<!-- OpenFeign -->
@@ -201,9 +199,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<includeSystemScope>true</includeSystemScope>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

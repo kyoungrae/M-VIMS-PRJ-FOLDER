@@ -65,3 +65,11 @@ fms:
 mybatis:
     config-location: classpath:/mybatis-config.xml
     mapper-locations: classpath*:/mybatis*/**/*.xml
+
+logging:
+    level:
+        root: INFO
+        com.system: DEBUG
+        org.apache.ibatis: DEBUG
+        java.sql: DEBUG
+        org.springframework.jdbc: DEBUG

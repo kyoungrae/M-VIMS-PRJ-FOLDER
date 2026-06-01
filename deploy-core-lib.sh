@@ -70,7 +70,7 @@ if [ ! -f "$JAR_PATH" ]; then
 fi
 
 # lib 디렉토리 생성 및 배포
-for dir in vims-management-system vims-login FMS vims-web-app; do
+for dir in vims-management-system vims-login FMS vims-web-app vims-register vims-inspection; do
     mkdir -p "$PROJECT_ROOT/$dir/src/lib"
     echo "📦 $dir에 배포 중..."
     cp "$JAR_PATH" "$PROJECT_ROOT/$dir/src/lib/"
