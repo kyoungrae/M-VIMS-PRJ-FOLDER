@@ -1,16 +1,8 @@
 package com.system.common.db;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,9 +19,13 @@ public class DbPartitionService {
 
     private final DbPartitionMapper dbPartitionMapper;
 
+    /**
+     * 서버 시작 시 즉시 파티션 점검 및 생성
+     */
     @PostConstruct
     public void init() {
-        log.info("DbPartitionService Initialized! Automated partition maintenance is active.");
+        log.info("DbPartitionService initialized. Running startup partition check...");
+        maintainPartitions();
     }
 
     /**
