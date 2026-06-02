@@ -3837,7 +3837,8 @@
 
 .gi-grid-hierarchy-depth2::before {
     width: 44px;
-    height: 100%;
+    /* height: 100%; */
+    height: 48px !important;
     margin-right: 8px;
 }
 
@@ -4604,9 +4605,10 @@
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before {
     left: 18px;
-    top: 0;
+    top: -12px;
     bottom: 0;
     border-left: 1px solid #cbd5e1;
+    height: 48px;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after {
@@ -4622,7 +4624,7 @@
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before {
     left: 0;
-    top: 0;
+    top: -12px;
     bottom: 0;
     width: 42px;
     background:
@@ -4655,6 +4657,7 @@
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] .gi-tree-toggle {
     flex: 0 0 20px;
+    padding-left:4px;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] > span,
