@@ -1,0 +1,1218 @@
+<style>
+    .gi-popup-body {
+        height: 450px !important;
+    }
+
+    #menuSettingsV2Layout.gi-layout-master-detail {
+        min-height: calc(100vh - 220px);
+    }
+</style>
+<article class="gi-article-content gi-col-95 gi-row-100 gi-menu-v2-page">
+    <section class="gi-col-100 gi-row-100 gi-flex gi-flex-column">
+        <header class="gi-menu-v2-page-header gi-col-auto">
+            <div class="gi-menu-v2-breadcrumb">[Page.Message].Message.Label.Array["SYS_MENU.TITLE_LIST"]</div>
+            <h1 class="gi-page-title gi-menu-v2-title">[Page.Message].Message.Label.Array["SYS_MENU.TITLE_LIST"]</h1>
+            <p class="gi-menu-v2-subtitle">[Page.Message].Message.Label.Array["SYS_MENU.TITLE_LIST"]</p>
+        </header>
+        <div id="menuSettingsV2Layout" class="gi-menu-v2-layout gi-row-100 gi-col-100">
+            <section class="gi-menu-v2-master gi-layout-master-detail-main">
+                <div class="gi-menu-v2-toolbar">
+                    <div class="gi-menu-v2-toolbar-left gi-flex gi-grid-gap-8px">
+                        <button id="menu_depth0_register_btn" class="gi-btn-blue" type="button">
+                            <i class="fa-solid fa-plus gi-margin-right-5px"></i>[Page.Message].Message.Label.Array["SYS_MENU.REGISTER_MENU_CD"]
+                        </button>
+                        <button id="menu_depth_register_btn" class="gi-btn gi-hidden" type="button">
+                            [Page.Message].Message.Label.Array["SYS_MENU.REGISTER_SUB_MENU_CD"]
+                        </button>
+                        <button id="menu_v2_refresh_btn" class="gi-btn" type="button">
+                            <i class="fa-solid fa-rotate-right gi-margin-right-5px"></i>[Page.Message].Message.Label.Array["RESET_BTN"]
+                        </button>
+                    </div>
+                    <div class="gi-menu-v2-toolbar-right gi-flex gi-grid-gap-8px">
+                        <div class="gi-input-container gi-menu-v2-search">
+                            <input class="gi-input" type="text" id="menu_name" name="menu_name"
+                                placeholder="[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]" autocomplete="off" />
+                        </div>
+                        <button id="search-btn" class="gi-btn-search" type="button">
+                            [Page.Message].Message.Label.Array["SEARCH_BTN"]
+                        </button>
+                    </div>
+                </div>
+                <div class="gi-menu-v2-grid-wrap gi-grid-skin-menu-v2">
+                    <div id="gi-Grid" class="gi-col-100"></div>
+                </div>
+            </section>
+            <aside id="menu_detail_panel" class="gi-menu-v2-detail gi-layout-master-detail-panel" data-detail-open="false">
+                <div class="gi-menu-v2-detail-inner">
+                    <div class="gi-menu-v2-detail-header">
+                        <div class="gi-menu-v2-detail-header-text">
+                            <span class="gi-menu-v2-detail-title">[Page.Message].Message.Label.Array["SYS_MENU.MENU_INFO"]</span>
+                            <span id="menu_detail_subtitle" class="gi-menu-v2-detail-subtitle"></span>
+                        </div>
+                        <button id="menu_detail_close_btn" class="gi-menu-v2-detail-close-btn" type="button" aria-label="close"></button>
+                    </div>
+                    <div class="gi-menu-v2-detail-tabs">
+                        <button type="button" class="gi-menu-v2-tab gi-menu-v2-tab-active" data-detail-tab="basic">
+                            [Page.Message].Message.Label.Array["SYS_BBS_BRD.SECTION.BASIC"]
+                        </button>
+                        <button type="button" id="menu_detail_tab_permission_btn" class="gi-menu-v2-tab gi-hidden" data-detail-tab="permission">
+                            [Page.Message].Message.Label.Array["SYS_MENU.PERMISSION_INFO"]
+                        </button>
+                    </div>
+                    <div class="gi-menu-v2-detail-body">
+                        <div id="menu_detail_tab_basic" class="gi-menu-v2-tab-panel" data-detail-tab-panel="basic">
+                            <form id="sysMenuUpdate">
+                                <div id="menu_detail_form_wrap" class="gi-flex gi-flex-column gi-grid-gap-16px">
+                                    <div class="gi-hidden">
+                                        <div class="gi-input-container">
+                                            <label for="update_top_menu_cd" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.TOP_MENU_CD"]</label>
+                                            <input data-disabled data-field="top_menu_cd" id="update_top_menu_cd"
+                                                name="top_menu_cd" class="gi-input" data-required="true" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div id="menu_icon_layout" class="gi-flex gi-grid-gap-16px">
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_menu_icon" class="gi-input-label" data-focus-label="true"
+                                                data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_ICON"]</label>
+                                            <input data-disabled data-field="menu_icon" id="update_menu_icon" name="top_menu_cd"
+                                                class="gi-input" data-required="false" autocomplete="off" />
+                                        </div>
+                                        <div class="gi-flex gi-grid-gap-8px gi-flex-align-items-flex-end">
+                                            <button id="update_popup_delete_icon-btn" class="gi-btn"
+                                                type="button">[Page.Message].Message.Label.Array["SYS_MENU.DELETE_ICON"]</button>
+                                            <button id="update_popup_icon-btn" class="gi-btn" type="button"
+                                                gi-popup-open-id="update_popup_icon_pack">[Page.Message].Message.Label.Array["SYS_MENU.ICON_SETTINGS"]</button>
+                                        </div>
+                                    </div>
+                                    <div class="gi-input-container">
+                                        <label for="update_menu_cd" class="gi-input-label" data-focus-label="true"
+                                            data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_CD"]</label>
+                                        <input data-disabled data-field="menu_cd" id="update_menu_cd" name="menu_cd"
+                                            class="gi-input" data-required="true" autocomplete="off" />
+                                    </div>
+                                    <div class="gi-input-container">
+                                        <label for="update_menu_nm_kr" class="gi-input-label" data-focus-label="true"
+                                            data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]</label>
+                                        <input data-field="menu_nm_kr" id="update_menu_nm_kr" name="menu_nm_kr"
+                                            class="gi-input" data-required="false" autocomplete="off" />
+                                    </div>
+                                    <div class="gi-input-container">
+                                        <label for="update_menu_nm_en" class="gi-input-label" data-focus-label="true"
+                                            data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_EN"]</label>
+                                        <input data-field="menu_nm_en" id="update_menu_nm_en" name="menu_nm_en"
+                                            class="gi-input" data-required="false" autocomplete="off" />
+                                    </div>
+                                    <div class="gi-input-container">
+                                        <label for="update_menu_nm_mn" class="gi-input-label" data-focus-label="true"
+                                            data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_MN"]</label>
+                                        <input data-field="menu_nm_mn" id="update_menu_nm_mn" name="menu_nm_mn"
+                                            class="gi-input" data-required="false" autocomplete="off" />
+                                    </div>
+                                    <div class="gi-flex gi-grid-gap-16px">
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_prgm_url" class="gi-input-label" data-focus-label="true"
+                                                data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.PRGM_URL"]</label>
+                                            <input data-field="prgm_url" id="update_prgm_url" name="prgm_url" class="gi-input"
+                                                data-required="false" autocomplete="off" />
+                                        </div>
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_url" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.URL"]</label>
+                                            <input data-field="url" id="update_url" name="url" class="gi-input" data-required="true"
+                                                autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="gi-flex gi-grid-gap-16px">
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_use_yn" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.USE_YN"]</label>
+                                            <input type="toggle" data-field="use_yn" id="update_use_yn" name="use_yn" class="gi-input"
+                                                data-required="true" autocomplete="off" />
+                                        </div>
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_menu_no" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NO"]</label>
+                                            <input inputNumberOnly maxlength="1" data-field="menu_no" id="update_menu_no"
+                                                name="menu_no" class="gi-input" data-required="true" autocomplete="off" />
+                                        </div>
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_menu_lvl" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_LVL"]</label>
+                                            <input inputNumberOnly data-disabled data-field="menu_lvl" id="update_menu_lvl"
+                                                name="menu_lvl" class="gi-input" data-required="true" autocomplete="off"
+                                                maxlength="1" />
+                                        </div>
+                                        <div class="gi-input-container gi-flex-1">
+                                            <label for="update_menu_seq" class="gi-input-label" data-focus-label="true"
+                                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_SEQ"]</label>
+                                            <input inputNumberOnly data-disabled data-field="menu_seq" id="update_menu_seq"
+                                                name="menu_seq" class="gi-input" data-required="true" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="menu_detail_tab_permission" class="gi-menu-v2-tab-panel gi-hidden" data-detail-tab-panel="permission">
+                            <section class="gi-access-side-section">
+                                <div class="gi-access-side-section-title">[Page.Message].Message.Label.Array["SYS_DEPT_GRP.TITLE_LIST"]</div>
+                                <div class="gi-access-side-grid-wrap"><div id="gi-Grid2" class="gi-Grid"></div></div>
+                            </section>
+                            <section class="gi-access-side-section">
+                                <div class="gi-access-side-section-title">[Page.Message].Message.Label.Array["SYS_ACS_GRP_MENU.TITLE_LIST"]</div>
+                                <div class="gi-access-side-grid-wrap"><div id="gi-Grid3" class="gi-Grid"></div></div>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="gi-menu-v2-detail-footer">
+                        <button id="menu_detail_delete_btn" class="gi-btn gi-menu-v2-btn-delete" type="button">
+                            [Page.Message].Message.Label.Array["DELETE_BTN"]
+                        </button>
+                        <div class="gi-menu-v2-detail-footer-right gi-flex gi-grid-gap-8px">
+                            <button id="menu_detail_cancel_btn" class="gi-btn" type="button">
+                                [Page.Message].Message.Label.Array["CLOSE_BTN"]
+                            </button>
+                            <button id="menu_detail_save_btn" class="gi-btn-blue" type="button">
+                                [Page.Message].Message.Label.Array["UPDATE_BTN"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+</article>
+<!--NOTE: 메뉴 등록 팝업-->
+<article id="gi-menu_register-popup" class="gi-popup" data-popup-open="false">
+    <div class="gi-popup-body gi-row-40-important">
+        <div class="gi-popup-header">
+            <span>[Page.Message].Message.Label.Array["SYS_MENU.TITLE_REGISTER"]</span>
+        </div>
+        <div class="gi-popup-contents" style="height: 50% !important;">
+            <!--      팝업내용 삽입 영역      -->
+            <form id="sysMenuRegister">
+                <div class="gi-flex gi-flex-column gi-grid-gap-16px">
+                    <div class="gi-hidden">
+                        <div class="gi-input-container">
+                            <label for="register_top_menu_cd" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.TOP_MENU_CD"]</label>
+                            <input data-disabled data-field="top_menu_cd" id="register_top_menu_cd"
+                                name="top_menu_cd" class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_name" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]</label>
+                            <input data-field="menu_name" id="register_menu_name" name="menu_nm_kr" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_nm_en" class="gi-input-label" data-focus-label="true"
+                                data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_EN"]</label>
+                            <input data-field="menu_name" id="register_menu_nm_en" name="menu_nm_en"
+                                class="gi-input" data-required="false" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_nm_mn" class="gi-input-label" data-focus-label="true"
+                                data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_MN"]</label>
+                            <input data-field="menu_name" id="register_menu_nm_mn" name="menu_nm_mn"
+                                class="gi-input" data-required="false" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_cd" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_CD"]</label>
+                            <input data-field="menu_cd" id="register_menu_cd" name="menu_cd" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_prgm_url" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.PRGM_URL"]</label>
+                            <input data-field="prgm_url" id="register_prgm_url" name="prgm_url" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-input-container gi-flex-1">
+                        <label for="register_url" class="gi-input-label" data-focus-label="true"
+                            data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.URL"]</label>
+                        <input data-field="url" id="register_url" name="url" class="gi-input" data-required="true"
+                            autocomplete="off" />
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_no" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NO"]</label>
+                            <input inputNumberOnly maxlength="1" data-field="menu_no" id="register_menu_no"
+                                name="menu_no" class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_use_yn" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.USE_YN"]</label>
+                            <input gi-selectbox data-selectbox-field="USE_YN" data-field="use_yn" id="register_use_yn"
+                                name="use_yn" class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="register_menu_lvl" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_LVL"]</label>
+                            <input inputNumberOnly data-disabled data-field="menu_lvl" id="register_menu_lvl"
+                                name="menu_lvl" class="gi-input" data-required="true" autocomplete="off"
+                                maxlength="1" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!--/      팝업내용 삽입 영역      -->
+        </div>
+        <div class="gi-popup-footer">
+            <button id="menuRegister-btn" class="gi-popup-register-btn"
+                type="button">[Page.Message].Message.Label.Array["REGISTER_BTN"]</button>
+            <button class="gi-popup-close-btn" type="button">[Page.Message].Message.Label.Array["CLOSE_BTN"]</button>
+        </div>
+    </div>
+</article>
+<!--NOTE: 하위메뉴 등록 팝업-->
+<article id="gi-menuDepth_register-popup" class="gi-popup" data-popup-open="false">
+    <div class="gi-popup-body" style="width: 600px;">
+        <div class="gi-popup-header">
+            <span>[Page.Message].Message.Label.Array["SYS_MENU.REGISTER_SUB_MENU_CD"]</span>
+        </div>
+        <div class="gi-popup-contents">
+            <form id="comSubMenuRegister">
+                <div class="gi-flex gi-flex-column gi-grid-gap-16px">
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_top_menu_cd" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.TOP_MENU_CD"]</label>
+                            <input data-disabled data-field="top_menu_cd" id="sub_register_top_menu_cd"
+                                name="top_menu_cd" class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_menu_cd" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_CD"]</label>
+                            <input data-field="menu_cd" id="sub_register_menu_cd" name="menu_cd" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container">
+                            <label for="sub_register_menu_name" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]</label>
+                            <input data-field="menu_nm_kr" id="sub_register_menu_name" name="menu_nm_kr"
+                                class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container">
+                            <label for="sub_register_menu_name" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_EN"]</label>
+                            <input data-field="menu_nm_en" id="sub_register_menu_name" name="menu_nm_en"
+                                class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container">
+                            <label for="sub_register_menu_name" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_MN"]</label>
+                            <input data-field="menu_nm_mn" id="sub_register_menu_name" name="menu_nm_mn"
+                                class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_prgm_url" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.PRGM_URL"]</label>
+                            <input data-field="prgm_url" id="sub_register_prgm_url" name="prgm_url" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_url" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.URL"]</label>
+                            <input data-field="url" id="sub_register_url" name="url" class="gi-input"
+                                data-required="true" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="gi-flex gi-grid-gap-16px">
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_menu_no" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NO"]</label>
+                            <input inputNumberOnly maxlength="1" data-field="menu_no" id="sub_register_menu_no"
+                                name="menu_no" class="gi-input" data-required="true" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_use_yn" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.USE_YN"]</label>
+                            <input gi-selectbox data-selectbox-field="USE_YN" data-field="use_yn"
+                                id="sub_register_use_yn" name="use_yn" class="gi-input" data-required="true"
+                                autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="sub_register_menu_lvl" class="gi-input-label" data-focus-label="true"
+                                data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.MENU_LVL"]</label>
+                            <input inputNumberOnly data-disabled data-field="menu_lvl" id="sub_register_menu_lvl"
+                                name="menu_lvl" class="gi-input" data-required="true" autocomplete="off"
+                                maxlength="1" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="gi-popup-footer">
+            <button id="menuDepthRegister-btn" class="gi-popup-update-btn"
+                type="button">[Page.Message].Message.Label.Array["REGISTER_BTN"]</button>
+            <button class="gi-popup-close-btn" type="button">[Page.Message].Message.Label.Array["CLOSE_BTN"]</button>
+        </div>
+    </div>
+</article>
+<!--NOTE: 메뉴아이콘 설정 팝업-->
+<article id="update_popup_icon_pack" class="gi-popup" data-popup-open="false">
+    <div class="gi-popup-body gi-row-40-important" style="height: 64% !important; max-width: 50% !important;">
+        <div class="gi-popup-header" style="height: 10% !important;">
+            <span>[Page.Message].Message.Label.Array["SYS_ICON.TITLE_LIST"]</span>
+        </div>
+        <div id="search-area" class="gi-row-100 gi-col-35px gi-flex gi-grid-gap-10px" style="padding: 0 20px;">
+            <!--      검색설정 영역      -->
+            <div class="gi-row-35 gi-col-100 gi-input-container gi-input-container-box-shadow gi-flex gi-flex-center"
+                data-focus-line="false">
+                <label for="search_icon_cls" class="gi-input-label" data-focus-label="false"
+                    data-focus-label-text-align="center"
+                    data-required="false">[Page.Message].Message.Label.Array["SYS_ICON.ICON_CLS"]</label>
+                <input class="gi-input gi-margin-1px" data-required="false" type="text" id="search_icon_cls"
+                    name="icon_cls" data-focus-input-text-align="center" autocomplete="off" />
+            </div>
+            <button id="reset-btn" class="gi-btn-reset gi-input-container-box-shadow" type="button"><i
+                    class="fa-solid fa-rotate-right gi-row-30px"></i>[Page.Message].Message.Label.Array["RESET_BTN"]</button>
+            <button id="search_icon_cls-btn" class="gi-btn-search gi-row-40px gi-input-container-box-shadow"
+                type="button"
+                style="margin-left: auto; margin-right: 0;">[Page.Message].Message.Label.Array["SEARCH_BTN"]</button>
+        </div>
+        <div class="gi-popup-contents gi-overflow-scroll">
+            <!--      팝업내용 삽입 영역      -->
+            <div class="gi-row-100 gi-col-auto gi-flex gi-flex-center gi-flex-direction-column">
+                <div class="gi-Grid" id="gi-icon-grid"></div>
+            </div>
+            <!--/      팝업내용 삽입 영역      -->
+        </div>
+        <div class="gi-popup-footer" style="height: 10% !important;">
+            <div
+                class="gi-btn-section gi-row-30 gi-col-30px gi-padding-left-right-20px gi-flex gi-flex-justify-content-center gi-flex-align-items-center">
+                <button id="btn" class="gi-popup-update-btn"
+                    type="button">[Page.Message].Message.Label.Array["UPDATE_BTN"]</button>
+                <button class="gi-popup-close-btn"
+                    type="button">[Page.Message].Message.Label.Array["CLOSE_BTN"]</button>
+            </div>
+        </div>
+    </div>
+</article>
+<!-- 접근권한 설정 popup -->
+<script type="text/javascript">
+    var SYS_MENU_UPDATE_PRGMID = "sysMenuUpdate";
+    var SYS_MENU_REGISTER_PRGMID = "sysMenuRegister";
+    var SYS_MENU_DEPTH_REGISTER_PRGMID = "comSubMenuRegister";
+    var MENU_V2_LAYOUT = "#menuSettingsV2Layout";
+    var MENU_V2_MAIN = "#gi-Grid";
+    var MENU_V2_DETAIL = "#menu_detail_panel";
+    var MENU_V2_LAYOUT_CONFIG = {
+        layoutSelector: MENU_V2_LAYOUT,
+        mainSelector: MENU_V2_MAIN
+    };
+
+    var rowClickData = [];
+    var selectedMenuRow = null;
+    var inputTageReset = new AfterLoadDataEvent();
+
+    init();
+
+    function init() {
+        new PageInit();
+        resetEvent();
+        GiGridLayoutCommand.bindDetailTab(MENU_V2_DETAIL, function (tabName) {
+            syncMenuV2GridColumnsByDetailTab(tabName);
+            if (tabName === "permission" && selectedMenuRow) {
+                loadAccessGroupGrids(selectedMenuRow);
+            }
+        });
+        bindMenuDetailPanelEvent();
+        findBySysCodeMenuList();
+        setTimeout(function () {
+            clickEvent();
+        });
+    }
+
+    function bindMenuDetailPanelEvent() {
+        $("#menu_detail_close_btn, #menu_detail_cancel_btn").off("click.menuDetailClose").on("click.menuDetailClose", function () {
+            closeMenuDetailPanel();
+        });
+        $("#menu_detail_save_btn").off("click.menuDetailSave").on("click.menuDetailSave", function () {
+            sysMenuUpdate();
+        });
+        $("#menu_detail_delete_btn").off("click.menuDetailDelete").on("click.menuDetailDelete", function () {
+            if (selectedMenuRow) {
+                sysMenuDelete(selectedMenuRow);
+                closeMenuDetailPanel();
+            }
+        });
+    }
+
+    function extractMenuRowData($row) {
+        let dataList = {};
+        $row.children("li").each(function () {
+            let columnName = $(this).data("field");
+            let columnValue = "";
+            let $valueEl = $(this).find("[data-grid-value]").first();
+            if ($valueEl.length) {
+                columnValue = $valueEl.data("gridValue") + "";
+            } else if (columnName === "menu_nm_kr") {
+                columnValue = $(this).find(".gi-menu-v2-name-text").text().trim();
+                if (!columnValue) {
+                    columnValue = $(this).find("span").last().text().trim();
+                }
+            } else {
+                columnValue = $(this).find("span").last().text().trim();
+            }
+            if (columnName) {
+                dataList[columnName] = columnValue;
+            }
+        });
+        return dataList;
+    }
+
+    function closeMenuRowKebabMenu() {
+        $(".gi-menu-v2-row-menu").remove();
+    }
+
+    function bindMenuRowKebabMenu() {
+        $("#gi-Grid").off("click.menuKebab").on("click.menuKebab", ".gi-grid-kebab-btn", function (e) {
+            e.stopPropagation();
+            closeMenuRowKebabMenu();
+            let $btn = $(this);
+            let rowData = extractMenuRowData($btn.closest(".gi-grid-list"));
+            let offset = $btn.offset();
+            let menuHtml = '<div class="gi-menu-v2-row-menu">'
+                + '<button type="button" class="gi-menu-v2-row-menu-item" data-action="edit">' + Message.Label.Array["UPDATE_BTN"] + '</button>'
+                + '<button type="button" class="gi-menu-v2-row-menu-item" data-action="permission">' + Message.Label.Array["SYS_MENU.PERMISSION_INFO"] + '</button>'
+                + '<button type="button" class="gi-menu-v2-row-menu-item gi-menu-v2-row-menu-item-danger" data-action="delete">' + Message.Label.Array["DELETE_BTN"] + '</button>'
+                + '</div>';
+            let $menu = $(menuHtml);
+            if (rowData.menu_lvl !== "0" && rowData.menu_lvl !== "1") {
+                $menu.find('[data-action="permission"]').remove();
+            }
+            $menu.css({ top: offset.top + $btn.outerHeight() + 4, left: offset.left - 120 });
+            $("body").append($menu);
+            $menu.find(".gi-menu-v2-row-menu-item").on("click", function (evt) {
+                evt.stopPropagation();
+                let action = $(this).data("action");
+                closeMenuRowKebabMenu();
+                if (action === "edit") {
+                    openMenuDetailPanel(rowData, "basic");
+                } else if (action === "permission") {
+                    openMenuDetailPanel(rowData, "permission");
+                } else if (action === "delete") {
+                    sysMenuDelete(rowData);
+                }
+            });
+        });
+        $(document).off("click.menuKebabClose").on("click.menuKebabClose", function (e) {
+            if (!$(e.target).closest(".gi-menu-v2-row-menu, .gi-grid-kebab-btn").length) {
+                closeMenuRowKebabMenu();
+            }
+        });
+    }
+
+    function enrichMenuAccessRights(data) {
+        return axios.post("/cms/common/sysAccsGroupMenu/findPage", {
+            page_no: 1,
+            row_range: 5000,
+            offset: 0
+        }).then(function (response) {
+            let accessMap = {};
+            (response.data.DATA || []).forEach(function (item) {
+                if (!accessMap[item.menu_cd]) {
+                    accessMap[item.menu_cd] = [];
+                }
+                accessMap[item.menu_cd].push(item.acs_rts_grp_id);
+            });
+            data.forEach(function (item) {
+                let groups = accessMap[item.menu_cd] || [];
+                item.access_rights_view = groups.length > 0 ? groups.join(", ") : "-";
+            });
+        }).catch(function () {
+            data.forEach(function (item) {
+                item.access_rights_view = "-";
+            });
+        });
+    }
+
+    function formatMenuV2GridData(data) {
+        data.forEach(function (item) {
+            if (item.use_yn === "1" || item.use_yn === 1) {
+                item.use_yn_badge = '<span class="gi-menu-v2-status-badge gi-menu-v2-status-use">' + Message.Label.Array["USED"] + '</span>';
+            } else {
+                item.use_yn_badge = '<span class="gi-menu-v2-status-badge gi-menu-v2-status-unused">' + Message.Label.Array["NOT_USED"] + '</span>';
+            }
+        });
+    }
+
+    function setMenuV2GridExtraColumnsVisible(show) {
+        let $grid = $("#gi-Grid");
+        ["url", "access_rights_view"].forEach(function (field) {
+            $grid.find('li[data-column="' + field + '"]')
+                .toggleClass("gi-hidden", !show)
+                .toggleClass("gi-show-li", show);
+            $grid.find('li[data-field="' + field + '"]')
+                .toggleClass("hidden", !show);
+        });
+    }
+
+    function syncMenuV2GridColumnsByDetailTab(tab) {
+        setMenuV2GridExtraColumnsVisible(tab === "permission");
+    }
+
+    function decorateMenuV2GridNameCells() {
+        $("#gi-Grid ul.gi-grid-list").each(function () {
+            let $row = $(this);
+            let $nameLi = $row.find('li[data-field="menu_nm_kr"]').not(".hidden").first();
+            if ($nameLi.length === 0) {
+                return;
+            }
+            let $targetSpan = $nameLi.children("span").first();
+            if ($targetSpan.data("v2Decorated")) {
+                return;
+            }
+
+            let menuNm = $targetSpan.attr("data-grid-value") || $targetSpan.text();
+            menuNm = $.trim(menuNm);
+            let menuIcon = $.trim($row.find('li[data-field="menu_icon"] span').first().text());
+            let menuLvl = $.trim($row.find('li[data-field="menu_lvl"] span').first().text());
+            let iconClass = "fa-folder";
+
+            if (menuIcon) {
+                iconClass = menuIcon;
+            } else if (menuLvl === "2") {
+                iconClass = "fa-file";
+            } else if (menuLvl === "0") {
+                iconClass = "fa-layer-group";
+            }
+
+            let iconHtml = iconClass.indexOf("fa-solid") >= 0 || iconClass.indexOf("fa-regular") >= 0
+                ? '<i class="' + iconClass + ' gi-menu-v2-row-icon"></i>'
+                : '<i class="fa-solid ' + iconClass + ' gi-menu-v2-row-icon"></i>';
+
+            $targetSpan
+                .removeClass("gi-row-100")
+                .addClass("gi-menu-v2-name-wrap")
+                .html('<span class="gi-grid-grip-cell"><i class="fa-solid fa-grip-vertical"></i></span>'
+                    + iconHtml
+                    + '<span class="gi-menu-v2-name-text">' + menuNm + '</span>')
+                .data("v2Decorated", true);
+        });
+    }
+
+    function openMenuDetailPanel(rows, tab) {
+        if (!rows || !formUtil.checkEmptyValue(rows.menu_cd)) return;
+        selectedMenuRow = rows;
+        tab = tab || "basic";
+
+        GiGridLayoutCommand.openMasterDetail(MENU_V2_LAYOUT, MENU_V2_MAIN, MENU_V2_DETAIL);
+        GiGridLayoutCommand.switchDetailTab(MENU_V2_DETAIL, tab);
+        syncMenuV2GridColumnsByDetailTab(tab);
+        $("#menu_detail_subtitle").text(rows.menu_nm_kr || rows.menu_cd);
+
+        applyMenuUpdateFormRules(rows);
+        if (formUtil.checkEmptyValue(rows.use_yn_value)) {
+            rows.use_yn = rows.use_yn_value;
+        }
+        dataBinding.setDataForm("menu_detail_form_wrap", rows);
+        $("#update_popup_delete_icon-btn").off("click").on("click", function () {
+            $("#update_menu_icon").val("");
+        });
+        inputTageReset.commonTagSettings();
+
+        if (rows.menu_lvl === "0" || rows.menu_lvl === "1") {
+            $("#menu_detail_tab_permission_btn").removeClass("gi-hidden");
+            if (tab === "permission") {
+                loadAccessGroupGrids(rows);
+            }
+        } else {
+            $("#menu_detail_tab_permission_btn").addClass("gi-hidden");
+            if (tab === "permission") {
+                GiGridLayoutCommand.switchDetailTab(MENU_V2_DETAIL, "basic");
+            }
+        }
+    }
+
+    function closeMenuDetailPanel() {
+        GiGridLayoutCommand.closeMasterDetail(MENU_V2_LAYOUT, MENU_V2_MAIN, MENU_V2_DETAIL);
+        setMenuV2GridExtraColumnsVisible(false);
+        selectedMenuRow = null;
+    }
+
+    function applyMenuUpdateFormRules(cont) {
+        if (cont.menu_lvl !== "0") {
+            $("#menu_icon_layout").addClass("gi-hidden");
+            $("#update_menu_icon").val("");
+            if (cont.menu_lvl !== "1") {
+                $("#update_prgm_url").attr("data-required", "true");
+                $("label[for='update_prgm_url']").attr("data-required", "true");
+            } else {
+                $("#update_prgm_url").attr("data-required", "false");
+                $("label[for='update_prgm_url']").attr("data-required", "false");
+            }
+        } else {
+            $("#menu_icon_layout").removeClass("gi-hidden");
+            $("#update_prgm_url").attr("data-required", "false");
+            $("label[for='update_prgm_url']").attr("data-required", "false");
+        }
+    }
+
+    function loadAccessGroupGrids(data) {
+        findBySysDeptGroupList(null, null, null, null, data);
+        findBySysAccsGroupMenuList(null, null, null, null, data);
+    }
+
+    function resetEvent() {
+        $("#menu_name").val("");
+        $("#update_popup_icon_pack #search-area input").val("");
+        inputTageReset.commonTagSettings();
+    }
+
+    //클릭 이벤트
+    function clickEvent() {
+        // 초기화버튼 클릭 이벤트
+        $(".gi-btn-reset").click(function () {
+            resetEvent();
+            // findBySysCodeMenuList();
+        });
+        //조회버튼 클릭 이벤트
+        $("#search-btn").click(function () {
+            findBySysCodeMenuList();
+        });
+        $("#menu_v2_refresh_btn").click(function () {
+            $("#menu_name").val("");
+            findBySysCodeMenuList();
+        });
+        $("#menu_name").on("keydown", function (e) {
+            if (e.key === "Enter") {
+                findBySysCodeMenuList();
+            }
+        });
+
+        $("#menu_depth0_register_btn").click(function () {
+            menuRegisterSetting();
+        })
+        $("#menuRegister-btn").click(function () {
+            sysMenuRegister();
+        })
+        $("#menu_depth_register_btn").click(function () {
+            menuDepthRegisterSetting();
+        })
+        $("#update_popup_icon-btn").click(function () {
+            findBySysIconList();
+        })
+        $("#search_icon_cls-btn").click(function () {
+            findBySysIconList();
+        })
+    }
+    function findBySysCodeMenuList(page, range, sortId, sortOrder) {
+        let url = "/cms/common/sysMenu/findHierarchy";
+        let param = {
+        };
+        // 검색조건 설정 (추가해서 사용)
+        let cont1 = $("#menu_name").val();
+        if (formUtil.checkEmptyValue(cont1)) param._menu_nm_kr = cont1;
+        // 정렬조건추가 (기준id, 순서)
+        param.sort_id = "menu_lvl, menu_no";
+        param.sort_order = "ASC";
+
+        axios.post(url, param).then(function (response) {
+            let status = response.status;
+            if (status === 200) {
+                let data = response.data;
+                enrichMenuAccessRights(data).then(function () {
+                    formatMenuV2GridData(data);
+
+                // 그리드 헤더 설정
+                let menuGrid = {
+                    title: Message.Label.Array["SYS_MENU.TITLE_LIST"],
+                    list: [
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_KR"], ID: "menu_nm_kr", WIDTH: "72", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_MENU.URL"], ID: "url", WIDTH: "24", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.ACCESS_RIGHTS"], ID: "access_rights_view", WIDTH: "18", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn_badge", WIDTH: "12", TYPE: "badge", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: "", ID: "row_action", WIDTH: "5", TYPE: "kebab", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array["UPDATE_BTN"], ID: "update_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["DELETE_BTN"], ID: "delete_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.REGISTER_MENU_ACCESS_GROUP_BTN"], ID: "access_right_group", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", VISIBLE_OPTION_BTN: [{ "menu_lvl": "0" }, { "menu_lvl": "1" }], HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_MN"], ID: "menu_nm_mn", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_EN"], ID: "menu_nm_en", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_CD"], ID: "menu_cd", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_LVL"], ID: "menu_lvl", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NO"], ID: "menu_no", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.TOP_MENU_CD"], ID: "top_menu_cd", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.PRGM_URL"], ID: "prgm_url", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ICON.ICON_VIEW"], ID: 'icon_view', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ICON.ICON_CLS"], ID: "menu_icon", WIDTH: "7", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_SEQ"], ID: "menu_seq", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn_text", WIDTH: "20", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: "No", ID: "no", WIDTH: "7", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.SYS_CRT_DT"], ID: "sys_crt_dt", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.SYS_CRT_USR_ID"], ID: "sys_crt_usr_id", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.SYS_UPD_DT"], ID: "sys_upd_dt", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.SYS_UPD_USR_ID"], ID: "sys_upd_usr_id", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true }
+                    ]
+                }
+                //그리드 생성 <div id="gi-Grid"></div>
+                let menu_grid = formUtil.giGridHierarchy(menuGrid, "", "", "gi-Grid");
+                //계층 구조 기준컬럼명 설정
+                menu_grid.HierarchyOption({ level_column: "menu_lvl", parent_depth_column: "menu_cd", child_depth_column: "top_menu_cd" });
+                menu_grid.RowWarning("use_yn", "0", Message.Label.Array["NOT_USED"]);
+                menu_grid.DataSet(data).then(function () {
+                    decorateMenuV2GridNameCells();
+                    let activeTab = "basic";
+                    if ($("#menu_detail_panel").attr("data-detail-open") === "true") {
+                        activeTab = $("#menu_detail_panel").find("[data-detail-tab].gi-menu-v2-tab-active").data("detailTab") || "basic";
+                    }
+                    syncMenuV2GridColumnsByDetailTab(activeTab);
+                    menu_grid.gridSkin("gi-grid-skin-menu-v2");
+                    menu_grid.excelDownloadEvent(Message.Label.Array["SYS_MENU.TITLE_LIST"]);
+                    menu_grid.updateBtnClick(menuUpdateSetting, "update_btn");
+                    menu_grid.deleteBtnClick(sysMenuDelete, "delete_btn");
+                    menu_grid.gridColumResize("gi-Grid");
+                    bindMenuRowKebabMenu();
+                    menu_grid.rowClick(rowClickEvent);
+                });
+                function rowClickEvent(rows, e) {
+                    let clickFlag = $(e.currentTarget).hasClass("gi-grid-list-select");
+                    rows = extractMenuRowData($(e.currentTarget));
+
+                    if (clickFlag) {
+                        openMenuDetailPanel(rows, "basic");
+
+                        if (rows.menu_lvl !== "2") {
+                            $("#menu_depth_register_btn").removeClass("gi-hidden");
+                            rowClickData = rows;
+                            if (rows.menu_lvl === "1") {
+                                $("#register_depth_prgm_url").attr("data-required", "true");
+                                $("label[for='register_depth_prgm_url']").attr("data-required", "true");
+                            }
+                            $("#menuDepthRegister-btn").off("click").on("click", function () {
+                                comSubMenuRegister();
+                            });
+                        } else {
+                            $("#menu_depth_register_btn").addClass("gi-hidden");
+                            rowClickData = rows;
+                        }
+                    } else {
+                        closeMenuDetailPanel();
+                        $("#menu_depth_register_btn").addClass("gi-hidden");
+                    }
+                }
+                });
+            } else {
+                formUtil.toast("response status is :" + status);
+            }
+        }).catch(error => {
+            formUtil.toast(error);
+        })
+    }
+
+    /**
+     * NOTE : 그룹 목록
+     * @param page
+     * @param range
+     * @param sortId
+     * @param sortOrder
+     * @param cont
+     */
+    function findBySysDeptGroupList(page, range, sortId, sortOrder, cont) {
+        let url = "/cms/common/sysDeptGroup/findNotExistsSysAccsGroupMenu";
+        let param = {
+        };
+        // 검색조건 설정 (추가해서 사용)
+        if (cont !== null) if (formUtil.checkEmptyValue(cont.menu_cd)) param.menu_cd = cont.menu_cd;
+        axios.post(url, param).then(response => {
+            let status = response.status;
+            if (status === 200) {
+                let data = response.data;
+                // 그리드 헤더 설정
+                let sysDeptGroup_menuGrid_header = {
+                    title: Message.Label.Array["SYS_DEPT_GRP.TITLE_LIST"],
+                    list: [
+                        { HEADER: Message.Label.Array["SYS_DEPT_GRP.GRP_NM"], ID: "grp_nm", WIDTH: "35", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_DEPT_GRP.GRP_ID"], ID: "grp_id", WIDTH: "25", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_DEPT_GRP.USE_YN"], ID: "use_yn", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", SYS_CD_GRP_ID: "USE_YN", HIDDEN: false },
+                        { HEADER: Message.Label.Array["REGISTER_BTN"], ID: "register_btn", WIDTH: "15", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", VISIBLE_OPTION_BTN: { "grp_lvl": "0" }, HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_DEPT_GRP.GRP_LVL"], ID: "grp_lvl", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_DEPT_GRP.TOP_GRP_ID"], ID: "top_grp_id", WIDTH: "20", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                    ]
+                }
+                //그리드 생성 <div id="gi-Grid"></div>
+                let sysDeptGroup_menu_grid = formUtil.giGridHierarchy(sysDeptGroup_menuGrid_header, null, null, "gi-Grid2");
+
+                sysDeptGroup_menu_grid.HierarchyOption({ level_column: "grp_lvl", parent_depth_column: "grp_id", child_depth_column: "top_grp_id" });
+                //그리드 데이터 설정
+                if (cont !== null) {
+                    sysDeptGroup_menu_grid.DataSet(data);
+                } else {
+                    sysDeptGroup_menu_grid.DataSet();
+                }
+
+                sysDeptGroup_menu_grid.detailBtnClick(registerAccessGroupInMenu, "register_btn");
+                sysDeptGroup_menu_grid.gridColumResize("gi-Grid2");
+                function registerAccessGroupInMenu(row) {
+                    row["menu_cd"] = cont.menu_cd;
+                    accessGroupInMenuRegister(row);
+                }
+
+            } else {
+                formUtil.toast("response status is :" + status);
+            }
+        }).catch(error => {
+            formUtil.toast(error);
+        })
+    }
+    function accessGroupInMenuRegister(row) {
+        let flag = true;
+        if (flag) {
+            let url = "/cms/common/sysAccsGroupMenu/register";
+            let param = {
+                menu_cd: row.menu_cd,
+                acs_rts_grp_id: row.grp_id
+            };
+            axios.post(url, param).then(response => {
+                let status = response.status;
+                if (status === 200) {
+                    formUtil.toast(Message.Label.Array["COMPLETE.INSERT"]);
+                    findBySysDeptGroupList(null, null, null, null, row);
+                    findBySysAccsGroupMenuList(null, null, null, null, row);
+                    findByMenuList();
+                } else {
+                    formUtil.toast("response status is :" + status);
+                }
+            }).catch(error => {
+                formUtil.toast(error.response.data);
+            })
+        }
+    }
+
+    /**
+     * NOTE: 권한 적용 그룹 목록
+     * @param page
+     * @param range
+     * @param sortId
+     * @param sortOrder
+     * @param cont
+     */
+    function findBySysAccsGroupMenuList(page, range, sortId, sortOrder, cont) {
+        //default page
+        if (!formUtil.checkEmptyValue(page)) page = 1;
+        //default range(row)
+        if (!formUtil.checkEmptyValue(range)) range = 10;
+
+        let url = "/cms/common/sysAccsGroupMenu/findPage";
+        let param = {
+            page_no: page,
+            row_range: range,
+            offset: (page - 1) * range
+        };
+        if (cont !== null) if (formUtil.checkEmptyValue(cont.menu_cd)) param.menu_cd = cont.menu_cd;
+        // 정렬조건추가 (기준id, 순서)
+        if (formUtil.checkEmptyValue(sortId)) param.sort_id = sortId;
+        if (formUtil.checkEmptyValue(sortOrder)) param.sort_order = sortOrder;
+
+        axios.post(url, param).then(response => {
+            let status = response.status;
+            if (status === 200) {
+                let data = response.data.DATA;
+                let paging = response.data.TOTAL_PAGING[0];
+
+                // 그리드 헤더 설정
+                let sysAccsGroupMenu_menuGrid_header = {
+                    title: Message.Label.Array["SYS_ACS_GRP_MENU.TITLE_LIST"],
+                    list: [
+                        { HEADER: 'No', ID: 'no', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.MENU_CD"], ID: 'menu_cd', WIDTH: '30', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.ACS_RTS_GRP_ID"], ID: 'acs_rts_grp_id', WIDTH: '55', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'left', HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.SYS_CRT_DT"], ID: 'sys_crt_dt', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.SYS_CRT_USR_ID"], ID: 'sys_crt_usr_id', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.SYS_UPD_DT"], ID: 'sys_upd_dt', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_ACS_GRP_MENU.SYS_UPD_USR_ID"], ID: 'sys_upd_usr_id', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: Message.Label.Array["DELETE_BTN"], ID: 'delete_btn', WIDTH: '15', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '사이드 그리드', ID: 'sideGridOpen_btn', WIDTH: '15', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: 'checkbox', ID: 'checkbox', WIDTH: '25', TYPE: 'checkbox', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
+                    ]
+                }
+                //그리드 생성 <div id="gi-Grid"></div>
+                let sysAccsGroupMenu_menu_grid = formUtil.giGrid(sysAccsGroupMenu_menuGrid_header, paging, page, "gi-Grid3");
+
+                //그리드 하이라키 구조로 변경
+                //let sysAccsGroupMenu_menu_grid = formUtil.giGridHierarchy(sysAccsGroupMenu_menuGrid_header,paging,page);
+                //sysAccsGroupMenu_menu_grid.HierarchyOption({level_column:"",parent_depth_column:"",child_depth_column:""});
+
+                //사이드 그리드 설정
+                //sysAccsGroupMenu_menu_grid.sideOpenBtnClick("gi-Grid-side","sideGridOpen_btn");
+
+                //그리드 데이터 설정
+                if (cont !== null) {
+                    sysAccsGroupMenu_menu_grid.DataSet(data);
+                } else {
+                    sysAccsGroupMenu_menu_grid.DataSet();
+                }
+                //그리드 row 개수 변경 및 페이징 버튼 이벤트 설정
+                sysAccsGroupMenu_menu_grid.pagingSet(findBySysAccsGroupMenuList);
+
+                //그리드 내부의 상세 버튼 클릭 이벤트 설정(버튼클릭시 호출될 함수, 그리드 헤더 부분에 설정한 버튼 ID)
+                // sysAccsGroupMenu_menu_grid.detailBtnClick(redirectDetailPage,"detail_btn");
+
+                sysAccsGroupMenu_menu_grid.deleteBtnClick(deleteCommonAccessGroupId, "delete_btn");
+
+                //그리스 내부의 header click 정렬 이벤트 설정
+                sysAccsGroupMenu_menu_grid.sortDataSet(findBySysAccsGroupMenuList);
+                sysAccsGroupMenu_menu_grid.gridColumResize("gi-Grid3");
+
+                function deleteCommonAccessGroupId(row) {
+                    commonAccessGroupIdRemove(row);
+                }
+            } else {
+                formUtil.toast("response status is :" + status);
+            }
+        }).catch(error => {
+            formUtil.toast(error.response.data);
+        })
+    }
+    //NOTE: 메뉴 등록 팝업 데이터 설정
+    function menuRegisterSetting() {
+        $("#gi-menu_register-popup").attr("data-popup-open", "true");
+        $("#register_top_menu_cd").val("-");
+
+        $("#register_menu_lvl").val("0");
+        $("#register_prgm_url").attr("data-required", "false");
+        $("label[for='register_prgm_url']").attr("data-required", "false");
+        inputTageReset.commonTagSettings();
+    }
+    function menuDepthRegisterSetting() {
+        popup.open("gi-menuDepth_register-popup");
+        $("#sub_register_top_menu_cd").val(rowClickData.menu_cd);
+        $("#sub_register_menu_lvl").val((parseInt(rowClickData.menu_lvl) + 1) + "");
+
+        inputTageReset.commonTagSettings();
+    }
+
+    function menuUpdateSetting(cont) {
+        openMenuDetailPanel(cont, "basic");
+    }
+    /**
+     * NOTE: 상위메뉴등록
+     */
+    function sysMenuRegister() {
+        let flag = checkRegisterPopupValidation();
+        if (flag) {
+            let url = "/cms/common/sysMenu/register"
+            let data = dataBinding.getData(SYS_MENU_REGISTER_PRGMID);
+            let param = {
+                menu_cd: data.menu_cd,
+                menu_nm_kr: data.menu_name,
+                menu_nm_en: data.menu_nm_en,
+                menu_nm_mn: data.menu_nm_mn,
+                menu_no: data.menu_no,
+                menu_lvl: data.menu_lvl,
+                top_menu_cd: data.top_menu_cd,
+                url: data.url,
+                prgm_url: data.prgm_url,
+                use_yn: data.use_yn
+            };
+
+            axios.post(url, param).then(response => {
+                if (response.status === 200) {
+                    formUtil.toast(Message.Label.Array["COMPLETE.INSERT"]);
+                    popup.close("gi-menu_register-popup");
+                    findBySysCodeMenuList();
+                    findByMenuList();
+                } else {
+                    formUtil.toast(Message.Label.Array["FAIL.INSERT"])
+                }
+            }).catch(error => {
+                formUtil.toast(error.response.data);
+            })
+        }
+    }
+
+    /**
+     * NOTE: 하위메뉴등록
+     */
+    function comSubMenuRegister() {
+        let flag = checkValidation(SYS_MENU_DEPTH_REGISTER_PRGMID);
+        if (flag) {
+            let url = "/cms/common/sysMenu/register"
+            let data = dataBinding.getData(SYS_MENU_DEPTH_REGISTER_PRGMID);
+            let param = {
+                menu_cd: data.menu_cd,
+                menu_nm_kr: data.menu_nm_kr,
+                menu_nm_en: data.menu_nm_en,
+                menu_nm_mn: data.menu_nm_mn,
+                menu_no: data.menu_no,
+                menu_lvl: data.menu_lvl,
+                top_menu_cd: data.top_menu_cd,
+                url: data.url,
+                prgm_url: data.prgm_url,
+                use_yn: data.use_yn
+            };
+
+            axios.post(url, param).then(response => {
+                if (response.status === 200) {
+                    formUtil.toast(Message.Label.Array["COMPLETE.INSERT"]);
+                    popup.close("gi-menuDepth_register-popup");
+                    findBySysCodeMenuList();
+                    findByMenuList();
+                } else {
+                    formUtil.toast(Message.Label.Array["FAIL.INSERT"])
+                }
+            }).catch(error => {
+                formUtil.toast(error.response.data);
+            })
+        }
+    }
+    /**
+     * NOTE: 메뉴 수정 
+     */
+    function sysMenuUpdate() {
+        if (menuModifyCheckValidation(SYS_MENU_UPDATE_PRGMID)) {
+            let data = dataBinding.getData(SYS_MENU_UPDATE_PRGMID);
+            console.log(data)
+            let url = "/cms/common/sysMenu/update";
+            let param = {
+                menu_cd: data.menu_cd,
+                menu_nm_kr: data.menu_nm_kr,
+                menu_nm_en: data.menu_nm_en,
+                menu_nm_mn: data.menu_nm_mn,
+                menu_no: data.menu_no,
+                menu_lvl: data.menu_lvl,
+                top_menu_cd: data.top_menu_cd,
+                url: data.url,
+                prgm_url: data.prgm_url,
+                use_yn: data.use_yn,
+                menu_seq: data.menu_seq,
+                menu_icon: data.menu_icon
+            };
+            axios.post(url, param).then(response => {
+                if (response.status === 200) {
+                    formUtil.toast(Message.Label.Array["COMPLETE.UPDATE"]);
+                    closeMenuDetailPanel();
+                    findBySysCodeMenuList();
+                    findByMenuList();
+                } else {
+                    formUtil.toast(Message.Label.Array["FAIL.UPDATE"]);
+                }
+            }).catch(error => {
+                formUtil.toast(error + "");
+            })
+        }
+    }
+    /**
+     * NOTE: 메뉴 ROW DATA 삭제
+     * @param cont
+     */
+    function sysMenuDelete(cont) {
+        let data = cont;
+        let url = "/cms/common/sysMenu/removeMenuCode";
+        let param = {
+            menu_cd: data.menu_cd,
+            menu_seq: data.menu_seq
+        };
+        axios.post(url, param).then(response => {
+            formUtil.toast(Message.Label.Array["COMPLETE.DELETE"]);
+            findBySysCodeMenuList();
+            findByMenuList();
+        }).catch(error => {
+            formUtil.toast(error.response.data);
+        })
+    }
+    function checkRegisterPopupValidation() {
+        return formUtil.validationCheck(SYS_MENU_REGISTER_PRGMID, "SYS_MENU.CHECK.");
+    }
+    function checkValidation(ID) {
+        return formUtil.validationCheck(ID, "SYS_MENU.CHECK.");
+    }
+    //NOTE: 메뉴 수정 유효성 검사
+    function menuModifyCheckValidation(ID) {
+        return formUtil.validationCheck(ID, "SYS_MENU.CHECK.");
+    }
+    //NOTE: 권한 적용 그룹 목록 Group_id 삭제
+    function commonAccessGroupIdRemove(cont) {
+        let url = "/cms/common/sysAccsGroupMenu/remove";
+        let param = {
+            menu_cd: cont.menu_cd,
+            acs_rts_grp_id: cont.acs_rts_grp_id
+        }
+        axios.post(url, param).then(response => {
+            if (response.status === 200) {
+                formUtil.toast(Message.Label.Array["COMPLETE.DELETE"]);
+                findBySysDeptGroupList(null, null, null, null, cont);
+                findBySysAccsGroupMenuList(null, null, null, null, cont);
+                findByMenuList();
+            }
+        }).catch(error => {
+            formUtil.toast(error.response.data);
+        })
+    }
+    function findBySysIconList(page, range, sortId, sortOrder) {
+        //default page
+        if (!formUtil.checkEmptyValue(page)) page = 1;
+        //default range(row)
+        if (!formUtil.checkEmptyValue(range)) range = 10;
+
+        let url = "/cms/common/sysIcon/findPage";
+        let param = {
+            page_no: page,
+            row_range: range,
+            offset: (page - 1) * range
+        };
+
+        if (formUtil.checkEmptyValue($("#search_icon_cls").val())) param._icon_cls = $("#search_icon_cls").val();
+
+        axios.post(url, param).then(response => {
+            let status = response.status;
+            if (status === 200) {
+                let data = response.data.DATA;
+                let paging = response.data.TOTAL_PAGING[0];
+
+                // 그리드 헤더 설정
+                let sysIcon_menuGrid_header = {
+                    title: '[Page.Message].Message.Label.Array["SYS_ICON.TITLE"]',
+                    list: [
+                        { HEADER: 'No', ID: 'no', WIDTH: '7', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_ICON.ICON_CD"]', ID: 'icon_cd', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_ICON.ICON_VIEW"]', ID: 'icon_view', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_ICON.ICON_NM"]', ID: 'icon_nm', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_ICON.ICON_CLS"]', ID: 'icon_cls', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SELECT_BTN"]', ID: 'select_btn', WIDTH: '15', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                        { HEADER: '사이드 그리드', ID: 'sideGridOpen_btn', WIDTH: '15', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                        { HEADER: 'checkbox', ID: 'checkbox', WIDTH: '25', TYPE: 'checkbox', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
+                    ]
+                }
+                let sysIcon_menu_grid = formUtil.giGrid(sysIcon_menuGrid_header, paging, page, "gi-icon-grid");
+                data.map((item, i) => {
+                    data[i]["icon_view"] = "<i class='fa-solid " + item.icon_cls + "'></i>";
+                })
+                //그리드 데이터 설정
+                sysIcon_menu_grid.DataSet(data);
+
+                //그리드 row 개수 변경 및 페이징 버튼 이벤트 설정
+                sysIcon_menu_grid.pagingSet(findBySysIconList);
+
+                //그리드 내부의 상세 버튼 클릭 이벤트 설정(버튼클릭시 호출될 함수, 그리드 헤더 부분에 설정한 버튼 ID)
+                sysIcon_menu_grid.detailBtnClick(selectMenuIconPopup, "select_btn");
+
+                //그리스 내부의 header click 정렬 이벤트 설정
+                sysIcon_menu_grid.sortDataSet(findBySysIconList);
+                function selectMenuIconPopup(rows) {
+                    $("#update_menu_icon").val(rows.icon_cls);
+                    popup.close("update_popup_icon_pack");
+                    inputTageReset.commonTagSettings();
+                }
+            } else {
+                formUtil.toast("response status is :" + status);
+            }
+        }).catch(error => {
+            formUtil.toast(error.response.data);
+        })
+    }
+</script>

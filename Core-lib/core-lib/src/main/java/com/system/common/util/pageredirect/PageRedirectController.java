@@ -16,6 +16,9 @@ public class PageRedirectController {
     @GetMapping("/redirect")
     @ResponseBody
     public String redirectToNewPage(@RequestParam("url") String param) throws Exception {
+        if ("/menu/menuSettings.html".equals(param)) {
+            param = "/menu/menuSettingsV2.html";
+        }
         return pageRedirectService.pageLoad(param);
     }
 
