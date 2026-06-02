@@ -30,8 +30,9 @@
                     </div>
                     <div class="gi-menu-v2-toolbar-right gi-flex gi-grid-gap-8px">
                         <div class="gi-input-container gi-menu-v2-search">
-                            <input class="gi-input" type="text" id="menu_name" name="menu_name"
-                                placeholder="[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]" autocomplete="off" />
+                            <label for="menu_name" class="gi-input-label" data-focus-label="true"
+                                data-required="false">[Page.Message].Message.Label.Array["SYS_MENU.MENU_NM_KR"]</label>
+                            <input class="gi-input" type="text" id="menu_name" name="menu_name" autocomplete="off" />
                         </div>
                         <button id="search-btn" class="gi-btn-search" type="button">
                             [Page.Message].Message.Label.Array["SEARCH_BTN"]
@@ -418,13 +419,17 @@
     var selectedMenuRow = null;
     var inputTageReset = new AfterLoadDataEvent();
 
+    function canManageMenuPermission(menuLvl) {
+        let lvl = parseInt(menuLvl, 10);
+        return !isNaN(lvl) && lvl >= 1 && lvl <= 2;
+    }
+
     init();
 
     function init() {
         new PageInit();
         resetEvent();
         GiGridLayoutCommand.bindDetailTab(MENU_V2_DETAIL, function (tabName) {
-            syncMenuV2GridColumnsByDetailTab(tabName);
             if (tabName === "permission" && selectedMenuRow) {
                 loadAccessGroupGrids(selectedMenuRow);
             }
@@ -491,7 +496,7 @@
                 + '<button type="button" class="gi-menu-v2-row-menu-item gi-menu-v2-row-menu-item-danger" data-action="delete">' + Message.Label.Array["DELETE_BTN"] + '</button>'
                 + '</div>';
             let $menu = $(menuHtml);
-            if (rowData.menu_lvl !== "0" && rowData.menu_lvl !== "1") {
+            if (!canManageMenuPermission(rowData.menu_lvl)) {
                 $menu.find('[data-action="permission"]').remove();
             }
             $menu.css({ top: offset.top + $btn.outerHeight() + 4, left: offset.left - 120 });
@@ -550,21 +555,6 @@
         });
     }
 
-    function setMenuV2GridExtraColumnsVisible(show) {
-        let $grid = $("#gi-Grid");
-        ["url", "access_rights_view"].forEach(function (field) {
-            $grid.find('li[data-column="' + field + '"]')
-                .toggleClass("gi-hidden", !show)
-                .toggleClass("gi-show-li", show);
-            $grid.find('li[data-field="' + field + '"]')
-                .toggleClass("hidden", !show);
-        });
-    }
-
-    function syncMenuV2GridColumnsByDetailTab(tab) {
-        setMenuV2GridExtraColumnsVisible(tab === "permission");
-    }
-
     function decorateMenuV2GridNameCells() {
         $("#gi-Grid ul.gi-grid-list").each(function () {
             let $row = $(this);
@@ -586,7 +576,7 @@
             if (menuIcon) {
                 iconClass = menuIcon;
             } else if (menuLvl === "2") {
-                iconClass = "fa-file";
+                iconClass = "fa-folder";
             } else if (menuLvl === "0") {
                 iconClass = "fa-layer-group";
             }
@@ -598,8 +588,7 @@
             $targetSpan
                 .removeClass("gi-row-100")
                 .addClass("gi-menu-v2-name-wrap")
-                .html('<span class="gi-grid-grip-cell"><i class="fa-solid fa-grip-vertical"></i></span>'
-                    + iconHtml
+                .html(iconHtml
                     + '<span class="gi-menu-v2-name-text">' + menuNm + '</span>')
                 .data("v2Decorated", true);
         });
@@ -612,7 +601,6 @@
 
         GiGridLayoutCommand.openMasterDetail(MENU_V2_LAYOUT, MENU_V2_MAIN, MENU_V2_DETAIL);
         GiGridLayoutCommand.switchDetailTab(MENU_V2_DETAIL, tab);
-        syncMenuV2GridColumnsByDetailTab(tab);
         $("#menu_detail_subtitle").text(rows.menu_nm_kr || rows.menu_cd);
 
         applyMenuUpdateFormRules(rows);
@@ -625,7 +613,7 @@
         });
         inputTageReset.commonTagSettings();
 
-        if (rows.menu_lvl === "0" || rows.menu_lvl === "1") {
+        if (canManageMenuPermission(rows.menu_lvl)) {
             $("#menu_detail_tab_permission_btn").removeClass("gi-hidden");
             if (tab === "permission") {
                 loadAccessGroupGrids(rows);
@@ -640,7 +628,6 @@
 
     function closeMenuDetailPanel() {
         GiGridLayoutCommand.closeMasterDetail(MENU_V2_LAYOUT, MENU_V2_MAIN, MENU_V2_DETAIL);
-        setMenuV2GridExtraColumnsVisible(false);
         selectedMenuRow = null;
     }
 
@@ -732,14 +719,14 @@
                 let menuGrid = {
                     title: Message.Label.Array["SYS_MENU.TITLE_LIST"],
                     list: [
-                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_KR"], ID: "menu_nm_kr", WIDTH: "72", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
-                        { HEADER: Message.Label.Array["SYS_MENU.URL"], ID: "url", WIDTH: "24", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_KR"], ID: "menu_nm_kr", WIDTH: "52", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_MENU.URL"], ID: "url", WIDTH: "24", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
                         { HEADER: Message.Label.Array["SYS_MENU.ACCESS_RIGHTS"], ID: "access_rights_view", WIDTH: "18", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
                         { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn_badge", WIDTH: "12", TYPE: "badge", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: "", ID: "row_action", WIDTH: "5", TYPE: "kebab", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: Message.Label.Array["UPDATE_BTN"], ID: "update_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
                         { HEADER: Message.Label.Array["DELETE_BTN"], ID: "delete_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
-                        { HEADER: Message.Label.Array["SYS_MENU.REGISTER_MENU_ACCESS_GROUP_BTN"], ID: "access_right_group", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", VISIBLE_OPTION_BTN: [{ "menu_lvl": "0" }, { "menu_lvl": "1" }], HIDDEN: true },
+                        { HEADER: Message.Label.Array["SYS_MENU.REGISTER_MENU_ACCESS_GROUP_BTN"], ID: "access_right_group", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", VISIBLE_OPTION_BTN: [{ "menu_lvl": "1" }, { "menu_lvl": "2" }], HIDDEN: true },
                         { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_MN"], ID: "menu_nm_mn", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
                         { HEADER: Message.Label.Array["SYS_MENU.MENU_NM_EN"], ID: "menu_nm_en", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
                         { HEADER: Message.Label.Array["SYS_MENU.MENU_CD"], ID: "menu_cd", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: true },
@@ -766,11 +753,6 @@
                 menu_grid.RowWarning("use_yn", "0", Message.Label.Array["NOT_USED"]);
                 menu_grid.DataSet(data).then(function () {
                     decorateMenuV2GridNameCells();
-                    let activeTab = "basic";
-                    if ($("#menu_detail_panel").attr("data-detail-open") === "true") {
-                        activeTab = $("#menu_detail_panel").find("[data-detail-tab].gi-menu-v2-tab-active").data("detailTab") || "basic";
-                    }
-                    syncMenuV2GridColumnsByDetailTab(activeTab);
                     menu_grid.gridSkin("gi-grid-skin-menu-v2");
                     menu_grid.excelDownloadEvent(Message.Label.Array["SYS_MENU.TITLE_LIST"]);
                     menu_grid.updateBtnClick(menuUpdateSetting, "update_btn");
@@ -780,29 +762,38 @@
                     menu_grid.rowClick(rowClickEvent);
                 });
                 function rowClickEvent(rows, e) {
-                    let clickFlag = $(e.currentTarget).hasClass("gi-grid-list-select");
-                    rows = extractMenuRowData($(e.currentTarget));
+                    let $row = $(e.currentTarget);
+                    rows = extractMenuRowData($row);
 
-                    if (clickFlag) {
-                        openMenuDetailPanel(rows, "basic");
+                    if (!formUtil.checkEmptyValue(rows.menu_cd)) {
+                        return;
+                    }
 
-                        if (rows.menu_lvl !== "2") {
-                            $("#menu_depth_register_btn").removeClass("gi-hidden");
-                            rowClickData = rows;
-                            if (rows.menu_lvl === "1") {
-                                $("#register_depth_prgm_url").attr("data-required", "true");
-                                $("label[for='register_depth_prgm_url']").attr("data-required", "true");
-                            }
-                            $("#menuDepthRegister-btn").off("click").on("click", function () {
-                                comSubMenuRegister();
-                            });
-                        } else {
-                            $("#menu_depth_register_btn").addClass("gi-hidden");
-                            rowClickData = rows;
-                        }
-                    } else {
+                    if (selectedMenuRow && selectedMenuRow.menu_cd === rows.menu_cd
+                        && $("#menu_detail_panel").attr("data-detail-open") === "true") {
                         closeMenuDetailPanel();
+                        $row.removeClass("gi-grid-list-select");
                         $("#menu_depth_register_btn").addClass("gi-hidden");
+                        return;
+                    }
+
+                    $("#gi-Grid").find(".gi-grid-list").removeClass("gi-grid-list-select");
+                    $row.addClass("gi-grid-list-select");
+                    openMenuDetailPanel(rows, "basic");
+
+                    if (rows.menu_lvl !== "2") {
+                        $("#menu_depth_register_btn").removeClass("gi-hidden");
+                        rowClickData = rows;
+                        if (rows.menu_lvl === "1") {
+                            $("#register_depth_prgm_url").attr("data-required", "true");
+                            $("label[for='register_depth_prgm_url']").attr("data-required", "true");
+                        }
+                        $("#menuDepthRegister-btn").off("click").on("click", function () {
+                            comSubMenuRegister();
+                        });
+                    } else {
+                        $("#menu_depth_register_btn").addClass("gi-hidden");
+                        rowClickData = rows;
                     }
                 }
                 });

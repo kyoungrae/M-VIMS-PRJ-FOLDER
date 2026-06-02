@@ -3823,52 +3823,109 @@
     transition: all 0.2s ease;
 }
 
-/* Level 1: Single branch */
+/* Cell ::before is now ONLY a transparent spacer that reserves the indent
+   width. The actual connector lines are drawn on the full-height row
+   (.gi-hierarchy-row) pseudo-element further below, so the line element spans
+   100% of the row height and the segments join across rows without breaks.
+   (Previously the lines were drawn here on the cell, whose height is not
+   guaranteed to fill the row, which is why the trunk kept breaking.) */
 .gi-grid-hierarchy-depth1::before {
     width: 24px;
     height: 100%;
     margin-right: 8px;
-    background:
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 10px 0 / 2px 100% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 10px 50% / 10px 2px no-repeat;
 }
 
-.gi-grid-hierarchy-depth1.gi-grid-hierarchy-last::before {
-    background:
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 10px 0 / 2px 50% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 10px 50% / 10px 2px no-repeat;
-}
-
-/* Level 2: Double branch */
 .gi-grid-hierarchy-depth2::before {
     width: 44px;
     height: 100%;
     margin-right: 8px;
-    background:
-        /* vertical line from parent */
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 10px 0 / 2px 100% no-repeat,
-        /* self vertical and horizontal branch */
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 30px 0 / 2px 100% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 30px 50% / 10px 2px no-repeat;
 }
 
-.gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last::before {
-    background:
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 30px 0 / 2px 100% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 30px 50% / 10px 2px no-repeat;
+/* ---- Connector lines drawn on the full-height row ----
+   Row indent reference: cell padding-left(8px) + spacer-internal lines at
+   10px / 30px  =>  vertical trunks land at 18px (depth0->1) and 38px (1->2).
+   The row is position:relative (set in the gap-removal block below). */
+.gi-hierarchy-row.gi-hr-d1::before,
+.gi-hierarchy-row.gi-hr-d2::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    pointer-events: none;
 }
 
-.gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::before {
+/* depth1: single vertical trunk @18px + horizontal elbow */
+.gi-hierarchy-row.gi-hr-d1::before {
     background:
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 10px 0 / 2px 100% no-repeat,
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 30px 0 / 2px 50% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 30px 50% / 10px 2px no-repeat;
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 18px 0 / 2px 100% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 18px 50% / 10px 2px no-repeat;
 }
 
-.gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last.gi-grid-hierarchy-last::before {
+/* depth1 last child: trunk stops at the elbow (top half only) */
+.gi-hierarchy-row.gi-hr-d1.gi-hr-last::before {
     background:
-        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 30px 0 / 2px 50% no-repeat,
-        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 30px 50% / 10px 2px no-repeat;
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 18px 0 / 2px 50% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 18px 50% / 10px 2px no-repeat;
+}
+
+/* depth2: grandparent trunk @18px (full) + parent trunk @38px (full) + elbow */
+.gi-hierarchy-row.gi-hr-d2::before {
+    background:
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 18px 0 / 2px 100% no-repeat,
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 38px 0 / 2px 100% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 38px 50% / 10px 2px no-repeat;
+}
+
+/* depth2 whose depth1 parent is last: drop the grandparent trunk */
+.gi-hierarchy-row.gi-hr-d2.gi-hr-parent-last::before {
+    background:
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 38px 0 / 2px 100% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 38px 50% / 10px 2px no-repeat;
+}
+
+/* depth2 last child: parent trunk stops at the elbow */
+.gi-hierarchy-row.gi-hr-d2.gi-hr-last::before {
+    background:
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 18px 0 / 2px 100% no-repeat,
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 38px 0 / 2px 50% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 38px 50% / 10px 2px no-repeat;
+}
+
+/* depth2 last child AND parent last: only the parent trunk top half + elbow */
+.gi-hierarchy-row.gi-hr-d2.gi-hr-parent-last.gi-hr-last::before {
+    background:
+        linear-gradient(to right, #e2e8f0 2px, transparent 2px) 38px 0 / 2px 50% no-repeat,
+        linear-gradient(to bottom, #e2e8f0 2px, transparent 2px) 38px 50% / 10px 2px no-repeat;
+}
+
+/* The menu-v2 skin draws its own connector lines on the cell, so suppress the
+   row-based lines there to avoid duplicates. !important is used so this wins
+   regardless of how many state classes (last / parent-last) the row carries. */
+.gi-grid-skin-menu-v2 .gi-hierarchy-row::before {
+    background: none !important;
+    content: "" !important;
+}
+
+/* Tree(hierarchy) grids: each row is a separate .gi-grid-list with
+   padding:10px 0 + margin-bottom:5px, leaving a ~25px vertical gap between
+   rows. The connector lines are drawn per-row (height:100% of the cell), so
+   that gap breaks the vertical trunk. Remove the gap only on hierarchy rows
+   (tagged .gi-hierarchy-row in GridUtils) and give the cells a uniform
+   height, so the per-row line segments meet end-to-end with no magic-number
+   height hack. (Row class is used instead of :has() for wider browser support.) */
+.gi-grid-list.gi-hierarchy-row {
+    position: relative;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.gi-grid-hierarchy-depth0,
+.gi-grid-hierarchy-depth1,
+.gi-grid-hierarchy-depth2 {
+    min-height: 40px;
 }
 
 .gi-grid-border {
@@ -4127,7 +4184,8 @@
 
 /* Warning Row Styling */
 .gi-grid-list-warn {
-    background-color: #fff9db !important;
+    /* background-color: #fff9db !important; */
+    background-color: #f1f1f1 !important;
     /* Very light yellow */
     position: relative;
     border-left: 5px solid #fab005 !important;
@@ -4135,7 +4193,8 @@
 }
 
 .gi-grid-list-warn:hover {
-    background-color: #fff3bf !important;
+    /* background-color: #fff3bf !important; */
+    background-color: #eaeaea !important
 }
 
 .gi-grid-list-warn::after {
@@ -4309,7 +4368,6 @@
 .gi-menu-v2-toolbar-right {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
 }
 
 .gi-menu-v2-search {
@@ -4509,6 +4567,92 @@
     overflow: visible;
 }
 
+/* Menu V2 hierarchy connector lines (clear + subtle) */
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1,
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2 {
+    position: relative;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1 {
+    padding-left: 30px;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2 {
+    padding-left: 50px;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before,
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after,
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before,
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    /* Reset leftover gradient guide-lines inherited from the generic
+       .gi-grid-hierarchy-depthN::before rules, which otherwise paint a
+       second set of overlapping lines under the menu-v2 skin.
+       depth2::before re-declares its own background later, so it is unaffected. */
+    width: 0;
+    margin: 0;
+    background: none;
+}
+
+/* depth0 toggle center = padding(8px) + toggle-half(10px) = 18px
+   depth1 content start = padding-left(30px)
+   depth1 toggle center = 30px + 10px = 40px
+   depth2 content start = padding-left(50px) */
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before {
+    left: 18px;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid #cbd5e1;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after {
+    left: 18px;
+    top: 50%;
+    width: 12px;
+    border-top: 1px solid #cbd5e1;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1.gi-grid-hierarchy-last::before {
+    bottom: 50%;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 42px;
+    background:
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 18px 0 / 1px 100% no-repeat,
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 100% no-repeat;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::after {
+    left: 40px;
+    top: 50%;
+    width: 10px;
+    border-top: 1px solid #cbd5e1;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last::before {
+    background:
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 100% no-repeat;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::before {
+    background:
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 18px 0 / 1px 100% no-repeat,
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 50% no-repeat;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last.gi-grid-hierarchy-last::before {
+    background:
+        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 50% no-repeat;
+}
+
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] .gi-tree-toggle {
     flex: 0 0 20px;
 }
@@ -4529,12 +4673,6 @@
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] span {
     width: auto !important;
     max-width: none;
-}
-
-.gi-grid-skin-menu-v2 .gi-grid-grip-cell {
-    color: #cbd5e1;
-    cursor: grab;
-    flex: 0 0 auto;
 }
 
 .gi-grid-skin-menu-v2 .gi-menu-v2-row-icon {

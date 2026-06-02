@@ -986,13 +986,14 @@ FormUtility.prototype.giGrid = function (layout, paging, page, gridId) {
                 let gridSelector = "#" + gridId;
                 $(gridSelector).find(".gi-grid-list").addClass("gi-cursor-pointer");
                 $(gridSelector).find(".gi-grid-list")
-                    .mouseenter(function () {
+                    .off("mouseenter.giGridRowHover mouseleave.giGridRowHover click.giGridRowSelect")
+                    .on("mouseenter.giGridRowHover", function () {
                         $(this).addClass("gi-grid-list-hover");
                     })
-                    .mouseleave(function () {
+                    .on("mouseleave.giGridRowHover", function () {
                         $(this).removeClass("gi-grid-list-hover");
                     })
-                    .click(function () {
+                    .on("click.giGridRowSelect", function () {
                         if ($(this).hasClass("gi-grid-list-select")) {
                             $(this).removeClass("gi-grid-list-select");
                         } else {
@@ -1508,9 +1509,9 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
         '                                 <i class="fa-solid fa-folder"></i>' +
         '                               </button>' +
         '                             </div>' +
-        '                             <select class="gi-grid-row-selector gi-row-65px" id="' + giGridRowSelectorId + '">' +
-        options +
-        '                             </select>' +
+        // '                             <select class="gi-grid-row-selector gi-row-65px" id="' + giGridRowSelectorId + '">' +
+        // options +
+        // '                             </select>' +
         '                        </div>' +
         '                       <div class="gi-flex gi-flex-justify-content-end gi-gap-3px">' +
         '                             <button id="excel-upload-btn_' + gridId + '" class="gi-excel-upload-btn" type="button">' +
@@ -1793,6 +1794,9 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
 
                     let $firstLi = r.$row.find("li").not('.hidden').first();
 
+                    // [추가] 트리(계층) 행 표시 - 행 간격 제거용 클래스 (연결선 끊김 방지)
+                    r.$row.addClass("gi-hierarchy-row");
+
                     // [추가] 토글 아이콘 추가 (자식이 있는 경우에만)
                     if (r.hasChild) {
                         if ($firstLi.find('.gi-tree-toggle').length === 0) {
@@ -1802,6 +1806,7 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
 
                     if (r.level === "0") {
                         $firstLi.addClass("gi-grid-hierarchy-depth0");
+                        r.$row.addClass("gi-hr-d0");
                         //NOTE: 첫번째 row를 제외한 row에 border-top-dotted-gray 추가
                         if (r !== depth0[0]) {
                             r.$row.addClass("border-top-dotted-gray");
@@ -1810,9 +1815,11 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
 
                     } else if (r.level === "1") {
                         $firstLi.addClass("gi-grid-hierarchy-depth1");
+                        r.$row.addClass("gi-hr-d1");
                         unUsedMenuUISettings(r);
                     } else if (r.level === "2") {
                         $firstLi.addClass("gi-grid-hierarchy-depth2");
+                        r.$row.addClass("gi-hr-d2");
                         unUsedMenuUISettings(r);
                     }
 
@@ -1868,6 +1875,7 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                         let isParentLast = (idx1 === matchingDepth1.length - 1);
                         if (isParentLast) {
                             r1.$row.find(".gi-grid-hierarchy-depth1").addClass("gi-grid-hierarchy-last");
+                            r1.$row.addClass("gi-hr-last");
                         }
                         finalOrder.push(r1);
                         // depth2에서 부모로 찾기
@@ -1875,9 +1883,11 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                         matchingDepth2.forEach((r2, idx2) => {
                             if (isParentLast) {
                                 r2.$row.find(".gi-grid-hierarchy-depth2").addClass("gi-grid-hierarchy-parent-last");
+                                r2.$row.addClass("gi-hr-parent-last");
                             }
                             if (idx2 === matchingDepth2.length - 1) {
                                 r2.$row.find(".gi-grid-hierarchy-depth2").addClass("gi-grid-hierarchy-last");
+                                r2.$row.addClass("gi-hr-last");
                             }
                             finalOrder.push(r2);
                         });
@@ -2206,21 +2216,21 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                 let gridSelector = "#" + gridId;
                 $(gridSelector).find(".gi-grid-list").addClass("gi-cursor-pointer");
                 $(gridSelector).find(".gi-grid-list, .unused-menu")
-                    .mouseenter(function () {
+                    .off("mouseenter.giGridRowHover mouseleave.giGridRowHover click.giGridRowSelect")
+                    .on("mouseenter.giGridRowHover", function () {
                         $(this).addClass("gi-grid-list-hover");
                     })
-                    .mouseleave(function () {
+                    .on("mouseleave.giGridRowHover", function () {
                         $(this).removeClass("gi-grid-list-hover");
                     })
-                    .click(function () {
+                    .on("click.giGridRowSelect", function () {
                         if ($(this).hasClass("gi-grid-list-select")) {
                             $(this).removeClass("gi-grid-list-select");
                         } else {
                             $("#" + gridId).find(".gi-grid-list").removeClass("gi-grid-list-select");
                             $(this).addClass("gi-grid-list-select");
                         }
-                    })
-                    ;
+                    });
 
                 // 클릭 시 이벤트 설정
                 $("#" + gridId).find("ul[data-row-num]").off("click.rowClickEventHandler").on("click.rowClickEventHandler", function (e) {
