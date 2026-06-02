@@ -4604,18 +4604,19 @@
    depth2 content start = padding-left(50px) */
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before {
-    left: 18px;
+    left: 20px;
     top: -12px;
     bottom: 0;
-    border-left: 1px solid #cbd5e1;
-    height: 48px;
+    border-left: 2px dotted #cbd5e1;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after {
-    left: 18px;
-    top: 50%;
+    left: 20px;
+    top: calc(50% - 2px);
     width: 12px;
-    border-top: 1px solid #cbd5e1;
+    top:-12px;
+    height: 48px;
+    background: radial-gradient(circle, #cbd5e1 0.6px, transparent 0px) 0px 50% / 3px 3px repeat-x
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1.gi-grid-hierarchy-last::before {
@@ -4623,36 +4624,37 @@
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before {
-    left: 0;
+    left: 20px;
     top: -12px;
     bottom: 0;
-    width: 42px;
-    background:
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 18px 0 / 1px 100% no-repeat,
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 100% no-repeat;
+    width: 0;
+    border-left: 2px dotted #cbd5e1;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::after {
     left: 40px;
-    top: 50%;
-    width: 10px;
-    border-top: 1px solid #cbd5e1;
+    top: -12px;
+    bottom: 0;
+    width: 12px;
+    border-left: 2px dotted #cbd5e1;
+    height: 48px;
+    background: radial-gradient(circle, #cbd5e1 0.6px, transparent 0px) 0px 50% / 3px 3px repeat-x
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last::before {
-    background:
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 100% no-repeat;
+    border-left: 0;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::before {
-    background:
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 18px 0 / 1px 100% no-repeat,
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 50% no-repeat;
+    border-left: 2px dotted #cbd5e1;
+}
+
+.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::after {
+    bottom: 50%;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last.gi-grid-hierarchy-last::before {
-    background:
-        linear-gradient(to bottom, #cbd5e1, #cbd5e1) 40px 0 / 1px 50% no-repeat;
+    border-left: 0;
 }
 
 .gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] .gi-tree-toggle {
