@@ -3756,6 +3756,43 @@
     color: #3b82f6;
 }
 
+.gi-hierarchy-tree-controls {
+    align-items: center;
+    margin-right: 6px;
+}
+
+.gi-hierarchy-tree-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+}
+
+.gi-hierarchy-tree-btn:hover {
+    background: #f8fafc;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.gi-hierarchy-tree-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.gi-hierarchy-tree-btn i {
+    font-size: 14px;
+    line-height: 1;
+}
+
 /* .gi-grid-hierarchy-depth0::before {
     content: "";
     background-image: url(../../img/circle.png);

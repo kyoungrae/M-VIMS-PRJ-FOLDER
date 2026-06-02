@@ -1214,6 +1214,50 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
     let application_parent_hierarchyOptionColumn = "";
     let application_sub_hierarchyOptionColumn = "";
 
+    function expandAllHierarchyRows() {
+        if (!formUtil.checkEmptyValue(application_level_hierarchyOptionColumn)) {
+            return;
+        }
+        let $body = $("#" + gridId + " #gi-grid-list-body");
+        $body.find("ul.gi-grid-list").removeClass("gi-hidden");
+        $body.find(".gi-tree-toggle")
+            .removeClass("collapsed fa-caret-right")
+            .addClass("expanded fa-caret-down");
+    }
+
+    function collapseAllHierarchyRows() {
+        if (!formUtil.checkEmptyValue(application_level_hierarchyOptionColumn)) {
+            return;
+        }
+        let $body = $("#" + gridId + " #gi-grid-list-body");
+        $body.find("ul.gi-grid-list").each(function () {
+            let $row = $(this);
+            let level = $row.find(`li[data-field="${application_level_hierarchyOptionColumn}"] span`)
+                .first().text().trim();
+            if (level !== "0") {
+                $row.addClass("gi-hidden");
+            }
+        });
+        $body.find(".gi-tree-toggle")
+            .removeClass("expanded fa-caret-down")
+            .addClass("collapsed fa-caret-right");
+    }
+
+    function bindHierarchyTreeControls() {
+        let $grid = $("#" + gridId);
+        $grid.find(".gi-hierarchy-tree-controls").removeClass("gi-hidden");
+        $grid.find(".gi-hierarchy-expand-all-btn").off("click.hierarchyTree").on("click.hierarchyTree", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            expandAllHierarchyRows();
+        });
+        $grid.find(".gi-hierarchy-collapse-all-btn").off("click.hierarchyTree").on("click.hierarchyTree", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            collapseAllHierarchyRows();
+        });
+    }
+
     if (!formUtil.checkEmptyValue(gridId)) gridId = "gi-Grid";
     let gridData = [];
     let rowWarningFn = null;
@@ -1310,9 +1354,19 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
         '            <figure class="gi-figure-content gi-overflow-scroll gi-col-100 gi-row-100 gi-flex gi-flex-justify-content-center gi-flex gi-flex-direction-column">' +
         '                <div class="gi-article-content gi-min-col-90 gi-col-100 gi-row-100">' +
         '                    <div class="gi-row-100 gi-flex gi-flex-justify-content-space-between gi-margin-bottom-1 ">' +
-        '                        <select class="gi-grid-row-selector gi-row-65px" id="' + giGridRowSelectorId + '">' +
+        '                        <div class="gi-flex gi-gap-3px gi-flex-align-items-center">' +
+        '                             <div class="gi-hierarchy-tree-controls gi-hidden gi-flex gi-gap-3px">' +
+        '                               <button type="button" class="gi-hierarchy-tree-btn gi-hierarchy-expand-all-btn" title="전체 펼치기">' +
+        '                                 <i class="fa-solid fa-folder-open"></i>' +
+        '                               </button>' +
+        '                               <button type="button" class="gi-hierarchy-tree-btn gi-hierarchy-collapse-all-btn" title="전체 접기">' +
+        '                                 <i class="fa-solid fa-folder"></i>' +
+        '                               </button>' +
+        '                             </div>' +
+        '                             <select class="gi-grid-row-selector gi-row-65px" id="' + giGridRowSelectorId + '">' +
         options +
-        '                        </select>' +
+        '                             </select>' +
+        '                        </div>' +
         '                       <div class="gi-flex gi-flex-justify-content-end gi-gap-3px">' +
         '                             <button id="excel-upload-btn_' + gridId + '" class="gi-excel-upload-btn" type="button">' +
         '                               <i class="fa-solid fa-file-excel"></i>' +
@@ -1461,6 +1515,18 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                                     tag = '<button type="button" id="' + item.ID + "_" + i + '" class="gi-grid-btn gi-font-size-' + item.FONT_SIZE + ' ' + item.ID + '" data-row-num="' + i + '" data-btn-target="' + item.TARGET + '">' + item.HEADER + '</button>';
                                 }
                                 break;
+                            case "toggle":
+                                if (!hasVisibleOption || originalDataForVisibleOption[item.ID] !== "true") {
+                                    const rawValue = data[i][item.ID];
+                                    const isOn = rawValue === "1" || rawValue === 1;
+                                    const checkedAttr = isOn ? " checked" : "";
+                                    tag = '<label class="gi-toggle-switch" data-focus-label="false" style="height:auto !important; width:40px !important;">'
+                                        + '<input type="checkbox" class="gi-grid-toggle" id="' + item.ID + '_' + i + '"'
+                                        + ' data-field="' + item.ID + '" data-grid-value="' + rawValue + '" data-row-num="' + i + '"' + checkedAttr + '>'
+                                        + '<span class="gi-toggle-slider-grid-cell"></span></label>';
+                                }
+                                
+                                break;
                             // case "checkbox":
                             //     tag = '<input type="checkbox" class="gi-row-100 gi-padding-left-right-10px gi-font-size-' + item.FONT_SIZE + '" value="' + data[i][item.ID] + '" />';
                             //     break;
@@ -1594,17 +1660,19 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                     //NOTE: 사용여부에 따른 ui 변경
                     function unUsedMenuUISettings(e) {
                         //NOTE: 미사용시 메뉴 비활성화
-                        let flag = e.$row.find("li[data-field='use_yn']").not(".hidden").find("span[data-grid-value]").length === 0;
-                        let a = ""; //NOTE: 그리드 내부에 SYS_CD_GRP_ID 함수로 인해 값이 동적으로 변화 하는걸 대비(공통코드 적용시 text, 미적용시 interger)
+                        let $useYnCell = e.$row.find("li[data-field='use_yn']").not(".hidden");
+                        let $valueEl = $useYnCell.find("[data-grid-value]").first();
+                        let flag = $valueEl.length === 0;
+                        let a = "";
                         let b = "";
                         let c = "";
 
                         if (flag) {
-                            a = e.$row.find("li[data-field='use_yn']").not(".hidden").find("span").text();
+                            a = $useYnCell.find("span").text();
                             b = "0";
                             c = "1";
                         } else {
-                            a = e.$row.find("li[data-field='use_yn']").not(".hidden").find("span").data("gridValue");
+                            a = $valueEl.data("gridValue");
                             b = 0;
                             c = 1;
                         }
@@ -1718,6 +1786,13 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
             application_level_hierarchyOptionColumn = hierarchyOptionItem.level_column;
             application_parent_hierarchyOptionColumn = hierarchyOptionItem.parent_depth_column;
             application_sub_hierarchyOptionColumn = hierarchyOptionItem.child_depth_column;
+            bindHierarchyTreeControls();
+        },
+        expandAllHierarchy: function () {
+            expandAllHierarchyRows();
+        },
+        collapseAllHierarchy: function () {
+            collapseAllHierarchyRows();
         },
         //그리드 row 개수 변경 및 페이징 버튼 이벤트 설정
         pagingSet: function (fn) {

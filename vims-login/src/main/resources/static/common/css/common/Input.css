@@ -471,6 +471,53 @@ input:checked+.gi-toggle-slider:before {
     transform: translateX(24px);
 }
 
+/* Grid cell toggle — .gi-toggle-slider 와 분리 (그리드 전용 커스터마이징) */
+.gi-grid-list .gi-toggle-switch {
+    width: 50px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.gi-toggle-slider-grid-cell {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.gi-toggle-slider-grid-cell:before {
+    position: absolute;
+    content: "";
+    top: 50%;
+    left: 3px;
+    height: 15px;
+    width: 15px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%);
+}
+
+input:checked+.gi-toggle-slider-grid-cell {
+    background-color: tomato;
+}
+
+input:focus+.gi-toggle-slider-grid-cell {
+    box-shadow: 0 0 1px tomato;
+}
+
+input:checked+.gi-toggle-slider-grid-cell:before {
+    left: auto;
+    right: 3px;
+    transform: translateY(-50%);
+}
+
 .gi-toggle-label {
     font-size: 14px;
     color: var(--main-background-header-color);

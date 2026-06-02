@@ -457,7 +457,7 @@
                     let url = $this.data("page-name");
                     let prgmUrl = $this.data("prgm-url");
                     let menuCode = $this.data("menu-code");
-                    let urlInfo = { url: url }
+                    let urlInfo = { url: url, prgmUrl: prgmUrl }
                     common_session.setItem("recentPage", urlInfo);
                     common_session.setItem("activatedMenu", urlInfo);
 
@@ -477,7 +477,7 @@
                     let url = $this.data("page-name");
                     let prgmUrl = $this.data("prgm-url");
                     let menuCode = $this.data("menu-code");
-                    let urlInfo = { url: url }
+                    let urlInfo = { url: url, prgmUrl: prgmUrl }
                     common_session.setItem("recentPage", urlInfo);
                     common_session.setItem("activatedMenu", urlInfo);
 
@@ -536,12 +536,14 @@
                 $button.find("ul").hide(); // 초기 로드 시에는 애니메이션 없이 즉시 숨김
             });
         }
+        formUtil.restoreCurrentPageContent();
     }
     //NOTE: 내정보 수정
     $("#myinfo-btn").off("click").on("click", function (e) {
         e.preventDefault();
         let url = "/user/myinfo";
         dropDownMenu("close");
+        common_session.setItem("recentPage", { url: url, prgmUrl: "cms" });
         formUtil.apiLoadContent("cms", url, "");
         allCloseMenuTitle();
     });

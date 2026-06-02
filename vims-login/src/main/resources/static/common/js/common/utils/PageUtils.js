@@ -1,4 +1,65 @@
 /**
+ * @title : 현재 화면 정보 저장 (브라우저 새로고침 복원용)
+ */
+FormUtility.prototype.saveCurrentPage = function (reqUrl, prefixUrl) {
+    if (!reqUrl || reqUrl === "/index/index" || reqUrl === "/") {
+        return;
+    }
+    const pageInfo = { url: reqUrl };
+    if (prefixUrl) {
+        pageInfo.prgmUrl = prefixUrl;
+    }
+    sessionStorage.setItem("currentPage", JSON.stringify(pageInfo));
+}
+
+/**
+ * @title : 새로고침 시 마지막 화면 복원
+ */
+FormUtility.prototype.restoreCurrentPageContent = function () {
+    let currentPageItem = null;
+    try {
+        currentPageItem = JSON.parse(sessionStorage.getItem("currentPage") || "null");
+    } catch (e) {
+        currentPageItem = null;
+    }
+
+    if (!currentPageItem || !this.checkEmptyValue(currentPageItem.url)) {
+        currentPageItem = new Session().getItem("recentPage");
+    }
+
+    if (!currentPageItem || !this.checkEmptyValue(currentPageItem.url)) {
+        return;
+    }
+
+    const url = currentPageItem.url;
+    if (url === "/index/index" || url === "/") {
+        return;
+    }
+
+    let prgmUrl = currentPageItem.prgmUrl;
+    if (!this.checkEmptyValue(prgmUrl)) {
+        let $menu = $("[data-page-name='" + url + "'].sideNavPageLoad");
+        if (url === "/bbs/view") {
+            const data = new Session().getItem("DATA");
+            if (data && data.bbs_id) {
+                $menu = $("[data-page-name='/bbs/view'][data-menu-code='" + data.bbs_id + "']");
+            }
+        }
+        if ($menu.length > 0) {
+            prgmUrl = $menu.data("prgm-url");
+        } else if (url === "/user/myinfo") {
+            prgmUrl = "cms";
+        } else {
+            return;
+        }
+    }
+
+    const data = new Session().getItem("DATA");
+    const payload = data !== null && data !== undefined ? data : "";
+    this.apiLoadContent(prgmUrl, url, payload);
+}
+
+/**
  * @title : 메뉴 활성화
  * @reqUrl : 요청 URL [String]
  * @text : 현재 페이지에 맞는 메뉴를 활성화하고 세션에 저장
@@ -119,6 +180,7 @@ FormUtility.prototype.loadContent = function (reqUrl, DATA) {
         }
 
         formUtil.activatedMenu(reqUrl);
+        formUtil.saveCurrentPage(reqUrl, null);
     })
         .catch(error => {
             console.log(error)
@@ -148,6 +210,7 @@ FormUtility.prototype.apiLoadContent = function (prefixUrl, reqUrl, DATA) {
             sessionStorage.setItem("DATA", cont);
             $("#gi-road-content").empty().html(pageSources);
             formUtil.activatedMenu(reqUrl);
+            formUtil.saveCurrentPage(reqUrl, prefixUrl);
         }).catch(error => {
             formUtil.toast('Failed to load content:', 'error');
         });
@@ -160,6 +223,7 @@ FormUtility.prototype.apiLoadContent = function (prefixUrl, reqUrl, DATA) {
             sessionStorage.setItem("DATA", cont);
             $("#gi-road-content").empty().html(pageSources);
             formUtil.activatedMenu(reqUrl);
+            formUtil.saveCurrentPage(reqUrl, prefixUrl);
         }).catch(error => {
             formUtil.toast('Failed to load content:', 'error');
         });

@@ -461,9 +461,9 @@
                         { HEADER: Message.Label.Array["SYS_MENU.URL"], ID: "url", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "left", HIDDEN: false },
                         { HEADER: Message.Label.Array["SYS_ICON.ICON_VIEW"], ID: 'icon_view', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                         { HEADER: Message.Label.Array["SYS_ICON.ICON_CLS"], ID: "menu_icon", WIDTH: "7", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn", WIDTH: "7", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", SYS_CD_GRP_ID: "USE_YN", HIDDEN: false },
-                        { HEADER: Message.Label.Array["UPDATE_BTN"], ID: "update_menu_btn", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: Message.Label.Array["DELETE_BTN"], ID: "delete_menu_btn", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_MENU.USE_YN"], ID: "use_yn", WIDTH: "7", TYPE: "toggle", FONT_SIZE: "12px", TEXT_ALIGN: "center", SYS_CD_GRP_ID: "USE_YN", HIDDEN: false },
+                        { HEADER: Message.Label.Array["UPDATE_BTN"], ID: "update_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array["DELETE_BTN"], ID: "delete_btn", WIDTH: "5", TYPE: "img", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         // {HEADER: Message.Label.Array["SYS_MENU.REGISTER_MENU_ACCESS_GROUP_BTN"],ID:"access_right_group",     WIDTH:"5",TYPE:"button",FONT_SIZE:"12px",TEXT_ALIGN:"center",VISIBLE_OPTION_BTN:{"menu_lvl":"0"},HIDDEN:false},
                         { HEADER: Message.Label.Array["SYS_MENU.REGISTER_MENU_ACCESS_GROUP_BTN"], ID: "access_right_group", WIDTH: "5", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", VISIBLE_OPTION_BTN: [{ "menu_lvl": "0" }, { "menu_lvl": "1" }], HIDDEN: false },
 
@@ -492,8 +492,8 @@
                 menu_grid.excelDownloadEvent(Message.Label.Array["SYS_MENU.TITLE_LIST"]);
 
                 //그리드 내부의 상세 버튼 클릭 이벤트 설정(버튼클릭시 호출될 함수, 그리드 헤더 부분에 설정한 버튼 ID)
-                menu_grid.updateBtnClick(menuUpdateSetting, "update_menu_btn");
-                menu_grid.deleteBtnClick(sysMenuDelete, "delete_menu_btn");
+                menu_grid.updateBtnClick(menuUpdateSetting, "update_btn");
+                menu_grid.deleteBtnClick(sysMenuDelete, "delete_btn");
 
                 //그리스 내부의 header click 정렬 이벤트 설정
                 //menu_grid.sortDataSet(findBySysCodeMenuList);
