@@ -29,6 +29,8 @@ CommonTag.prototype.inputTagFocus = function (input) {
 
 
     function giInputFocusHandlerEvent(e) {
+        // 토글(type="toggle")은 플로팅 라벨 대상이 아님 (브라우저는 type 을 text 로 인식하므로 속성으로 판별)
+        if ($(this).attr("type") === "toggle") return;
         if ("radio" !== this.type && "checkbox" !== this.type) {
             let $container = $(this).closest(".gi-input-container");
             $container.attr('data-focus-line', true);
@@ -36,6 +38,8 @@ CommonTag.prototype.inputTagFocus = function (input) {
         }
     }
     function giInputChangeHandlerEvent(e) {
+        // 토글(type="toggle")은 플로팅 라벨/required 자동조정 대상이 아님
+        if ($(this).attr("type") === "toggle") return;
         let $container = $(this).closest(".gi-input-container");
         if ("radio" !== this.type && "checkbox" !== this.type) {
             if (formUtil.checkEmptyValue(e.target.value)) {
@@ -61,6 +65,8 @@ CommonTag.prototype.inputTagFocus = function (input) {
         }
     }
     function giInputBlurHandlerEvent(e) {
+        // 토글(type="toggle")은 플로팅 라벨 대상이 아님
+        if ($(this).attr("type") === "toggle") return;
         let $container = $(this).closest(".gi-input-container");
         if ("radio" !== this.type && "checkbox" !== this.type) {
             if (formUtil.checkEmptyValue(e.target.value)) {
@@ -130,7 +136,8 @@ CommonTag.prototype.inputLabelTagFocus = function (label) {
 CommonTag.prototype.inputTagReset = function (input) {
 
     input.map((i, e) => {
-        if ("radio" === e.type || "checkbox" === e.type) {
+        // 토글(type="toggle")은 빈 텍스트로 오인되어 라벨이 false 로 초기화되므로 제외
+        if ("radio" === e.type || "checkbox" === e.type || $(e).attr("type") === "toggle") {
 
         } else {
             let val = $(e).val();

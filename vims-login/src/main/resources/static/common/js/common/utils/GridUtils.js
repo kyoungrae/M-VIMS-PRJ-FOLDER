@@ -115,10 +115,42 @@ function bindMasterDetailBtnClick(gridId, detailPanelId, btnName, fn, layoutConf
 }
 
 /**
+ * @title : 그리드 컬럼 WIDTH 비율 정규화
+ * @text : HIDDEN=false 인 컬럼들의 WIDTH 합이 100(%)이 되도록 비례 배분한다.
+ *         gi-row-N 클래스는 정수 %만 존재하므로 정수로 내림한 뒤,
+ *         100 과의 잔여분은 소수부가 큰 컬럼부터 1씩 배분하여 합을 정확히 100 으로 맞춘다.
+ *         (HIDDEN=true 컬럼은 합산/배분에서 제외, WIDTH 미변경)
+ * @param layout : giGrid 에 전달되는 헤더 객체 ({ list: [...] })
+ * @return : 동일 객체 (visible 컬럼의 WIDTH 가 정규화됨)
+ */
+FormUtility.prototype.normalizeGridWidth = function (layout) {
+    if (!layout || !Array.isArray(layout.list)) return layout;
+    let visible = layout.list.filter(function (it) { return !it.HIDDEN; });
+    let total = visible.reduce(function (s, it) { return s + Number(it.WIDTH || 0); }, 0);
+    if (total <= 0) return layout;
+
+    let floats = visible.map(function (it) { return Number(it.WIDTH || 0) / total * 100; });
+    let widths = floats.map(function (f) { return Math.floor(f); });
+    let remainder = 100 - widths.reduce(function (s, w) { return s + w; }, 0);
+
+    floats
+        .map(function (f, i) { return { i: i, frac: f - Math.floor(f) }; })
+        .sort(function (a, b) { return b.frac - a.frac; })
+        .slice(0, remainder)
+        .forEach(function (o) { widths[o.i] += 1; });
+
+    visible.forEach(function (it, idx) { it.WIDTH = String(widths[idx]); });
+    return layout;
+};
+
+/**
  * @title : 그리드 생성
  * @text : 그리드 관련 유틸리티 (giGrid 등)
  */
 FormUtility.prototype.giGrid = function (layout, paging, page, gridId) {
+    //보이는(HIDDEN=false) 컬럼들의 WIDTH 합이 100%가 되도록 비율 정규화
+    formUtil.normalizeGridWidth(layout);
+
     let gridSortManager = formUtil.gridSortManager;
     //localStorage에서 정렬값을 가져와 setting
     gridSortManager.loadSortState();
@@ -1344,6 +1376,9 @@ async function checkSameCode(sysCodeGroupIdArray, sysDeptGroupCodeId, cont) {
     // console.log("푸쉬 푸쉬::", JSON.parse(JSON.stringify(sysCodeGroupIdArray)));
 }
 FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) {
+    //보이는(HIDDEN=false) 컬럼들의 WIDTH 합이 100%가 되도록 비율 정규화
+    formUtil.normalizeGridWidth(layout);
+
     let gridSortManager = formUtil.gridSortManager;
     //localStorage에서 정렬값을 가져와 setting
     gridSortManager.loadSortState();
