@@ -205,7 +205,9 @@ html {
 .gi-side-nav-menu-level {
     list-style-type: none;
     display: none;
-    padding-left: 20px;
+    margin: 0;
+    padding-left: var(--gi-side-nav-level-indent, 20px);
+    position: relative;
 }
 
 .gi-side-nav-menu-item {
@@ -225,11 +227,11 @@ html {
     position: absolute;
     top: 1px;
     left: 0;
-    width: 2px;
+    width: var(--gi-side-nav-line-size, 2px);
     height: calc(100% + 5px);
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--gi-side-nav-line-color, #4a4a4c);
     transition: background-color 0.3s ease;
-    z-index: 0;
+    z-index: 1;
 }
 
 /* 가로 연결선 */
@@ -238,15 +240,49 @@ html {
     position: absolute;
     top: 20px;
     left: 0;
-    width: 11px;
-    height: 2px;
-    background-color: rgba(255, 255, 255, 0.2);
+    width: calc(var(--gi-side-nav-page-offset, 10px) + 1px);
+    height: var(--gi-side-nav-line-size, 2px);
+    background-color: var(--gi-side-nav-line-color, #4a4a4c);
     transition: background-color 0.3s ease;
     z-index: 0;
 }
 
 .gi-side-nav-menu-level:last-child>.gi-side-nav-menu-item.child:last-child::before {
     height: 20px;
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-path::before,
+.gi-side-nav-menu-item.child.gi-side-nav-active-path::after {
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-branch::before {
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-current::after {
+    top: calc(50% - 1px);
+    width: calc(var(--gi-side-nav-page-offset, 10px) + var(--gi-side-nav-line-size, 2px));
+    z-index: 3;
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-path:not(.gi-side-nav-active-current)::before {
+    height: 20px;
+}
+
+.gi-side-nav-menu-level:last-child>.gi-side-nav-menu-item.child.gi-side-nav-active-current:last-child::before {
+    height: 50%;
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-path:not(.gi-side-nav-active-current)>ul.gi-side-nav-menu-level::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: var(--gi-side-nav-line-size, 2px);
+    height: 20px;
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+    z-index: 1;
 }
 
 
@@ -258,7 +294,7 @@ html {
 
 .gi-side-nav-title {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -303,25 +339,13 @@ html {
     background-color: var(--gi-side-nav-active-color, #6f5cf6);
 }
 
-.gi-side-nav-menu-item.child>.gi-side-nav-title.active.page::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -10px;
-    width: 12px;
-    height: 2px;
-    background-color: var(--gi-side-nav-active-color, #6f5cf6);
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-
 .gi-side-nav-title.active:not(.collapsed)>span.fa-angle-right {
     color: #FFFFFF;
     transform: rotate(90deg);
 }
 
 .sideNavPageLoad {
-    margin-left: 10px;
+    margin-left: var(--gi-side-nav-page-offset, 10px);
 }
 
 .gi-side-nav-toggle.expand {
@@ -332,6 +356,10 @@ html {
 /* ===== 사이드 메뉴바 너비 조절(드래그 리사이즈) ===== */
 :root {
     --gi-side-nav-width: 14%;
+    --gi-side-nav-line-size: 2px;
+    --gi-side-nav-level-indent: 20px;
+    --gi-side-nav-page-offset: 10px;
+    --gi-side-nav-line-color: #4a4a4c;
     --gi-side-nav-active-color: #6f5cf6;
 }
 

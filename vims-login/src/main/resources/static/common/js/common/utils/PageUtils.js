@@ -141,6 +141,10 @@ FormUtility.prototype.activatedMenu = function (reqUrl) {
                 });
             }
         }
+
+        if (typeof syncSideNavActivePath === "function") {
+            syncSideNavActivePath();
+        }
     }
 }
 

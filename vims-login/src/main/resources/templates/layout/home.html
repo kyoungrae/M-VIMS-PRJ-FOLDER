@@ -446,35 +446,37 @@
                 + "</a>";
 
             if (formUtil.checkEmptyValue(sideNavMenuList2Depth)) {
-                sideNavMenuList2Depth.map(menu2 => {
-                    let list2Depth = "";
-                    if (menu1.menu_cd === menu2.top_menu_cd) {
-                        list2Depth += "<ul class='gi-side-nav-menu-level'>"
-                            + "<li class='gi-side-nav-menu-item child'>"
+                let menu2Children = sideNavMenuList2Depth.filter(menu2 => menu1.menu_cd === menu2.top_menu_cd);
+                if (menu2Children.length > 0) {
+                    sideNavMenuHtml += "<ul class='gi-side-nav-menu-level'>";
+
+                    menu2Children.map(menu2 => {
+                        sideNavMenuHtml += "<li class='gi-side-nav-menu-item child'>"
                             + "<a href='#' class='gi-margin-left-5 gi-side-nav-title collapsed' data-menu-level='" + menu2.menu_lvl + "' data-menu-code='" + menu2.menu_cd + "'>"
                             + "<span>" + menu2.menu_name + "</span>"
                             + "<span class='fa-solid fa-angle-right'></span>"
                             + "</a>";
 
                         if (formUtil.checkEmptyValue(sideNavMenuList3Depth)) {
-                            let list3Depth = "<ul class='gi-side-nav-menu-level'>";
-                            sideNavMenuList3Depth.map(menu3 => {
-                                if (menu2.menu_cd === menu3.top_menu_cd) {
-                                    list3Depth += "<li class='gi-margin-left-5 gi-side-nav-menu-item child'>"
+                            let menu3Children = sideNavMenuList3Depth.filter(menu3 => menu2.menu_cd === menu3.top_menu_cd);
+                            if (menu3Children.length > 0) {
+                                sideNavMenuHtml += "<ul class='gi-side-nav-menu-level'>";
+                                menu3Children.map(menu3 => {
+                                    sideNavMenuHtml += "<li class='gi-margin-left-5 gi-side-nav-menu-item child'>"
                                         + "<a href='#' class='sideNavPageLoad gi-side-nav-title' data-prgm-url='" + menu3.prgm_url + "' data-page-name='" + menu3.url + "' data-menu-level='" + menu3.menu_lvl + "' data-menu-code='" + menu3.menu_cd + "'>"
                                         + "<span>" + menu3.menu_name + "</span>"
                                         + "</a>"
                                         + "</li>";
-                                }
-                            });
-                            list3Depth += "</ul>";
-                            list2Depth += list3Depth
-                                + "</li>"
-                                + "</ul>";
+                                });
+                                sideNavMenuHtml += "</ul>";
+                            }
                         }
-                        sideNavMenuHtml += list2Depth;
-                    }
-                });
+
+                        sideNavMenuHtml += "</li>";
+                    });
+
+                    sideNavMenuHtml += "</ul>";
+                }
             }
             sideNavMenuHtml += "</li>";
         });
@@ -521,10 +523,15 @@
                 } else {
                     // 카테고리(서브메뉴) 펼침 동작 - 다른 같은 레벨의 서브메뉴만 부드럽게 닫기
                     $this.closest("ul").children("li").find("ul.gi-side-nav-menu-level:visible").not($currentSubMenu).stop(true).slideUp(250);
-                    $this.closest("ul").children("li").find("a.gi-side-nav-title.active").not($this).removeClass("active").addClass("collapsed");
+                    $this.closest("ul").children("li").find("a.gi-side-nav-title.active")
+                        .not($this)
+                        .not(".sideNavPageLoad.page")
+                        .removeClass("active")
+                        .addClass("collapsed");
 
                     $currentSubMenu.stop(true).slideDown(250);
                     $this.removeClass("collapsed").addClass("active");
+                    restoreActivePageBranch($this.parent("li"));
                 }
             } else {
                 // 활성화 된 로드 버튼 클릭 시
@@ -575,6 +582,41 @@
                     }
                 }
             }
+            syncSideNavActivePath();
+        });
+    }
+    function restoreActivePageBranch($scope) {
+        let $activePage = $scope.find(".sideNavPageLoad.page").last();
+        if ($activePage.length === 0) return;
+
+        $activePage.addClass("active");
+        $activePage.parents("ul.gi-side-nav-menu-level").stop(true, true).show();
+        $activePage.parents("li.gi-side-nav-menu-item.child").children("a.gi-side-nav-title")
+            .removeClass("collapsed")
+            .addClass("active");
+    }
+    function syncSideNavActivePath() {
+        let $sideNavMenu = $("#side_nav_menu");
+        $sideNavMenu.find(".gi-side-nav-active-path, .gi-side-nav-active-branch, .gi-side-nav-active-current")
+            .removeClass("gi-side-nav-active-path gi-side-nav-active-branch gi-side-nav-active-current");
+
+        let $activePage = $sideNavMenu.find(".gi-side-nav-title.active.page").last();
+        if ($activePage.length === 0) {
+            $activePage = $sideNavMenu.find(".gi-side-nav-title.page").last().addClass("active");
+        }
+        let $activeLi = $activePage.closest("li.gi-side-nav-menu-item.child");
+        if ($activeLi.length === 0) return;
+
+        function markPreviousActiveBranches($pathLi) {
+            $pathLi.prevAll("li.gi-side-nav-menu-item.child").addClass("gi-side-nav-active-branch");
+        }
+
+        $activeLi.addClass("gi-side-nav-active-path gi-side-nav-active-current");
+        markPreviousActiveBranches($activeLi);
+        $activeLi.parents("li.gi-side-nav-menu-item.child").each(function () {
+            let $pathLi = $(this);
+            $pathLi.addClass("gi-side-nav-active-path");
+            markPreviousActiveBranches($pathLi);
         });
     }
     function existsNavSelected() {
@@ -591,6 +633,7 @@
                 $button.find("ul").hide(); // 초기 로드 시에는 애니메이션 없이 즉시 숨김
             });
         }
+        syncSideNavActivePath();
         formUtil.restoreCurrentPageContent();
     }
     //NOTE: 내정보 수정
@@ -619,6 +662,7 @@
         sideNavMenuLevelVolume.map((index, item) => {
             $(item).css("display", "none");
         })
+        syncSideNavActivePath();
     }
 
     //NOTE: DropDownMenu를 제외한 부분을 클릭하면 DropDownMenu 비활성화 처리
