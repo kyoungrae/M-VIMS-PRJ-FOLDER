@@ -563,7 +563,6 @@ input.gi-switch:checked::before {
 }
 
 .add_user_img-btn {
-    padding: var(--padding-btn);
     height: 100%;
     min-width: 30px;
     border: none;

@@ -1,0 +1,103 @@
+/* ============================================================================
+   MyInfoPage.css
+   "내 정보 수정" 페이지 한 화면 보기(스크롤 제거) 공통 스타일
+   - 공용 컴포넌트 CSS와 gi-* 유틸리티 클래스 정의는 수정하지 않는다.
+   - #myInfoPage 루트 id에 스코프하여 이 페이지에서만 너비/높이/간격을 압축한다.
+     (#id 선택자가 기본 컴포넌트 값보다 우선 적용되므로 다른 페이지에는 영향 없음)
+   ============================================================================ */
+
+/* 입력 컨테이너 높이 (프레임워크 변수 재정의, 페이지 스코프) */
+#myInfoPage {
+    --default-input-height: 42px;
+}
+
+/* 본문 컨테이너 폭/여백 */
+#myInfoPage .gi-container-narrow {
+    max-width: 980px;
+    padding: 6px 0;
+}
+
+/* 헤더 압축 */
+#myInfoPage header.gi-margin-bottom-40px {
+    margin-bottom: 8px;
+}
+
+#myInfoPage .gi-page-title {
+    font-size: 22px;
+    margin-bottom: 2px;
+}
+
+#myInfoPage .gi-subtitle-main {
+    font-size: 13px;
+}
+
+/* 카드(섹션) 패딩/간격 압축 */
+#myInfoPage .gi-article-content {
+    padding: 14px 18px;
+}
+
+#myInfoPage .gi-margin-bottom-30px {
+    margin-bottom: 10px;
+}
+
+/* 프로필 카드 패딩(gi-padding-30px) 축소 */
+#myInfoPage .gi-padding-30px {
+    padding: 10px;
+}
+
+#myInfoPage .gi-title-section {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+/* 입력 행/열 간격 압축 */
+#myInfoPage .gi-grid-gap-20px {
+    gap: 8px;
+}
+
+/* 섹션 사이 여백(내정보/권한/관리정보) 압축 */
+#myInfoPage .gi-margin-top-40px {
+    margin-top: 12px;
+}
+
+/* 줄어든 입력 높이에 맞춰 라벨/값 정렬 */
+#myInfoPage .gi-input {
+    padding: 18px 14px 6px 14px;
+}
+
+/* 프로필 아이콘 축소 (200px -> 92px) */
+#myInfoPage .userIcon {
+    width: 92px;
+    height: 92px;
+    box-shadow: inset 0 0 0 5px #ededed, inset 0 0 0 6px #dddddd;
+}
+
+/* 아이콘 축소에 맞춰 + 추가 버튼을 우하단 배지로 고정 (기본 top/left 90% 좌표 어긋남 보정) */
+#myInfoPage .user_icon_layout_body {
+    width: 92px;
+    height: 92px;
+}
+
+#myInfoPage .add_user_img-btn-section {
+    top: auto;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+}
+
+#myInfoPage .add_user_img-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    margin: 0;
+    box-shadow: 0 0 0 2px #ffffff, 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 하단 버튼 높이 압축 */
+#myInfoPage .gi-btn-modern-reset,
+#myInfoPage .gi-btn-modern-save,
+#myInfoPage .gi-btn-modern-update {
+    height: 40px;
+}

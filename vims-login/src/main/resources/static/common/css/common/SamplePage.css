@@ -112,3 +112,50 @@
 #sampleDetailPage .gi-btn-modern-update {
     height: 40px;
 }
+
+/* ============================================================================
+   샘플 리스트 페이지 탭 (그리드 기본형 / 계층형) - 모던 언더라인 스타일
+   - 전역 .gi-tab / .gi-tab-active 정의, HTML 클래스, giTab JS 동작은 그대로 둔다.
+   - #sampleListPage 안에서만 외형을 다듬어 페이지(카드/파란 버튼)와 어우러지게 함.
+   ============================================================================ */
+#sampleListPage #sample-tab-container {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#sampleListPage #sample-tabs {
+    gap: 4px;
+    align-items: flex-end;
+}
+
+/* 회색 박스 탭 → 라벨형 탭 (gi-row-200px 너비/배경/라운드 등 재정의) */
+#sampleListPage #sample-tabs > .gi-tab {
+    width: auto;
+    min-width: 132px;
+    height: auto;
+    padding: 11px 22px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    box-shadow: none;
+    margin-bottom: -1px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+#sampleListPage #sample-tabs > .gi-tab:hover {
+    color: #1d1d1f;
+    background: #f8fafc;
+}
+
+/* 활성 탭 - 페이지 파란 버튼(gi-btn-blue) 톤과 맞춘 언더라인 */
+#sampleListPage #sample-tabs > .gi-tab.gi-tab-active {
+    background: transparent;
+    color: #0071e3;
+    box-shadow: none;
+    border-bottom: 2px solid #0071e3;
+    font-weight: 600;
+}
