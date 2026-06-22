@@ -143,7 +143,7 @@ html {
     bottom: 0;
     top: 0;
     position: absolute;
-    width: 14%;
+    width: var(--gi-side-nav-width, 14%);
     height: 100%;
     overflow: visible;
     background-color: var(--main-background-header-color);
@@ -312,7 +312,41 @@ html {
 
 .gi-side-nav-toggle.expand {
     transition: padding 0.5s ease-in-out, transform 0.5s ease-in-out;
-    padding: 1% 1% 0 15%;
+    padding: 1% 1% 0 calc(var(--gi-side-nav-width, 14%) + 1%);
+}
+
+/* ===== 사이드 메뉴바 너비 조절(드래그 리사이즈) ===== */
+:root {
+    --gi-side-nav-width: 14%;
+}
+
+/* 사이드바 오른쪽 가장자리 드래그 핸들 (접기/펴기 토글 버튼은 상단이라 피해서 배치) */
+.gi-side-nav-resizer {
+    position: absolute;
+    top: 46px;
+    bottom: 0;
+    right: -3px;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 2;
+    background-color: transparent;
+    transition: background-color 0.15s ease;
+}
+
+.gi-side-nav-resizer:hover,
+body.gi-side-nav-resizing .gi-side-nav-resizer {
+    background-color: rgba(0, 113, 227, 0.35);
+}
+
+/* 드래그 중에는 본문/사이드바 transition 을 꺼서 즉각 반응 + 텍스트 선택 방지 */
+body.gi-side-nav-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+body.gi-side-nav-resizing .gi-side-nav,
+body.gi-side-nav-resizing .gi-side-nav-toggle {
+    transition: none !important;
 }
 
 .gi-side-nav-toggle.collapsed {

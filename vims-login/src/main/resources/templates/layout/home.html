@@ -61,6 +61,8 @@
 <body>
     <main class="gi-main2">
         <nav class="gi-side-nav expand">
+            <!-- 사이드 메뉴바 너비 조절 드래그 핸들 -->
+            <div class="gi-side-nav-resizer" title="너비 조절"></div>
             <div class="gi-side-nav-toggle-button-area">
                 <span class="gi-side-nav-toggle-button">
                     <i class="gi-cursor-pointer fa-inverse fa-solid fa-angles-left gi-side-nav-toggle-icon"></i>
@@ -125,7 +127,7 @@
                 </article>
             </div>
 
-            <div class="gi-row-100 gi-col-70" id="side_nav_menu_container">
+            <div class="gi-row-100 gi-col-80" id="side_nav_menu_container">
                 <ul class="gi-row-98 gi-col-100 gi-overflow gi-ul" id="side_nav_menu"></ul>
             </div>
             <div class="gi-row-100 gi-col-auto gi-margin-top-5 scroll-check-icon">
@@ -165,9 +167,60 @@
     function layoutInit() {
         layoutClickEvent();
         sideNaveOpenCloseEvent();
+        sideNavResizeEvent();
         findByMenuList();
         findUserName();
         initLanguageSelector();
+    }
+
+    /**
+     * NOTE: 사이드 메뉴바 너비 조절(드래그 리사이즈)
+     *  - 오른쪽 가장자리 핸들(.gi-side-nav-resizer)을 드래그하여 너비 조절
+     *  - 조절값은 localStorage("giSideNavWidth")에 저장하여 재방문 시 복원
+     */
+    function sideNavResizeEvent() {
+        var MIN_WIDTH = 180;
+        var MAX_WIDTH = 480;
+        var $resizer = $(".gi-side-nav-resizer");
+        if ($resizer.length === 0) return;
+
+        // 저장된 너비 복원
+        var savedWidth = parseInt(localStorage.getItem("giSideNavWidth"), 10);
+        if (!isNaN(savedWidth)) {
+            savedWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, savedWidth));
+            document.documentElement.style.setProperty("--gi-side-nav-width", savedWidth + "px");
+        }
+
+        var dragging = false;
+
+        $resizer.off("mousedown.giSideNavResize").on("mousedown.giSideNavResize", function (e) {
+            e.preventDefault();
+            dragging = true;
+            $("body").addClass("gi-side-nav-resizing");
+        });
+
+        // 더블클릭 시 기본 너비(14%)로 초기화
+        $resizer.off("dblclick.giSideNavResize").on("dblclick.giSideNavResize", function (e) {
+            e.preventDefault();
+            document.documentElement.style.removeProperty("--gi-side-nav-width");
+            localStorage.removeItem("giSideNavWidth");
+        });
+
+        $(document).off("mousemove.giSideNavResize").on("mousemove.giSideNavResize", function (e) {
+            if (!dragging) return;
+            // 사이드바는 화면 왼쪽(left:0) 기준이므로 마우스 X 좌표가 곧 너비
+            var newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, e.clientX));
+            document.documentElement.style.setProperty("--gi-side-nav-width", newWidth + "px");
+        });
+
+        $(document).off("mouseup.giSideNavResize").on("mouseup.giSideNavResize", function () {
+            if (!dragging) return;
+            dragging = false;
+            $("body").removeClass("gi-side-nav-resizing");
+            var cur = parseInt(getComputedStyle(document.documentElement)
+                .getPropertyValue("--gi-side-nav-width"), 10);
+            if (!isNaN(cur)) localStorage.setItem("giSideNavWidth", cur);
+        });
     }
     function layoutClickEvent() {
         /**
