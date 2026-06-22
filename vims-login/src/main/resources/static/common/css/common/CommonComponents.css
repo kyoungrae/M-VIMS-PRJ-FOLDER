@@ -228,6 +228,8 @@ html {
     width: 2px;
     height: calc(100% + 5px);
     background-color: rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
+    z-index: 0;
 }
 
 /* 가로 연결선 */
@@ -239,6 +241,8 @@ html {
     width: 11px;
     height: 2px;
     background-color: rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
+    z-index: 0;
 }
 
 .gi-side-nav-menu-level:last-child>.gi-side-nav-menu-item.child:last-child::before {
@@ -253,6 +257,8 @@ html {
 }
 
 .gi-side-nav-title {
+    position: relative;
+    z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -287,18 +293,26 @@ html {
 }
 
 .gi-side-nav-title.active.page {
-    /* version 1*/
-    /*background-color: #8C8CCC; !* 금색 배경 *!*/
-    /*border-left: 3px solid #FFFFFF; !* 좌측 보더를 추가 *!*/
-
-    /*background-color: #FFFFFF; !* 금색 배경 *!*/
-    /*color: #000000;*/
-    /*font-weight: bold;*/
-
-    /* version 2*/
-    border: 2px solid #FFFFFF;
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+    border: 0;
     color: #FFFFFF;
-    /*font-weight: bold;*/
+    font-weight: 700;
+}
+
+.gi-side-nav-title.active.page:hover {
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+}
+
+.gi-side-nav-menu-item.child>.gi-side-nav-title.active.page::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    width: 12px;
+    height: 2px;
+    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .gi-side-nav-title.active:not(.collapsed)>span.fa-angle-right {
@@ -318,6 +332,7 @@ html {
 /* ===== 사이드 메뉴바 너비 조절(드래그 리사이즈) ===== */
 :root {
     --gi-side-nav-width: 14%;
+    --gi-side-nav-active-color: #6f5cf6;
 }
 
 /* 사이드바 오른쪽 가장자리 드래그 핸들 (접기/펴기 토글 버튼은 상단이라 피해서 배치) */
