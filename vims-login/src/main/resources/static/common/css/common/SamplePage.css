@@ -1,0 +1,114 @@
+/* ============================================================================
+   SamplePage.css
+   샘플 페이지(등록/수정/상세) "한 화면 보기" 공통 스타일
+   - 공용 컴포넌트 CSS와 gi-* 유틸리티 클래스 정의는 수정하지 않는다.
+   - 각 페이지 루트 id에 스코프하여 해당 페이지에서만 간격/높이를 압축한다.
+     (#id 선택자가 기본 컴포넌트 값보다 우선 적용되므로 다른 페이지에는 영향 없음)
+   ============================================================================ */
+
+/* 입력/스팬 컨테이너 높이 (프레임워크 변수 재정의, 페이지 스코프) */
+#sampleRegisterPage,
+#sampleModifyPage,
+#sampleDetailPage {
+    --default-input-height: 42px;
+}
+
+/* 본문 컨테이너 폭/여백 */
+#sampleRegisterPage .gi-container-narrow,
+#sampleModifyPage .gi-container-narrow,
+#sampleDetailPage .gi-container-narrow {
+    max-width: 1100px;
+    padding: 6px 0;
+}
+
+/* 헤더 영역 압축 */
+#sampleRegisterPage header.gi-margin-bottom-40px,
+#sampleModifyPage header.gi-margin-bottom-40px,
+#sampleDetailPage header.gi-margin-bottom-40px {
+    margin-bottom: 10px;
+}
+
+#sampleRegisterPage .gi-title-main,
+#sampleModifyPage .gi-title-main,
+#sampleDetailPage .gi-title-main {
+    font-size: 22px;
+    margin-bottom: 2px;
+}
+
+#sampleRegisterPage .gi-subtitle-main,
+#sampleModifyPage .gi-subtitle-main,
+#sampleDetailPage .gi-subtitle-main {
+    font-size: 13px;
+}
+
+/* 카드(섹션) 패딩/간격 압축 */
+#sampleRegisterPage .gi-article-content,
+#sampleModifyPage .gi-article-content,
+#sampleDetailPage .gi-article-content {
+    padding: 14px 18px;
+}
+
+#sampleRegisterPage .gi-margin-bottom-30px,
+#sampleModifyPage .gi-margin-bottom-30px,
+#sampleDetailPage .gi-margin-bottom-30px {
+    margin-bottom: 30px;
+}
+
+#sampleRegisterPage .gi-title-section,
+#sampleModifyPage .gi-title-section,
+#sampleDetailPage .gi-title-section {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+/* 입력 행/열 간격 압축 */
+#sampleRegisterPage .gi-grid-gap-20px,
+#sampleModifyPage .gi-grid-gap-20px,
+#sampleDetailPage .gi-grid-gap-20px {
+    gap: 8px;
+}
+
+#sampleRegisterPage .gi-grid-gap-25px,
+#sampleModifyPage .gi-grid-gap-25px,
+#sampleDetailPage .gi-grid-gap-25px {
+    gap: 8px;
+}
+
+/* textarea 높이 압축 */
+#sampleRegisterPage .gi-textarea-modern,
+#sampleModifyPage .gi-textarea-modern,
+#sampleDetailPage .gi-textarea-modern {
+    height: 80px !important;
+}
+
+#sampleRegisterPage .gi-textarea-modern textarea,
+#sampleModifyPage .gi-textarea-modern textarea,
+#sampleDetailPage .gi-textarea-modern textarea {
+    padding-top: 22px !important;
+}
+
+/* input 내부 패딩(줄어든 높이에 맞춰 라벨/값 정렬) */
+#sampleRegisterPage .gi-input,
+#sampleModifyPage .gi-input,
+#sampleDetailPage .gi-input {
+    padding: 18px 14px 6px 14px;
+}
+
+/* 버튼 영역 상단 여백/버튼 높이 압축 */
+#sampleRegisterPage .gi-margin-top-40px,
+#sampleModifyPage .gi-margin-top-40px,
+#sampleDetailPage .gi-margin-top-40px {
+    margin-top: 10px;
+}
+
+#sampleRegisterPage .gi-btn-modern-back,
+#sampleRegisterPage .gi-btn-modern-save,
+#sampleRegisterPage .gi-btn-modern-update,
+#sampleModifyPage .gi-btn-modern-back,
+#sampleModifyPage .gi-btn-modern-save,
+#sampleModifyPage .gi-btn-modern-update,
+#sampleDetailPage .gi-btn-modern-back,
+#sampleDetailPage .gi-btn-modern-save,
+#sampleDetailPage .gi-btn-modern-update {
+    height: 40px;
+}

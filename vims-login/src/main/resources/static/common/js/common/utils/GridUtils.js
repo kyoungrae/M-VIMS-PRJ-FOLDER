@@ -1399,7 +1399,9 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
         if (!formUtil.checkEmptyValue(application_level_hierarchyOptionColumn)) {
             return;
         }
-        let $body = $("#" + gridId + " #gi-grid-list-body");
+        // 페이지에 그리드가 여러 개면 내부 #gi-grid-list-body id 가 중복될 수 있어
+        // (#id 셀렉터는 getElementById 로 문서 첫 요소만 찾음) 속성 셀렉터로 해당 그리드 내부를 탐색
+        let $body = $("#" + gridId + " [id='gi-grid-list-body']");
         $body.find("ul.gi-grid-list").removeClass("gi-hidden");
         $body.find(".gi-tree-toggle")
             .removeClass("collapsed fa-caret-right")
@@ -1410,7 +1412,9 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
         if (!formUtil.checkEmptyValue(application_level_hierarchyOptionColumn)) {
             return;
         }
-        let $body = $("#" + gridId + " #gi-grid-list-body");
+        // 페이지에 그리드가 여러 개면 내부 #gi-grid-list-body id 가 중복될 수 있어
+        // (#id 셀렉터는 getElementById 로 문서 첫 요소만 찾음) 속성 셀렉터로 해당 그리드 내부를 탐색
+        let $body = $("#" + gridId + " [id='gi-grid-list-body']");
         $body.find("ul.gi-grid-list").each(function () {
             let $row = $(this);
             let level = $row.find(`li[data-field="${application_level_hierarchyOptionColumn}"] span`)
@@ -1930,7 +1934,9 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                 });
 
                 // 4. 삽입
-                let $body = $("#" + gridId + " #gi-grid-list-body");
+                // 페이지에 그리드가 여러 개면 내부 #gi-grid-list-body id 가 중복될 수 있어
+        // (#id 셀렉터는 getElementById 로 문서 첫 요소만 찾음) 속성 셀렉터로 해당 그리드 내부를 탐색
+        let $body = $("#" + gridId + " [id='gi-grid-list-body']");
 
                 $body.find("ul.gi-grid-list").detach(); //remove대신 사용
 
@@ -2557,6 +2563,106 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
         }
     }
 }
+/**
+ * giGridHierarchyV2
+ * ---------------------------------------------------------------------------
+ * menuSettingsV2 에서 사용하는 "업그레이드된 계층(트리) 그리드" 형태를 어느 화면에서나
+ * 재사용할 수 있도록 한 giGridHierarchy 의 얇은 래퍼.
+ *
+ * giGridHierarchy 와 동일하게 동작하되, DataSet(data) 완료 후 자동으로
+ *   1) 트리/이름 컬럼(li)에 마커 클래스(gi-grid-hierarchy-name-cell)를 부여하고
+ *      (스킨 CSS 가 이 마커로 트리 라인을 그림 - 특정 컬럼명에 종속되지 않음)
+ *   2) 이름 셀에 아이콘 + 이름 텍스트 구조(gi-menu-v2-name-wrap / -name-text)를 입히고
+ *   3) 그리드에 스킨 클래스(기본 gi-grid-skin-menu-v2)를 적용한다.
+ *
+ * HierarchyOption / RowWarning / rowClick 등 기존 메서드는 그대로 사용한다.
+ *
+ * @param {Object} layout  - 그리드 레이아웃(기존 giGridHierarchy 와 동일)
+ * @param {*}      paging  - 페이징(기존과 동일)
+ * @param {*}      page    - 페이지(기존과 동일)
+ * @param {String} gridId  - 그리드 컨테이너 id
+ * @param {Object} [v2opt] - V2 전용 옵션
+ * @param {String}  v2opt.nameColumn   - 트리/이름이 표시될 컬럼 ID (트리 라인을 그리려면 필수)
+ * @param {String} [v2opt.iconColumn]  - 행 아이콘 클래스 값이 담긴 컬럼 ID (선택)
+ * @param {String} [v2opt.levelColumn] - 레벨 값 컬럼 ID (아이콘 기본값 결정용, 선택)
+ * @param {Object} [v2opt.levelIcons]  - 레벨값 → fa 아이콘 클래스 매핑 (예: {"0":"fa-layer-group","2":"fa-folder"})
+ * @param {String} [v2opt.defaultIcon] - 기본 아이콘 클래스 (기본값 "fa-folder")
+ * @param {String} [v2opt.skinClass]   - 적용할 스킨 클래스 (기본값 "gi-grid-skin-menu-v2")
+ * @param {Boolean}[v2opt.decorate]    - 이름 셀 아이콘 데코레이션 사용 여부 (기본 true)
+ * @returns {Object} giGridHierarchy 와 동일한 그리드 객체(+applyV2Skin)
+ */
+FormUtility.prototype.giGridHierarchyV2 = function (layout, paging, page, gridId, v2opt) {
+    v2opt = v2opt || {};
+    if (formUtil.checkEmptyValue(gridId)) gridId = "gi-Grid";
+
+    let skinClass = v2opt.skinClass || "gi-grid-skin-menu-v2";
+    let nameColumn = v2opt.nameColumn;
+    let iconColumn = v2opt.iconColumn;
+    let levelColumn = v2opt.levelColumn;
+    let levelIcons = v2opt.levelIcons || {};
+    let defaultIcon = v2opt.defaultIcon || "fa-folder";
+    let useDecorate = v2opt.decorate !== false;
+
+    // 기존 계층 그리드 엔진 그대로 사용
+    let grid = formUtil.giGridHierarchy(layout, paging, page, gridId);
+
+    // 이름/트리 셀에 마커 클래스 + 아이콘 구조 부여 (특정 컬럼명에 종속되지 않도록 일반화)
+    function decorateV2NameCells() {
+        if (formUtil.checkEmptyValue(nameColumn)) {
+            // 이름 컬럼 미지정 시 트리 라인 마커만 생략, 스킨은 그대로 적용됨
+            return;
+        }
+        $("#" + gridId + " ul.gi-grid-list").each(function () {
+            let $row = $(this);
+            let $nameLi = $row.find('li[data-field="' + nameColumn + '"]').not(".hidden").first();
+            if ($nameLi.length === 0) return;
+
+            // 스킨 트리 라인이 이 셀에 적용되도록 마커 클래스 부여
+            $nameLi.addClass("gi-grid-hierarchy-name-cell");
+
+            if (!useDecorate) return;
+
+            let $targetSpan = $nameLi.children("span").first();
+            if ($targetSpan.length === 0 || $targetSpan.data("v2Decorated")) return;
+
+            let nm = $.trim($targetSpan.attr("data-grid-value") || $targetSpan.text());
+            let iconVal = !formUtil.checkEmptyValue(iconColumn)
+                ? $.trim($row.find('li[data-field="' + iconColumn + '"] span').first().text())
+                : "";
+            let lvlVal = !formUtil.checkEmptyValue(levelColumn)
+                ? $.trim($row.find('li[data-field="' + levelColumn + '"] span').first().text())
+                : "";
+
+            let iconClass = iconVal || levelIcons[lvlVal] || defaultIcon;
+            let iconHtml = (iconClass.indexOf("fa-solid") >= 0 || iconClass.indexOf("fa-regular") >= 0)
+                ? '<i class="' + iconClass + ' gi-menu-v2-row-icon"></i>'
+                : '<i class="fa-solid ' + iconClass + ' gi-menu-v2-row-icon"></i>';
+
+            $targetSpan
+                .removeClass("gi-row-100")
+                .addClass("gi-menu-v2-name-wrap")
+                .html(iconHtml + '<span class="gi-menu-v2-name-text">' + nm + '</span>')
+                .data("v2Decorated", true);
+        });
+    }
+
+    // DataSet 을 감싸 렌더링 후 자동으로 데코레이션 + 스킨 적용
+    let _DataSet = grid.DataSet;
+    grid.DataSet = async function (data) {
+        let result = await _DataSet(data);
+        decorateV2NameCells();
+        grid.gridSkin(skinClass);
+        return result;
+    };
+
+    // 필요 시 수동 재적용(예: 외부에서 행 갱신 후)
+    grid.applyV2Skin = function () {
+        decorateV2NameCells();
+        grid.gridSkin(skinClass);
+    };
+
+    return grid;
+};
 FormUtility.prototype.gridResize = function (gridId) {
     const $grid = $("#" + gridId);
 

@@ -4560,7 +4560,7 @@
     padding: 0 8px;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell) {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -4569,23 +4569,23 @@
 }
 
 /* Menu V2 hierarchy connector lines (clear + subtle) */
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1,
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2 {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1,
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2 {
     position: relative;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1 {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1 {
     padding-left: 30px;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2 {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2 {
     padding-left: 50px;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before,
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after,
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before,
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::after {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1::before,
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1::after,
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2::before,
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2::after {
     content: "";
     position: absolute;
     pointer-events: none;
@@ -4603,14 +4603,14 @@
    depth1 toggle center = 30px + 10px = 40px
    depth2 content start = padding-left(50px) */
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1::before {
     left: 20px;
     top: -12px;
     bottom: 0;
     border-left: 2px dotted #cbd5e1;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1::after {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1::after {
     left: 20px;
     top: calc(50% - 2px);
     width: 12px;
@@ -4619,11 +4619,11 @@
     background: radial-gradient(circle, #cbd5e1 0.6px, transparent 0px) 0px 50% / 3px 3px repeat-x
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth1.gi-grid-hierarchy-last::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth1.gi-grid-hierarchy-last::before {
     bottom: 50%;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2::before {
     left: 20px;
     top: -12px;
     bottom: 0;
@@ -4631,7 +4631,7 @@
     border-left: 2px dotted #cbd5e1;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2::after {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2::after {
     left: 40px;
     top: -12px;
     bottom: 0;
@@ -4641,29 +4641,29 @@
     background: radial-gradient(circle, #cbd5e1 0.6px, transparent 0px) 0px 50% / 3px 3px repeat-x
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last::before {
     border-left: 0;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::before {
     border-left: 2px dotted #cbd5e1;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::after {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2.gi-grid-hierarchy-last::after {
     bottom: 50%;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"].gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last.gi-grid-hierarchy-last::before {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell).gi-grid-hierarchy-depth2.gi-grid-hierarchy-parent-last.gi-grid-hierarchy-last::before {
     border-left: 0;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] .gi-tree-toggle {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell) .gi-tree-toggle {
     flex: 0 0 20px;
     padding-left:4px;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] > span,
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] .gi-menu-v2-name-wrap {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell) > span,
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell) .gi-menu-v2-name-wrap {
     display: flex !important;
     align-items: center;
     gap: 8px;
@@ -4675,7 +4675,7 @@
     white-space: nowrap;
 }
 
-.gi-grid-skin-menu-v2 .gi-grid-list > li[data-field="menu_nm_kr"] span {
+.gi-grid-skin-menu-v2 .gi-grid-list > li:is([data-field="menu_nm_kr"], .gi-grid-hierarchy-name-cell) span {
     width: auto !important;
     max-width: none;
 }

@@ -440,7 +440,7 @@
       ]
     };
 
-    let grid = formUtil.giGridHierarchy(header, 1, 1, "sampleHierarchy_gi-Grid");
+    let grid = formUtil.giGridHierarchyV2(header, 1, 1, "sampleHierarchy_gi-Grid");
 
     // 하이라키 옵션 설정 (메뉴 설정 페이지와 동일하게 설정)
     grid.HierarchyOption({
@@ -451,7 +451,6 @@
 
     // 데이터 바인딩
     grid.DataSet(hierarchyData);
-
     // 엑셀 다운로드 활성화
     grid.excelDownloadEvent("메뉴_구조_샘플_리포트");
   }
