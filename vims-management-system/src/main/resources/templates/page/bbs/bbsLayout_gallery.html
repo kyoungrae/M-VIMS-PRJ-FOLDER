@@ -1,256 +1,45 @@
-<article id="bbsLayoutGalleryPage" class="gi-article-content gi-col-95 gi-row-100">
-    <style>
-        /* Gallery Specific Styles */
-        .gi-gallery-header {
-            padding: 0 20px;
-            margin-bottom: 24px;
-        }
+<link href="/common/css/common/Bbs.css" rel="stylesheet">
 
-        .gi-gallery-total {
-            font-size: 16px;
-            color: #64748b;
-        }
-
-        .gi-gallery-total b {
-            color: var(--background-color-btn-blue);
-            font-size: 18px;
-        }
-
-        .gi-gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-            padding: 0 20px 40px 20px;
-        }
-
-        .gi-gallery-card {
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #f1f5f9;
-        }
-
-        .gi-gallery-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .gi-gallery-img-wrapper {
-            position: relative;
-            width: 100%;
-            padding-top: 66.66%;
-            /* 3:2 Ratio */
-            overflow: hidden;
-            background-color: #f8fafc;
-        }
-
-        .gi-gallery-img-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-
-        /* noImage state */
-        .gi-gallery-img-wrapper img.no-image {
-            width: 50%;
-            height: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            object-fit: contain;
-        }
-
-        .gi-gallery-card:hover .gi-gallery-img-wrapper img:not(.no-image) {
-            transform: scale(1.05);
-        }
-
-        .gi-gallery-card:hover .gi-gallery-img-wrapper img.no-image {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .gi-gallery-content {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex-grow: 1;
-        }
-
-        .gi-gallery-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1e293b;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            word-break: break-all;
-        }
-
-        .gi-gallery-desc {
-            font-size: 14px;
-            color: #64748b;
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .gi-gallery-footer {
-            margin-top: auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 4px;
-            padding-top: 12px;
-            border-top: 1px solid #f1f5f9;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-
-        .gi-gallery-footer span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 0;
-        }
-
-        .gi-gallery-footer span:first-child {
-            flex: 1;
-        }
-
-        .gi-gallery-footer i {
-            font-size: 12px;
-            color: var(--background-color-btn-blue);
-            opacity: 0.7;
-            flex-shrink: 0;
-        }
-
-        .gi-gallery-actions {
-            padding: 0 20px 20px 20px;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .gi-paging-container {
-            display: flex;
-            justify-content: center;
-            padding: 20px 0;
-            gap: 8px;
-        }
-
-        .gi-paging-btn {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: #fff;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .gi-paging-btn:hover {
-            border-color: var(--background-color-btn-blue);
-            color: var(--background-color-btn-blue);
-        }
-
-        .gi-paging-btn.active {
-            background-color: var(--background-color-btn-blue);
-            color: #fff;
-            border-color: var(--background-color-btn-blue);
-        }
-
-        .gi-gallery-row-selector {
-            width: 100px;
-            padding: 4px 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #64748b;
-            outline: none;
-            background-color: #fff;
-            cursor: pointer;
-        }
-
-        .gi-gallery-row-selector:focus {
-            border-color: var(--background-color-btn-blue);
-        }
-    </style>
-
-    <section class="gi-col-100 gi-row-100 gi-overflow-scroll">
-        <header class="gi-margin-bottom-40px gi-padding-left-20px gi-padding-top-20px">
-            <h1 id="gallery-page-title" class="gi-page-title">[Page.Message].Message.Label.Array["GALLERY"]</h1>
-            <p class="gi-subtitle-main">[Page.Message].Message.Label.Array["SYS_LAYOUT.IMAGE_GALLERY_LIST"]</p>
+<article id="bbsLayoutGalleryPage" class="gi-gallery-board gi-row-100 gi-col-100">
+    <section class="gi-gallery-shell">
+        <header class="gi-gallery-toolbar">
+            <div class="gi-gallery-total">
+                <span>전체 게시물</span>
+                <b id="gallery-total-count">0</b>
+            </div>
         </header>
 
-        <article>
-            <!-- 검색기능 영역 (표준 UI) -->
-            <div id="search-area" class="gi-padding-left-right-20px gi-margin-bottom-30px">
-                <div class="gi-flex gi-flex-align-items-center gi-grid-gap-20px">
-                    <div class="gi-input-container gi-flex-1">
-                        <label for="gallery-search-input" class="gi-input-label"
-                            data-focus-label="true">[Page.Message].Message.Label.Array["SEARCH_KEYWORD"]</label>
-                        <input class="gi-input" type="text" id="gallery-search-input" name="gallery-search-input"
-                            autocomplete="off" />
-                    </div>
-                    <div class="gi-flex gi-grid-gap-10px">
-                        <button id="gallery-search-btn" class="gi-btn-blue"
-                            type="button">[Page.Message].Message.Label.Array["SEARCH_BTN"]</button>
-                        <button id="gallery-reset-btn" class="gi-btn"
-                            type="button">[Page.Message].Message.Label.Array["RESET_BTN"]</button>
-                    </div>
-                </div>
+        <section class="gi-gallery-search-area">
+            <input id="gallery-search-input" type="text" placeholder="제목" autocomplete="off">
+            <button id="gallery-search-btn" class="gi-gallery-search-btn" type="button">조회</button>
+            <button id="gallery-reset-btn" class="gi-gallery-reset-btn" type="button">초기화</button>
+            <div class="gi-gallery-sort-tabs" role="group" aria-label="게시물 정렬">
+                <button type="button" class="active" data-gallery-sort="latest">최신순</button>
+                <button type="button" data-gallery-sort="views">조회순</button>
             </div>
-
-            <div class="gi-gallery-header gi-flex gi-flex-justify-content-space-between gi-flex-align-items-center">
-                <div class="gi-gallery-total">
-                    [Page.Message].Message.Label.Array["TOTAL"] <b id="gallery-total-count">0</b>
-                </div>
-                <select id="gallery-row-selector" class="gi-gallery-row-selector">
-                    <option value="12">12 [Page.Message].Message.Label.Array["ROW"]</option>
-                    <option value="24">24 [Page.Message].Message.Label.Array["ROW"]</option>
-                    <option value="36">36 [Page.Message].Message.Label.Array["ROW"]</option>
-                    <option value="48">48 [Page.Message].Message.Label.Array["ROW"]</option>
-                    <option value="60">60 [Page.Message].Message.Label.Array["ROW"]</option>
-                </select>
-            </div>
-
-            <div id="gallery-card-container" class="gi-gallery-grid">
-                <!-- Cards will be rendered here -->
-            </div>
-
-            <div id="gallery-pagination" class="gi-paging-container">
-                <!-- Pagination will be rendered here -->
-            </div>
-
-            <div class="gi-gallery-actions">
-                <button id="bbs-gallery-write-btn" class="gi-btn-blue">
-                    <i class="fa-solid fa-pencil gi-margin-right-8px"></i>
-                    [Page.Message].Message.Label.Array["WRITE_BTN"]
+            <div class="gi-gallery-view-tabs" role="group" aria-label="보기 방식">
+                <button type="button" class="active" data-gallery-view="grid" aria-label="카드 보기">
+                    <i class="fa-solid fa-grip"></i>
+                </button>
+                <button type="button" data-gallery-view="list" aria-label="리스트 보기">
+                    <i class="fa-solid fa-list"></i>
                 </button>
             </div>
-        </article>
+        </section>
+
+        <div id="gallery-card-container" class="gi-gallery-grid">
+        </div>
+
+        <footer class="gi-gallery-footer-actions">
+            <div aria-hidden="true"></div>
+            <nav id="gallery-pagination" class="gi-gallery-pagination" aria-label="게시물 페이지">
+            </nav>
+            <div class="gi-gallery-bottom-actions">
+                <button id="bbs-gallery-write-btn" class="gi-gallery-write-btn" type="button">
+                    <span>[Page.Message].Message.Label.Array["WRITE_BTN"]</span>
+                </button>
+            </div>
+        </footer>
     </section>
 </article>
 
@@ -258,58 +47,82 @@
     var bbsSessionData = JSON.parse(sessionStorage.getItem("DATA"));
     var bbsId = bbsSessionData ? bbsSessionData.bbs_id : 'default_id';
     var bbsNm = bbsSessionData ? bbsSessionData.bbs_nm : Message.Label.Array["GALLERY"];
+    var galleryState = {
+        page: 1,
+        range: 10,
+        sort: "latest",
+        sortId: "sys_crt_dt",
+        sortOrder: "DESC",
+        view: "grid",
+        data: []
+    };
 
     init();
 
     function init() {
         new PageInit();
-
-        // 페이지 타이틀 설정
-        $("#gallery-page-title").text(bbsNm);
-
-        // 초기 목록 조회
-        const initialRange = $("#gallery-row-selector").val() || 12;
-        findByGalleryList(1, initialRange);
+        findByGalleryList(1);
         clickEvent();
     }
 
     function clickEvent() {
-        $("#bbs-gallery-write-btn").on("click", function () {
+        $("#bbs-gallery-write-btn").off("click").on("click", function () {
             formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardWrite", { bbs_id: bbsId });
         });
 
-        $("#gallery-search-btn").on("click", function () {
+        $("#gallery-search-btn").off("click").on("click", function () {
             findByGalleryList(1);
         });
 
-        $("#gallery-reset-btn").on("click", function () {
+        $("#gallery-reset-btn").off("click").on("click", function () {
             $("#gallery-search-input").val("");
             findByGalleryList(1);
         });
 
-        $("#gallery-search-input").on("keypress", function (e) {
-            if (e.which == 13) {
-                const range = $("#gallery-row-selector").val();
-                findByGalleryList(1, range);
+        $("#gallery-search-input").off("keypress").on("keypress", function (e) {
+            if (e.which === 13) {
+                findByGalleryList(1);
             }
         });
 
-        $("#gallery-row-selector").on("change", function () {
-            const range = $(this).val();
-            findByGalleryList(1, range);
+        $("[data-gallery-sort]").off("click").on("click", function () {
+            let sortType = $(this).data("gallery-sort");
+
+            $("[data-gallery-sort]").removeClass("active");
+            $(this).addClass("active");
+
+            galleryState.sort = sortType;
+            galleryState.sortId = sortType === "views" ? "inq_cnt" : "sys_crt_dt";
+            galleryState.sortOrder = "DESC";
+            findByGalleryList(1);
+        });
+
+        $("[data-gallery-view]").off("click").on("click", function () {
+            let viewType = $(this).data("gallery-view");
+
+            $("[data-gallery-view]").removeClass("active");
+            $(this).addClass("active");
+
+            galleryState.view = viewType;
+            $("#gallery-card-container")
+                .toggleClass("gi-gallery-list", viewType === "list")
+                .toggleClass("gi-gallery-grid", viewType === "grid");
+
+            renderGalleryItems(galleryState.data);
         });
     }
 
-    async function findByGalleryList(page, range) {
-        if (!page) page = 1;
-        if (!range) range = $("#gallery-row-selector").val() || 12;
+    async function findByGalleryList(page) {
+        galleryState.page = page || 1;
 
         let url = "/cms/common/sysBbsBoard/findPage";
         let param = {
             bbs_id: bbsId,
-            page_no: page,
-            row_range: range,
-            offset: (page - 1) * range
+            page_no: galleryState.page,
+            row_range: galleryState.range,
+            offset: (galleryState.page - 1) * galleryState.range,
+            sort_id: galleryState.sortId,
+            sort_order: galleryState.sortOrder
         };
 
         let searchInput = $("#gallery-search-input").val();
@@ -320,91 +133,206 @@
         try {
             const response = await axios.post(url, param);
             if (response.status === 200) {
-                let data = response.data.DATA;
+                let data = response.data.DATA || [];
                 let totalCount = response.data.TOTAL_COUNT ? response.data.TOTAL_COUNT[0] : 0;
                 let totalPages = response.data.TOTAL_PAGING ? response.data.TOTAL_PAGING[0] : 0;
 
+                galleryState.data = data;
                 $("#gallery-total-count").text(totalCount);
-                renderCards(data);
-                renderPagination(totalPages, page, range);
-
-                commonTag.inputTagReset($(".gi-input"));
+                renderGalleryItems(data);
+                renderPagination(totalPages, galleryState.page);
             }
         } catch (error) {
             console.error("Failed to fetch gallery list", error);
         }
     }
 
-    function renderCards(data) {
+    function renderGalleryItems(data) {
         const container = $("#gallery-card-container");
         container.empty();
 
         if (!data || data.length === 0) {
-            container.html('<div class="gi-text-align-center gi-padding-40px" style="color: #94a3b8; grid-column: 1 / -1;">' + Message.Label.Array["FAIL.SELECT_NO_DATA"] + '</div>');
+            container.html(
+                '<div class="gi-gallery-empty">' +
+                '<i class="fa-regular fa-image"></i>' +
+                '<strong>' + getMessage("FAIL.SELECT_NO_DATA", "게시물이 없습니다.") + '</strong>' +
+                '</div>'
+            );
             return;
         }
 
-        data.forEach(item => {
-            // thmbnl 컬럼이 있으면 우선 사용, 없으면 기본 이미지
-            let hasThumbnail = !!item.thmb_path;
-            let imgSrc = hasThumbnail ? '/fms/fileManager/downloadByUuid?fileUuid=' + item.thmb_path : '/common/img/noImage.png';
-            let imgClass = hasThumbnail ? '' : 'no-image';
-
-            const card = $(`
-                <div class="gi-gallery-card">
-                    <div class="gi-gallery-img-wrapper">
-                        <img src="${imgSrc}" class="${imgClass}" onerror="this.src='/common/img/noImage.png'; this.className='no-image';" alt="${item.ttl}">
-                    </div>
-                    <div class="gi-gallery-content">
-                        <div class="gi-gallery-title">${item.ttl || Message.Label.Array["NO_TITLE"]}</div>
-                        <div class="gi-gallery-desc">${stripHtml(item.cn || '').substring(0, 150)}...</div>
-                        <div class="gi-gallery-footer">
-                            <span><i class="fa-solid fa-user"></i> ${item.wrtr_nm || Message.Label.Array["UNKNOWN"]}</span>
-                            <span><i class="fa-solid fa-calendar"></i> ${formatDate(item.sys_crt_dt)}</span>
-                            <span><i class="fa-solid fa-eye"></i> ${item.inq_cnt || 0}</span>
-                            <span><i class="fa-solid fa-comment"></i> ${item.reply_count || 0}</span>
-                        </div>
-                    </div>
+        if (galleryState.view === "list") {
+            container.append(`
+                <div class="gi-gallery-list-header">
+                    <span>미리보기</span>
+                    <span>게시물 정보</span>
+                    <span>작성자 · 등록일</span>
+                    <span>조회 · 댓글</span>
                 </div>
             `);
+        }
 
-            card.on("click", function () {
+        data.forEach(function (item, index) {
+            let itemHtml = galleryState.view === "list"
+                ? createGalleryListItem(item, index)
+                : createGalleryCardItem(item, index);
+
+            let $item = $(itemHtml);
+            $item.on("click", function () {
                 formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { pst_id: item.pst_id, bbs_id: bbsId });
             });
 
-            container.append(card);
+            container.append($item);
         });
     }
 
-    function renderPagination(totalPages, currentPage, range) {
+    function createGalleryCardItem(item, index) {
+        let summary = getGallerySummary(item);
+        let writer = escapeHtml(item.wrtr_nm || getMessage("UNKNOWN", "작성자"));
+        let date = formatDate(item.sys_crt_dt);
+        let title = escapeHtml(item.ttl || getMessage("NO_TITLE", "제목 없음"));
+        let content = escapeHtml(summary);
+
+        return `
+            <article class="gi-gallery-card" data-pst-id="${escapeHtml(item.pst_id || '')}">
+                ${createGalleryPreview(item, index)}
+                <div class="gi-gallery-card-body">
+                    <h2>${title}</h2>
+                    <p>${content}</p>
+                    <div class="gi-gallery-card-footer">
+                        <div class="gi-gallery-author">
+                            <span>${getWriterInitial(writer)}</span>
+                            <div>
+                                <strong>${writer}</strong>
+                                <time datetime="${date}">${date}</time>
+                            </div>
+                        </div>
+                        <div class="gi-gallery-meta">
+                            <span><i class="fa-regular fa-eye"></i>${item.inq_cnt || 0}</span>
+                            <span><i class="fa-regular fa-comment"></i>${item.reply_count || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
+    function createGalleryListItem(item, index) {
+        let summary = getGallerySummary(item);
+        let writer = escapeHtml(item.wrtr_nm || getMessage("UNKNOWN", "작성자"));
+        let date = formatDate(item.sys_crt_dt);
+        let title = escapeHtml(item.ttl || getMessage("NO_TITLE", "제목 없음"));
+        let content = escapeHtml(summary);
+
+        return `
+            <article class="gi-gallery-list-item" data-pst-id="${escapeHtml(item.pst_id || '')}">
+                ${createGalleryPreview(item, index)}
+                <div class="gi-gallery-list-body">
+                    <h2>${title}</h2>
+                    <p>${content}</p>
+                </div>
+                <div class="gi-gallery-list-author">
+                    <div class="gi-gallery-author">
+                        <span>${getWriterInitial(writer)}</span>
+                        <div>
+                            <strong>${writer}</strong>
+                            <time datetime="${date}">${date}</time>
+                        </div>
+                    </div>
+                </div>
+                <div class="gi-gallery-meta">
+                    <span><i class="fa-regular fa-eye"></i>${item.inq_cnt || 0}</span>
+                    <span><i class="fa-regular fa-comment"></i>${item.reply_count || 0}</span>
+                </div>
+            </article>
+        `;
+    }
+
+    function createGalleryPreview(item, index) {
+        let meta = getGalleryPlaceholderMeta(index);
+        let title = escapeHtml(item.ttl || getMessage("NO_TITLE", "제목 없음"));
+
+        if (item.thmb_path) {
+            let imgSrc = "/fms/fileManager/downloadByUuid?fileUuid=" + encodeURIComponent(item.thmb_path);
+            return `
+                <div class="gi-gallery-preview has-image">
+                    <img src="${imgSrc}" alt="${title}" onerror="this.closest('.gi-gallery-preview').outerHTML = createGalleryFallbackPreview(${index});">
+                </div>
+            `;
+        }
+
+        return createGalleryFallbackPreview(index);
+    }
+
+    function createGalleryFallbackPreview(index) {
+        let meta = getGalleryPlaceholderMeta(index);
+
+        return `
+            <div class="gi-gallery-preview ${meta.variant}">
+                <div class="gi-gallery-illustration">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPagination(totalPages, currentPage) {
         const container = $("#gallery-pagination");
         container.empty();
 
-        if (totalPages <= 1) return;
+        if (!totalPages || totalPages <= 1) return;
 
-        const maxVisible = 5;
-        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        const maxVisible = 10;
+        let start = Math.floor((currentPage - 1) / maxVisible) * maxVisible + 1;
         let end = Math.min(totalPages, start + maxVisible - 1);
 
-        if (end - start + 1 < maxVisible) {
-            start = Math.max(1, end - maxVisible + 1);
-        }
-
-        // 이전 버튼
-        if (currentPage > 1) {
-            container.append($('<button class="gi-paging-btn"><i class="fa-solid fa-chevron-left"></i></button>').on("click", () => findByGalleryList(currentPage - 1)));
-        }
-
         for (let i = start; i <= end; i++) {
-            const btn = $(`<button class="gi-paging-btn ${i === currentPage ? 'active' : ''}">${i}</button>`);
-            btn.on("click", () => findByGalleryList(i));
-            container.append(btn);
+            container.append(createPageButton(i, i, false, i === currentPage));
+        }
+    }
+
+    function createPageButton(label, page, disabled, active) {
+        let $button = $(`<button type="button" class="gi-gallery-page-btn ${active ? 'active' : ''}" ${disabled ? 'disabled' : ''}>${label}</button>`);
+
+        if (!disabled) {
+            $button.on("click", function () {
+                findByGalleryList(page);
+            });
         }
 
-        // 다음 버튼
-        if (currentPage < totalPages) {
-            container.append($('<button class="gi-paging-btn"><i class="fa-solid fa-chevron-right"></i></button>').on("click", () => findByGalleryList(currentPage + 1)));
-        }
+        return $button;
+    }
+
+    function getGallerySummary(item) {
+        let text = stripHtml(item.cn || "");
+        if (!text) return "게시물 내용을 확인해 주세요.";
+        return text.length > 70 ? text.substring(0, 70) + "..." : text;
+    }
+
+    function getGalleryPlaceholderMeta(index) {
+        const items = [
+            { label: "프로젝트", variant: "variant-project" },
+            { label: "UI/UX", variant: "variant-ui" },
+            { label: "행사", variant: "variant-event" },
+            { label: "리포트", variant: "variant-report" },
+            { label: "모바일", variant: "variant-mobile" },
+            { label: "일반", variant: "variant-empty" },
+            { label: "현장", variant: "variant-field" },
+            { label: "개발", variant: "variant-dev" }
+        ];
+        return items[index % items.length];
+    }
+
+    function getWriterInitial(writer) {
+        let value = stripHtml(writer || "GO").trim();
+        if (!value) return "GO";
+        return value.substring(0, 2).toUpperCase();
+    }
+
+    function getMessage(key, fallback) {
+        return typeof Message !== "undefined" && Message.Label && Message.Label.Array[key] ? Message.Label.Array[key] : fallback;
     }
 
     function stripHtml(html) {
@@ -413,8 +341,17 @@
         return tmp.textContent || tmp.innerText || "";
     }
 
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        return dateStr.substring(0, 10);
+        if (!dateStr) return "-";
+        return String(dateStr).substring(0, 10);
     }
 </script>
