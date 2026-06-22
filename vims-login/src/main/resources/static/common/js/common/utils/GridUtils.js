@@ -2593,7 +2593,7 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
  */
 FormUtility.prototype.giGridHierarchyV2 = function (layout, paging, page, gridId, v2opt) {
     v2opt = v2opt || {};
-    if (formUtil.checkEmptyValue(gridId)) gridId = "gi-Grid";
+    if (!formUtil.checkEmptyValue(gridId)) gridId = "gi-Grid";
 
     let skinClass = v2opt.skinClass || "gi-grid-skin-menu-v2";
     let nameColumn = v2opt.nameColumn;
