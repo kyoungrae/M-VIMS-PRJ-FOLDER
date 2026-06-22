@@ -2608,14 +2608,26 @@ FormUtility.prototype.giGridHierarchyV2 = function (layout, paging, page, gridId
 
     // 이름/트리 셀에 마커 클래스 + 아이콘 구조 부여 (특정 컬럼명에 종속되지 않도록 일반화)
     function decorateV2NameCells() {
-        if (formUtil.checkEmptyValue(nameColumn)) {
+        if (!formUtil.checkEmptyValue(nameColumn)) {
             // 이름 컬럼 미지정 시 트리 라인 마커만 생략, 스킨은 그대로 적용됨
             return;
         }
+        let hierClasses = ["gi-grid-hierarchy-depth0", "gi-grid-hierarchy-depth1", "gi-grid-hierarchy-depth2", "gi-grid-hierarchy-last", "gi-grid-hierarchy-parent-last"];
         $("#" + gridId + " ul.gi-grid-list").each(function () {
             let $row = $(this);
             let $nameLi = $row.find('li[data-field="' + nameColumn + '"]').not(".hidden").first();
             if ($nameLi.length === 0) return;
+
+            // base 는 계층 깊이 클래스/토글 아이콘을 "첫 번째 보이는 셀"에 부여한다.
+            // 트리 라인 스킨은 이름 셀 기준이므로, 이름 컬럼이 첫 컬럼이 아니면 이를 이름 셀로 옮긴다.
+            let $firstLi = $row.find("li").not('.hidden').first();
+            if (!$nameLi.is($firstLi)) {
+                hierClasses.forEach(function (c) {
+                    if ($firstLi.hasClass(c)) { $firstLi.removeClass(c); $nameLi.addClass(c); }
+                });
+                let $toggle = $firstLi.children(".gi-tree-toggle");
+                if ($toggle.length) { $toggle.detach(); $nameLi.prepend($toggle); }
+            }
 
             // 스킨 트리 라인이 이 셀에 적용되도록 마커 클래스 부여
             $nameLi.addClass("gi-grid-hierarchy-name-cell");
@@ -2626,10 +2638,10 @@ FormUtility.prototype.giGridHierarchyV2 = function (layout, paging, page, gridId
             if ($targetSpan.length === 0 || $targetSpan.data("v2Decorated")) return;
 
             let nm = $.trim($targetSpan.attr("data-grid-value") || $targetSpan.text());
-            let iconVal = !formUtil.checkEmptyValue(iconColumn)
+            let iconVal = formUtil.checkEmptyValue(iconColumn)
                 ? $.trim($row.find('li[data-field="' + iconColumn + '"] span').first().text())
                 : "";
-            let lvlVal = !formUtil.checkEmptyValue(levelColumn)
+            let lvlVal = formUtil.checkEmptyValue(levelColumn)
                 ? $.trim($row.find('li[data-field="' + levelColumn + '"] span').first().text())
                 : "";
 
