@@ -37,6 +37,9 @@ FormUtility.prototype.restoreCurrentPageContent = function () {
     }
 
     if (url === "/index/index") {
+        if (typeof clearSideNavSelection === "function") {
+            clearSideNavSelection();
+        }
         this.loadContent(url, "");
         return;
     }
@@ -70,6 +73,14 @@ FormUtility.prototype.restoreCurrentPageContent = function () {
  * @text : 현재 페이지에 맞는 메뉴를 활성화하고 세션에 저장
  */
 FormUtility.prototype.activatedMenu = function (reqUrl) {
+    if (reqUrl === "/index/index") {
+        sessionStorage.setItem("activatedMenu", JSON.stringify({ url: reqUrl }));
+        if (typeof clearSideNavSelection === "function") {
+            clearSideNavSelection();
+        }
+        return;
+    }
+
     let sessionRecentPage = sessionStorage.getItem("recentPage");
     if (!sessionRecentPage) return;
     let sessionUrl = JSON.parse(sessionRecentPage).url;

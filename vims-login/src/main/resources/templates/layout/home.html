@@ -227,7 +227,7 @@
             e.preventDefault();
             common_session.setItem("recentPage", { url: "/index/index" });
             common_session.setItem("activatedMenu", { url: "/index/index" });
-            allCloseMenuTitle();
+            clearSideNavSelection();
             formUtil.loadContent("/index/index", "");
         });
 
@@ -608,10 +608,10 @@
 
         let $activePage = $sideNavMenu.find(".gi-side-nav-title.active.page").last();
         if ($activePage.length === 0) {
-            $activePage = $sideNavMenu.find(".gi-side-nav-title.page").last();
-            if ($activePage.length > 0) {
-                $activePage.addClass("active");
-            }
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-path", $());
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-branch", $());
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-current", $());
+            return;
         }
         let $activeLi = $activePage.closest("li.gi-side-nav-menu-item.child");
         if ($activeLi.length === 0) {
@@ -664,22 +664,16 @@
     });
     //NOTE: 모든 매뉴 닫기
     function allCloseMenuTitle() {
-        let sideNavTitleVolume = $(".gi-side-nav-menu-item").find(".gi-side-nav-title");
-        let sideNavMenuLevelVolume = $(".gi-side-nav-menu-item").find(".gi-side-nav-menu-level");
-        sideNavTitleVolume.map((index, item) => {
-            if ($(item).hasClass("active")) {
-                $(item).removeClass("active");
-                $(item).addClass("collapsed");
-            }
+        clearSideNavSelection();
+    }
 
-            if ($(item).hasClass("page")) {
-                $(item).removeClass("page");
-            }
-        })
-        sideNavMenuLevelVolume.map((index, item) => {
-            $(item).css("display", "none");
-        })
-        syncSideNavActivePath();
+    function clearSideNavSelection() {
+        let $sideNavMenu = $("#side_nav_menu");
+        $sideNavMenu.find("a.gi-side-nav-title:not(.sideNavPageLoad)").removeClass("active").addClass("collapsed");
+        $sideNavMenu.find("a.sideNavPageLoad").removeClass("active page");
+        $sideNavMenu.find("ul.gi-side-nav-menu-level").stop(true, true).hide();
+        $sideNavMenu.find(".gi-side-nav-active-path, .gi-side-nav-active-branch, .gi-side-nav-active-current")
+            .removeClass("gi-side-nav-active-path gi-side-nav-active-branch gi-side-nav-active-current");
     }
 
     //NOTE: DropDownMenu를 제외한 부분을 클릭하면 DropDownMenu 비활성화 처리
