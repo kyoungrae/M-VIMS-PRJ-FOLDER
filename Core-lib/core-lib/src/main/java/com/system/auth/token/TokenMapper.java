@@ -16,7 +16,7 @@ public interface TokenMapper {
 
     List<Token> SELECT_ALL_TOKEN(Token request);
 
-    int DELETE_EXP_TOKEN_BY_USER_ID(Integer userId);
+    int DELETE_EXP_TOKEN_BY_USER_ID(Long userId);
 
-    int REVOKE_ALL_USER_TOKENS(Integer userId);
+    int REVOKE_ALL_USER_TOKENS(Long userId);
 }

@@ -65,12 +65,12 @@
             const response = await axios.post(url, { bbs_id: bbsId });
             if (response.status === 200 && response.data.length > 0) {
                 let bbsInfo = response.data[0];
-                if (bbsInfo.reply_yn === '1') {
+                if (bbsInfo.cmnt_yn === '1') {
                     replyEnabled = true;
                 }
 
                 // 권한 체크 로직 추가
-                await checkWritePermission(bbsInfo.bbs_manager);
+                await checkWritePermission(bbsInfo.bbs_mngr);
             }
         } catch (e) {
             console.error("BBS Config fetch failed", e);
@@ -94,7 +94,7 @@
 
         try {
             const url = "/cms/common/sysUserGroup/find";
-            const response = await axios.post(url, { user_email: userInfo.email });
+            const response = await axios.post(url, { eml: userInfo.email });
             const userGroups = response.data || [];
             const managerList = managers.split(",");
 
@@ -147,7 +147,7 @@
 
         let searchInput = $("#notice-search-input").val();
         if (searchInput) {
-            param._title = searchInput;
+            param._ttl = searchInput;
         }
 
         axios.post(url, param).then(response => {
@@ -160,9 +160,9 @@
                     list: [
                         { HEADER: 'No', ID: 'no', WIDTH: '10', TYPE: 'text', TEXT_ALIGN: 'center' },
                         { HEADER: Message.Label.Array["SYS_LAYOUT.PRIORITY"], ID: 'priority', WIDTH: '10', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'center', HIDDEN: true },
-                        { HEADER: Message.Label.Array["SYS_LAYOUT.TITLE"], ID: 'title', WIDTH: replyEnabled ? '50' : '60', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'left' },
+                        { HEADER: Message.Label.Array["SYS_LAYOUT.TITLE"], ID: 'ttl', WIDTH: replyEnabled ? '50' : '60', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'left' },
                         { HEADER: Message.Label.Array["SYS_BBS_RPLY.REPLY_COUNT"], ID: 'reply_count', WIDTH: '10', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'center', HIDDEN: !replyEnabled },
-                        { HEADER: Message.Label.Array["SYS_LAYOUT.HIT_CNT"], ID: 'hit_cnt', WIDTH: '10', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'center' },
+                        { HEADER: Message.Label.Array["SYS_LAYOUT.HIT_CNT"], ID: 'inq_cnt', WIDTH: '10', FONT_SIZE: '12px', TYPE: 'text', TEXT_ALIGN: 'center' },
                         { HEADER: Message.Label.Array["SYS_LAYOUT.CREATE_DATE"], ID: 'sys_crt_dt', WIDTH: '15', FONT_SIZE: '12px', TYPE: 'date', TEXT_ALIGN: 'center' }
                     ]
                 };
@@ -171,7 +171,7 @@
                 grid.DataSet(data);
                 grid.pagingSet(findByNoticeList);
                 grid.rowClick(function (rowData) {
-                    formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { board_id: rowData.board_id, bbs_id: bbsId });
+                    formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { pst_id: rowData.pst_id, bbs_id: bbsId });
                 });
             }
         });

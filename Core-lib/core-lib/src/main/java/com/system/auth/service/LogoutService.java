@@ -1,6 +1,5 @@
 package com.system.auth.service;
 
-import com.system.auth.jwt.JwtService;
 import com.system.auth.token.TokenService;
 import com.system.accslog.SysAccsLogService;
 import jakarta.servlet.http.Cookie;
@@ -20,7 +19,6 @@ import java.util.Optional;
 public class LogoutService implements LogoutHandler {
 
     private final TokenService tokenService;
-    private final JwtService jwtService;
     private final SysAccsLogService sysAccsLogService;
 
     @Override

@@ -36,8 +36,8 @@ public class DbPartitionService {
     public void maintainPartitions() {
         log.info("Starting database partition maintenance...");
 
-        // 대상 테이블 목록
-        String[] tables = { "SYS_EVT_LOG", "SYS_ACS_LOG" };
+        // after 스키마에서는 로그 테이블 파티션을 관리하지 않는다.
+        String[] tables = {};
 
         for (String table : tables) {
             try {

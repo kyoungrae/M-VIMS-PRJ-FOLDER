@@ -4,6 +4,7 @@
 package com.vims.common.user;
 
 import com.system.auth.authuser.AuthUser;
+import com.system.auth.service.SequenceService;
 import com.system.common.base.AbstractCommonService;
 import com.system.common.exception.CustomException;
 import com.system.common.util.passwordvalidation.PasswordPolicy;
@@ -39,6 +40,7 @@ public class SysUserService extends AbstractCommonService<SysUser> {
     private final MessageSource messageSource;
     private final SysSiteConfigService sysSiteConfigService;
     private final TokenService tokenService;
+    private final SequenceService sequenceService;
     private final SysUserGroupService sysUserGroupService;
     private final FmsExcelClient fmsExcelClient; // FMS 서비스 통신용 Feign Client
 
@@ -112,28 +114,28 @@ public class SysUserService extends AbstractCommonService<SysUser> {
     @Override
     protected int updateImpl(SysUser request) throws Exception {
         ValidationService validationService = new ValidationService();
-        boolean isPasswordProvided = validationService.checkEmptyValue(request.getPwd());
+        boolean isPasswordProvided = validationService.checkEmptyValue(request.getPswd());
         try {
             if (isPasswordProvided) {
                 // 1. 비밀번호 확인 체크
-                if (!request.getPwd().equals(request.getPassword_confirm())) {
+                if (!request.getPswd().equals(request.getPassword_confirm())) {
                     throw new CustomException(getMessage("EXCEPTION.PWD.CONFIRM_NOT_MATCH"));
                 }
 
                 // 2. 기존 비밀번호와 동일한지 체크 (raw 패스워드와 비교)
                 SysUser existingUser = sysUserMapper.SELECT(SysUser.builder().id(request.getId()).build()).get(0);
-                if (passwordEncoder.matches(request.getPwd(), existingUser.getPwd())) {
+                if (passwordEncoder.matches(request.getPswd(), existingUser.getPswd())) {
                     throw new CustomException(getMessage("EXCEPTION.PWD.SAME_AS_OLD"));
                 }
 
                 // 3. 비밀번호 정책 확인
-                validationPasswordPolicy(request.getPwd());
+                validationPasswordPolicy(request.getPswd());
 
                 // 4. 비밀번호 암호화
-                request.setPwd(passwordEncoder.encode(request.getPwd()));
+                request.setPswd(passwordEncoder.encode(request.getPswd()));
             } else {
                 // 비밀번호가 입력되지 않은 경우 기존 비밀번호를 유지
-                request.setPwd(null);
+                request.setPswd(null);
             }
             return sysUserMapper.UPDATE(request);
         } catch (Exception e) {
@@ -145,7 +147,7 @@ public class SysUserService extends AbstractCommonService<SysUser> {
     protected int updatePasswordImpl(SysUser request) throws Exception {
         try {
             String pw = "1234";
-            var pwParam = SysUser.builder().id(request.getId()).pwd(passwordEncoder.encode(pw)).build();
+            var pwParam = SysUser.builder().id(request.getId()).pswd(passwordEncoder.encode(pw)).build();
             return sysUserMapper.UPDATE(pwParam);
         } catch (Exception e) {
             throw new CustomException(getMessage("EXCEPTION.PWD.RESET"));
@@ -156,16 +158,19 @@ public class SysUserService extends AbstractCommonService<SysUser> {
     @Override
     protected int registerImpl(SysUser request) throws Exception {
         // 비밀번호 확인
-        if (!request.getPwd().equals(request.getPassword_confirm())) {
+        if (!request.getPswd().equals(request.getPassword_confirm())) {
             throw new CustomException(getMessage("EXCEPTION.PWD.CONFIRM_NOT_MATCH"));
         }
         // 비밀번호 정책 확인
-        validationPasswordPolicy(request.getPwd());
+        validationPasswordPolicy(request.getPswd());
 
         // 비밀번호 암호화
-        request.setPwd(passwordEncoder.encode(request.getPwd()));
+        request.setPswd(passwordEncoder.encode(request.getPswd()));
 
         try {
+            if (request.getId() == null) {
+                request.setId(sequenceService.selectTokenSequence());
+            }
             int result = sysUserMapper.INSERT(request);
 
             // Register Token
@@ -179,7 +184,7 @@ public class SysUserService extends AbstractCommonService<SysUser> {
     }
 
     public int changePassword(SysUser request) throws Exception {
-        var sysUser = SysUser.builder().email(request.getEmail()).build();
+        var sysUser = SysUser.builder().eml(request.getEml()).build();
         List<SysUser> users = sysUserMapper.SELECT(sysUser);
         if (users == null || users.isEmpty() || users.size() != 1) {
             throw new CustomException(getMessage("EXCEPTION.NOT.FOUND.USER"));
@@ -188,11 +193,11 @@ public class SysUserService extends AbstractCommonService<SysUser> {
         if (!matchToPassword(request)) {
             throw new CustomException(getMessage("EXCEPTION.PWD.NOT_MATCH"));
         }
-        validationPasswordPolicy(request.getPwd());
+        validationPasswordPolicy(request.getPswd());
 
         var user = SysUser.builder()
                 .id(users.get(0).getId())
-                .pwd(passwordEncoder.encode(request.getPwd()))
+                .pswd(passwordEncoder.encode(request.getPswd()))
                 .build();
         return sysUserMapper.UPDATE(user);
     }
@@ -277,10 +282,10 @@ public class SysUserService extends AbstractCommonService<SysUser> {
 
     public boolean matchToPassword(SysUser request) {
         var sysUser = SysUser.builder()
-                .email(request.getEmail())
+                .eml(request.getEml())
                 .build();
         List<SysUser> userList = sysUserMapper.SELECT(sysUser);
-        String before_pwd_encoded = userList.get(0).getPwd();
+        String before_pwd_encoded = userList.get(0).getPswd();
         return passwordEncoder.matches(request.getBefore_pwd(), before_pwd_encoded);
     }
 

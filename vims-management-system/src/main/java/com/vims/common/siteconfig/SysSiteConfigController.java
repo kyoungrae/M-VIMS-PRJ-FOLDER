@@ -1,9 +1,7 @@
 package com.vims.common.siteconfig;
 
 import com.system.common.base.AbstractCommonController;
-import com.system.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +18,6 @@ import java.util.Map;
 public class SysSiteConfigController extends AbstractCommonController<SysSiteConfig> {
 
     private final SysSiteConfigService sysSiteConfigService;
-    private final SysSiteConfigRepository sysSiteConfigRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysSiteConfig reqeust) throws Exception {
@@ -29,7 +26,7 @@ public class SysSiteConfigController extends AbstractCommonController<SysSiteCon
 
     @PostMapping("/findAll")
     protected List<SysSiteConfig> findAll(@RequestBody SysSiteConfig request) throws Exception {
-        return sysSiteConfigRepository.findAll();
+        return sysSiteConfigService.findImpl(request);
     }
 
     @PostMapping("/find")

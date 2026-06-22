@@ -314,7 +314,7 @@
 
         let searchInput = $("#gallery-search-input").val();
         if (searchInput) {
-            param._title = searchInput;
+            param._ttl = searchInput;
         }
 
         try {
@@ -346,22 +346,22 @@
 
         data.forEach(item => {
             // thmbnl 컬럼이 있으면 우선 사용, 없으면 기본 이미지
-            let hasThumbnail = !!item.thmbnl;
-            let imgSrc = hasThumbnail ? '/fms/fileManager/downloadByUuid?fileUuid=' + item.thmbnl : '/common/img/noImage.png';
+            let hasThumbnail = !!item.thmb_path;
+            let imgSrc = hasThumbnail ? '/fms/fileManager/downloadByUuid?fileUuid=' + item.thmb_path : '/common/img/noImage.png';
             let imgClass = hasThumbnail ? '' : 'no-image';
 
             const card = $(`
                 <div class="gi-gallery-card">
                     <div class="gi-gallery-img-wrapper">
-                        <img src="${imgSrc}" class="${imgClass}" onerror="this.src='/common/img/noImage.png'; this.className='no-image';" alt="${item.title}">
+                        <img src="${imgSrc}" class="${imgClass}" onerror="this.src='/common/img/noImage.png'; this.className='no-image';" alt="${item.ttl}">
                     </div>
                     <div class="gi-gallery-content">
-                        <div class="gi-gallery-title">${item.title || Message.Label.Array["NO_TITLE"]}</div>
-                        <div class="gi-gallery-desc">${stripHtml(item.content || '').substring(0, 150)}...</div>
+                        <div class="gi-gallery-title">${item.ttl || Message.Label.Array["NO_TITLE"]}</div>
+                        <div class="gi-gallery-desc">${stripHtml(item.cn || '').substring(0, 150)}...</div>
                         <div class="gi-gallery-footer">
                             <span><i class="fa-solid fa-user"></i> ${item.wrtr_nm || Message.Label.Array["UNKNOWN"]}</span>
                             <span><i class="fa-solid fa-calendar"></i> ${formatDate(item.sys_crt_dt)}</span>
-                            <span><i class="fa-solid fa-eye"></i> ${item.hit_cnt || 0}</span>
+                            <span><i class="fa-solid fa-eye"></i> ${item.inq_cnt || 0}</span>
                             <span><i class="fa-solid fa-comment"></i> ${item.reply_count || 0}</span>
                         </div>
                     </div>
@@ -369,7 +369,7 @@
             `);
 
             card.on("click", function () {
-                formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { board_id: item.board_id, bbs_id: bbsId });
+                formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { pst_id: item.pst_id, bbs_id: bbsId });
             });
 
             container.append(card);

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Token {
 
-    public Integer id;
+    public Long id;
 
     public String token;
 

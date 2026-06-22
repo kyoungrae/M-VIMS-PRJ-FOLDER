@@ -14,127 +14,109 @@
         </choose>
     </sql>
 
+    <sql id="userGroupColumns">
+        a.id,
+        a.grp_id,
+        (SELECT grp_nm
+           FROM SYS_DEPT_GRP b
+          WHERE CONVERT(b.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+              = CONVERT(a.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci) AS grp_nm,
+        (SELECT fnm FROM SYS_USER c WHERE c.id = a.id) AS fnm,
+        (SELECT eml FROM SYS_USER c WHERE c.id = a.id) AS eml,
+        a.user_id,
+        a.inst_cd AS inst_cd,
+        (SELECT inst_nm
+           FROM SYS_INST
+          WHERE CONVERT(inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci
+              = CONVERT(a.inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci) AS inst_nm,
+        a.sys_gen_dt AS sys_crt_dt,
+        a.sys_crt_usr_id,
+        a.sys_mdfcn_dt AS sys_upd_dt,
+        a.sys_mdfr_id AS sys_upd_usr_id
+    </sql>
+
+    <sql id="userGroupWhere">
+        <where>
+            <if test="id != null ">AND a.id = #{id}</if>
+            <if test="grp_id != null and grp_id != ''">AND a.grp_id = #{grp_id}</if>
+            <if test="eml != null and eml != ''">
+                AND a.id IN (SELECT id FROM SYS_USER WHERE eml = #{eml})
+            </if>
+            <if test="user_id != null and user_id != ''">AND a.user_id = #{user_id}</if>
+            <if test="inst_cd != null and inst_cd != ''">AND a.inst_cd = #{inst_cd}</if>
+            <if test="sys_crt_dt != null ">AND a.sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND a.sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null ">AND a.sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND a.sys_mdfr_id = #{sys_upd_usr_id}</if>
+
+            <if test="_id != null and _id != ''">AND a.id LIKE CONCAT('%', #{_id}, '%')</if>
+            <if test="_grp_id != null and _grp_id != ''">AND a.grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
+            <if test="_eml != null and _eml != ''">
+                AND a.id IN (SELECT id FROM SYS_USER WHERE eml LIKE CONCAT('%', #{_eml}, '%'))
+            </if>
+            <if test="_user_id != null and _user_id != ''">AND a.user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
+            <if test="_inst_cd != null and _inst_cd != ''">AND a.inst_cd LIKE CONCAT('%', #{_inst_cd}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND a.sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND a.sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND a.sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND a.sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+        </where>
+    </sql>
+
+    <sql id="userUpGroupIdValue">
+        COALESCE(
+            (SELECT dg.up_grp_id
+               FROM SYS_DEPT_GRP dg
+              WHERE CONVERT(dg.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                  = CONVERT(#{grp_id} USING utf8mb4) COLLATE utf8mb4_unicode_ci),
+            #{grp_id}
+        )
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.usergroup.SysUserGroup">
         SELECT
-            row_number() over ()AS no,
-            id,
-            grp_id,
-            user_email,
-            user_id,
-            offc_cd,
-            (SELECT offc_nm FROM SYS_OFFC WHERE offc_cd = SYS_USER_GRP.offc_cd) AS offc_nm,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
-        FROM SYS_USER_GRP
-        <where>
-            <if test="id != null ">AND id=#{id}</if>
-            <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
-            <if test="user_email != null and user_email != ''">AND user_email=#{user_email}</if>
-            <if test="user_id != null and user_id != ''">AND user_id=#{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd=#{offc_cd}</if>
-            <if test="sys_crt_dt != null ">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null ">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
-
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_user_email != null and _user_email != ''">AND user_email LIKE CONCAT('%', #{_user_email}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+            row_number() over (ORDER BY a.sys_gen_dt DESC) AS no,
+            <include refid="userGroupColumns"/>
+        FROM SYS_USER_GRP a
+        <include refid="userGroupWhere"/>
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*)/#{row_range}) FROM SYS_USER_GRP
-        <where>
-            <if test="id != null ">AND id=#{id}</if>
-            <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
-            <if test="user_email != null and user_email != ''">AND user_email=#{user_email}</if>
-            <if test="user_id != null and user_id != ''">AND user_id=#{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd=#{offc_cd}</if>
-            <if test="sys_crt_dt != null ">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null ">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
-
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_user_email != null and _user_email != ''">AND user_email LIKE CONCAT('%', #{_user_email}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_USER_GRP a
+        <include refid="userGroupWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.usergroup.SysUserGroup">
         SELECT
-        id,
-        grp_id,
-        (SELECT grp_nm FROM SYS_DEPT_GRP b where b.grp_id = a.grp_id) as grp_nm,
-        (SELECT user_nm FROM SYS_USER c where c.id = a.id) as user_nm,
-        user_email,
-        user_id,
-        offc_cd,
-        sys_crt_dt,
-        sys_crt_usr_id,
-        sys_upd_dt,
-        sys_upd_usr_id
+            <include refid="userGroupColumns"/>
         FROM SYS_USER_GRP a
-        <where>
-            <if test="id != null ">AND id=#{id}</if>
-            <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
-            <if test="user_email != null and user_email != ''">AND user_email=#{user_email}</if>
-            <if test="user_id != null and user_id != ''">AND user_id=#{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd=#{offc_cd}</if>
-            <if test="sys_crt_dt != null ">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null ">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
-
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_user_email != null and _user_email != ''">AND user_email LIKE CONCAT('%', #{_user_email}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="userGroupWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_USER_GRP(
-        id
-        ,grp_id
-        , user_email
-        , user_id
-        , offc_cd
-        , sys_crt_dt
-        , sys_crt_usr_id
-        <if test="sys_upd_dt != null">, sys_upd_dt</if>
-        <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
+            id,
+            grp_id,
+            user_up_grp_id,
+            user_id,
+            inst_cd,
+            sys_gen_dt,
+            sys_crt_usr_id
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
+            <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
         )
         VALUES(
-        #{id}
-        ,#{grp_id}
-        , #{user_email}
-        , #{user_id}
-        , #{offc_cd}
-        , NOW()
-        , #{sys_crt_usr_id}
-        <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
-        <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
+            #{id},
+            #{grp_id},
+            <include refid="userUpGroupIdValue"/>,
+            #{user_id},
+            #{inst_cd},
+            NOW(),
+            #{sys_crt_usr_id}
+            <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
         )
     </insert>
 
@@ -143,26 +125,25 @@
         <where>
             AND id = #{id}
             AND grp_id = #{grp_id}
-            <if test="user_email != null">AND user_email = #{user_email}</if>
             <if test="user_id != null">AND user_id = #{user_id}</if>
-            <if test="offc_cd != null">AND offc_cd = #{offc_cd}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="inst_cd != null">AND inst_cd = #{inst_cd}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_USER_GRP
         <set>
-            <if test="user_email != null">user_email = #{user_email},</if>
-            <if test="user_id != null">user_id=#{user_id},</if>
-            <if test="offc_cd != null">offc_cd=#{offc_cd},</if>
-            <if test="sys_crt_dt != null">sys_crt_dt=#{sys_crt_dt},</if>
-            <if test="sys_crt_usr_id != null">sys_crt_usr_id=#{sys_crt_usr_id},</if>
-            <if test="sys_upd_dt != null">sys_upd_dt=#{sys_upd_dt},</if>
-            <if test="sys_upd_usr_id != null">sys_upd_usr_id=#{sys_upd_usr_id},</if>
+            user_up_grp_id = <include refid="userUpGroupIdValue"/>,
+            <if test="user_id != null">user_id = #{user_id},</if>
+            <if test="inst_cd != null">inst_cd = #{inst_cd},</if>
+            <if test="sys_crt_dt != null">sys_gen_dt = #{sys_crt_dt},</if>
+            <if test="sys_crt_usr_id != null">sys_crt_usr_id = #{sys_crt_usr_id},</if>
+            <if test="sys_upd_dt != null">sys_mdfcn_dt = #{sys_upd_dt},</if>
+            <if test="sys_upd_usr_id != null">sys_mdfr_id = #{sys_upd_usr_id},</if>
         </set>
         <where>
             id = #{id}
@@ -172,104 +153,100 @@
 
     <update id="INSERT_OR_UPDATE">
         INSERT INTO SYS_USER_GRP (
-        id,
-        grp_id,
-        user_email,
-        user_id,
-        offc_cd,
-        sys_crt_dt,
-        sys_crt_usr_id,
-        sys_upd_dt,
-        sys_upd_usr_id
+            id,
+            grp_id,
+            user_up_grp_id,
+            user_id,
+            inst_cd,
+            sys_gen_dt,
+            sys_crt_usr_id,
+            sys_mdfcn_dt,
+            sys_mdfr_id
         ) VALUES (
-        #{id},
-        #{grp_id},
-        #{user_email},
-        #{user_id},
-        #{offc_cd},
-        NOW(),
-        #{sys_crt_usr_id},
-        <if test="sys_upd_dt != null">#{sys_upd_dt},</if>
-        <if test="sys_upd_dt == null">NULL,</if>
-        <if test="sys_upd_usr_id != null">#{sys_upd_usr_id}</if>
-        <if test="sys_upd_usr_id == null">NULL</if>
+            #{id},
+            #{grp_id},
+            <include refid="userUpGroupIdValue"/>,
+            #{user_id},
+            #{inst_cd},
+            NOW(),
+            #{sys_crt_usr_id},
+            <if test="sys_upd_dt != null">#{sys_upd_dt},</if>
+            <if test="sys_upd_dt == null">NULL,</if>
+            <if test="sys_upd_usr_id != null">#{sys_upd_usr_id}</if>
+            <if test="sys_upd_usr_id == null">NULL</if>
         )
         ON DUPLICATE KEY UPDATE
-        user_email = VALUES(user_email),
-        user_id = VALUES(user_id),
-        offc_cd = VALUES(offc_cd),
-        sys_upd_dt = NOW(),
-        sys_upd_usr_id = VALUES(sys_upd_usr_id)
+            user_up_grp_id = VALUES(user_up_grp_id),
+            user_id = VALUES(user_id),
+            inst_cd = VALUES(inst_cd),
+            sys_mdfcn_dt = NOW(),
+            sys_mdfr_id = VALUES(sys_mdfr_id)
     </update>
 
     <select id="SELECT_BY_GRP_ID_LIST" resultType="com.vims.common.usergroup.SysUserGroup">
         SELECT
-        id,
-        grp_id,
-        (SELECT grp_nm FROM SYS_DEPT_GRP b where b.grp_id = a.grp_id) as grp_nm,
-        (SELECT user_nm FROM SYS_USER c where c.id = a.id) as user_nm,
-        user_email,
-        user_id,
-        offc_cd,
-        sys_crt_dt,
-        sys_crt_usr_id,
-        sys_upd_dt,
-        sys_upd_usr_id
+            <include refid="userGroupColumns"/>
         FROM SYS_USER_GRP a
-        WHERE grp_id IN
-        <foreach collection="targetGroups" item="group"  index="index" open="(" separator="," close=")">
+        WHERE a.grp_id IN
+        <foreach collection="targetGroups" item="group" index="index" open="(" separator="," close=")">
             #{group}
         </foreach>
     </select>
 
     <select id="SELECT_JOIN_SYS_USER_GRP_PAGE" resultType="com.vims.common.usergroup.SysUserGroup">
         SELECT
-        row_number() over ()AS no,
-        a.id,
-        a.email AS user_email,
-        a.user_id,
-        a.offc_cd,
-        (SELECT offc_nm FROM SYS_OFFC WHERE offc_cd = a.offc_cd) AS offc_nm
+            row_number() over () AS no,
+            a.id,
+            a.eml AS eml,
+            a.user_id,
+            a.inst_cd AS inst_cd,
+            (SELECT inst_nm
+               FROM SYS_INST
+              WHERE CONVERT(inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                  = CONVERT(a.inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci) AS inst_nm
         FROM SYS_USER a
         <where>
             NOT EXISTS (
-            SELECT 1
-            FROM SYS_USER_GRP b
-            WHERE a.user_id = b.user_id
-            AND b.grp_id = #{grp_id}
+                SELECT 1
+                FROM SYS_USER_GRP b
+                WHERE CONVERT(a.user_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                    = CONVERT(b.user_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                  AND CONVERT(b.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                    = CONVERT(#{grp_id} USING utf8mb4) COLLATE utf8mb4_unicode_ci
             )
-            <if test="id != null ">AND a.id=#{id}</if>
-            <if test="user_email != null and user_email != ''">AND a.email=#{user_email}</if>
-            <if test="user_id != null and user_id != ''">AND a.user_id=#{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND a.offc_cd=#{offc_cd}</if>
+            <if test="id != null ">AND a.id = #{id}</if>
+            <if test="eml != null and eml != ''">AND a.eml = #{eml}</if>
+            <if test="user_id != null and user_id != ''">AND a.user_id = #{user_id}</if>
+            <if test="inst_cd != null and inst_cd != ''">AND a.inst_cd = #{inst_cd}</if>
 
             <if test="_id != null and _id != ''">AND a.id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_email != null and _user_email != ''">AND a.email LIKE CONCAT('%', #{_user_email}, '%')</if>
+            <if test="_eml != null and _eml != ''">AND a.eml LIKE CONCAT('%', #{_eml}, '%')</if>
             <if test="_user_id != null and _user_id != ''">AND a.user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND a.offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
+            <if test="_inst_cd != null and _inst_cd != ''">AND a.inst_cd LIKE CONCAT('%', #{_inst_cd}, '%')</if>
         </where>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_JOIN_SYS_USER_GRP_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*)/#{row_range}) FROM SYS_USER a
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_USER a
         <where>
             NOT EXISTS (
-            SELECT 1
-            FROM SYS_USER_GRP b
-            WHERE a.user_id = b.user_id
-            AND b.grp_id = #{grp_id}
+                SELECT 1
+                FROM SYS_USER_GRP b
+                WHERE CONVERT(a.user_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                    = CONVERT(b.user_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                  AND CONVERT(b.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                    = CONVERT(#{grp_id} USING utf8mb4) COLLATE utf8mb4_unicode_ci
             )
-            <if test="id != null ">AND a.id=#{id}</if>
-            <if test="user_email != null and user_email != ''">AND a.email=#{user_email}</if>
-            <if test="user_id != null and user_id != ''">AND a.user_id=#{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND a.offc_cd=#{offc_cd}</if>
+            <if test="id != null ">AND a.id = #{id}</if>
+            <if test="eml != null and eml != ''">AND a.eml = #{eml}</if>
+            <if test="user_id != null and user_id != ''">AND a.user_id = #{user_id}</if>
+            <if test="inst_cd != null and inst_cd != ''">AND a.inst_cd = #{inst_cd}</if>
 
             <if test="_id != null and _id != ''">AND a.id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_email != null and _user_email != ''">AND a.email LIKE CONCAT('%', #{_user_email}, '%')</if>
+            <if test="_eml != null and _eml != ''">AND a.eml LIKE CONCAT('%', #{_eml}, '%')</if>
             <if test="_user_id != null and _user_id != ''">AND a.user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND a.offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
+            <if test="_inst_cd != null and _inst_cd != ''">AND a.inst_cd LIKE CONCAT('%', #{_inst_cd}, '%')</if>
         </where>
     </select>
-
 </mapper>

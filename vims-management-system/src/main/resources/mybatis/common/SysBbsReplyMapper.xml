@@ -14,27 +14,35 @@
         </choose>
     </sql>
 
+    <sql id="replyColumns">
+        cmnt_id AS cmnt_id,
+        pst_id AS pst_id,
+        prnt_cmnt_id AS prnt_cmnt_id,
+        cn AS cn,
+        wrtr_nm,
+        sys_crt_usr_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_mdfr_id AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt
+    </sql>
+
+    <sql id="replyWhere">
+        <where>
+            <if test="cmnt_id != null and cmnt_id != ''">AND cmnt_id = #{cmnt_id}</if>
+            <if test="pst_id != null and pst_id != ''">AND pst_id = #{pst_id}</if>
+            <if test="prnt_cmnt_id != null and prnt_cmnt_id != ''">AND prnt_cmnt_id = #{prnt_cmnt_id}</if>
+            <if test="_cn != null and _cn != ''">AND cn LIKE CONCAT('%', #{_cn}, '%')</if>
+            <if test="_wrtr_nm != null and _wrtr_nm != ''">AND wrtr_nm LIKE CONCAT('%', #{_wrtr_nm}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.bbs.SysBbsReply">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt ASC) AS no,
-                reply_id,
-                board_id,
-                parent_reply_id,
-                content,
-                wrtr_nm,
-                sys_crt_usr_id,
-                sys_crt_dt,
-                sys_upd_usr_id,
-                sys_upd_dt
-            FROM SYS_BBS_RPLY
-            <where>
-                <if test="reply_id != null and reply_id != ''">AND reply_id = #{reply_id}</if>
-                <if test="board_id != null and board_id != ''">AND board_id = #{board_id}</if>
-                <if test="parent_reply_id != null and parent_reply_id != ''">AND parent_reply_id = #{parent_reply_id}</if>
-                <if test="_content != null and _content != ''">AND content LIKE CONCAT('%', #{_content}, '%')</if>
-                <if test="_wrtr_nm != null and _wrtr_nm != ''">AND wrtr_nm LIKE CONCAT('%', #{_wrtr_nm}, '%')</if>
-            </where>
+                row_number() over (ORDER BY sys_gen_dt ASC) AS no,
+                <include refid="replyColumns"/>
+            FROM SYS_BBS_CMNT
+            <include refid="replyWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         <if test="row_range != null and offset != null">
@@ -43,68 +51,60 @@
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_BBS_RPLY
-        <where>
-            <if test="board_id != null and board_id != ''">AND board_id = #{board_id}</if>
-            <if test="_content != null and _content != ''">AND content LIKE CONCAT('%', #{_content}, '%')</if>
-        </where>
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_BBS_CMNT
+        <include refid="replyWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.bbs.SysBbsReply">
         SELECT
-            reply_id, board_id, parent_reply_id, content, wrtr_nm,
-            sys_crt_usr_id, sys_crt_dt, sys_upd_usr_id, sys_upd_dt
-        FROM SYS_BBS_RPLY
-        <where>
-            <if test="reply_id != null and reply_id != ''">AND reply_id = #{reply_id}</if>
-            <if test="board_id != null and board_id != ''">AND board_id = #{board_id}</if>
-        </where>
+            <include refid="replyColumns"/>
+        FROM SYS_BBS_CMNT
+        <include refid="replyWhere"/>
     </select>
 
     <!-- 게시물 ID로 댓글 목록 조회 (계층 구조 정렬: 부모 댓글 먼저, 그 아래 대댓글) -->
     <select id="SELECT_BY_BOARD_ID" resultType="com.vims.common.bbs.SysBbsReply">
         SELECT
-            reply_id, board_id, parent_reply_id, content, wrtr_nm,
-            sys_crt_usr_id, sys_crt_dt, sys_upd_usr_id, sys_upd_dt
-        FROM SYS_BBS_RPLY
-        WHERE board_id = #{board_id}
-        ORDER BY 
-            COALESCE(parent_reply_id, reply_id) ASC,
-            parent_reply_id IS NOT NULL ASC,
-            sys_crt_dt ASC
+            <include refid="replyColumns"/>
+        FROM SYS_BBS_CMNT
+        WHERE pst_id = #{pst_id}
+        ORDER BY
+            COALESCE(prnt_cmnt_id, cmnt_id) ASC,
+            prnt_cmnt_id IS NOT NULL ASC,
+            sys_gen_dt ASC
     </select>
 
     <!-- 게시물별 댓글 수 조회 -->
     <select id="COUNT_BY_BOARD_ID" resultType="int">
-        SELECT COUNT(*) FROM SYS_BBS_RPLY WHERE board_id = #{board_id}
+        SELECT COUNT(*) FROM SYS_BBS_CMNT WHERE pst_id = #{pst_id}
     </select>
 
     <insert id="INSERT">
-        INSERT INTO SYS_BBS_RPLY(
-            reply_id, board_id, parent_reply_id, content, wrtr_nm,
-            sys_crt_usr_id, sys_crt_dt, sys_upd_usr_id, sys_upd_dt
+        INSERT INTO SYS_BBS_CMNT(
+            cmnt_id, pst_id, prnt_cmnt_id, cn, wrtr_nm,
+            sys_crt_usr_id, sys_gen_dt, sys_mdfr_id, sys_mdfcn_dt
         )
         VALUES(
-            #{reply_id}, #{board_id}, #{parent_reply_id}, #{content}, #{wrtr_nm},
+            #{cmnt_id}, #{pst_id}, #{prnt_cmnt_id}, #{cn}, #{wrtr_nm},
             #{sys_crt_usr_id}, NOW(), #{sys_upd_usr_id}, NOW()
         )
     </insert>
 
     <update id="UPDATE">
-        UPDATE SYS_BBS_RPLY
+        UPDATE SYS_BBS_CMNT
         <set>
-            <if test="content != null">content = #{content},</if>
+            <if test="cn != null">cn = #{cn},</if>
             <if test="wrtr_nm != null">wrtr_nm = #{wrtr_nm},</if>
-            sys_upd_usr_id = #{sys_upd_usr_id},
-            sys_upd_dt = NOW()
+            sys_mdfr_id = #{sys_upd_usr_id},
+            sys_mdfcn_dt = NOW()
         </set>
         <where>
-            AND reply_id = #{reply_id}
+            AND cmnt_id = #{cmnt_id}
         </where>
     </update>
 
     <delete id="DELETE">
-        DELETE FROM SYS_BBS_RPLY 
-        WHERE reply_id = #{reply_id} OR parent_reply_id = #{reply_id}
+        DELETE FROM SYS_BBS_CMNT
+        WHERE cmnt_id = #{cmnt_id} OR prnt_cmnt_id = #{cmnt_id}
     </delete>
 </mapper>

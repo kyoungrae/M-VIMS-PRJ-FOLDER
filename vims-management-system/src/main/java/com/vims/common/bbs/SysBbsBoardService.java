@@ -55,7 +55,7 @@ public class SysBbsBoardService extends AbstractCommonService<SysBbsBoard> {
 
     @Override
     protected List<SysBbsBoard> findImpl(SysBbsBoard request) throws Exception {
-        if (request.getBoard_id() != null && !request.getBoard_id().isEmpty()) {
+        if (request.getPst_id() != null && !request.getPst_id().isEmpty()) {
             sysBbsBoardMapper.INCREMENT_HIT_CNT(request);
         }
         return sysBbsBoardMapper.SELECT(request);
@@ -81,7 +81,7 @@ public class SysBbsBoardService extends AbstractCommonService<SysBbsBoard> {
             }
 
             // 3. 썸네일이 존재하면 FMS를 통해 삭제 요청
-            String thmbnlUuid = board.getThmbnl();
+            String thmbnlUuid = board.getThmb_path();
             if (thmbnlUuid != null && !thmbnlUuid.isEmpty()) {
                 try {
                     java.util.Map<String, Object> thumbParam = new java.util.HashMap<>();
@@ -102,8 +102,8 @@ public class SysBbsBoardService extends AbstractCommonService<SysBbsBoard> {
 
     @Override
     protected int registerImpl(SysBbsBoard request) {
-        if (request.getBoard_id() == null || request.getBoard_id().isEmpty()) {
-            request.setBoard_id(UUID.randomUUID().toString());
+        if (request.getPst_id() == null || request.getPst_id().isEmpty()) {
+            request.setPst_id(UUID.randomUUID().toString());
         }
         return sysBbsBoardMapper.INSERT(request);
     }

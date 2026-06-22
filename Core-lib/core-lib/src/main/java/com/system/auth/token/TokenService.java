@@ -28,11 +28,11 @@ public class TokenService {
         return tokenMapper.UPDATE_TOKEN(token);
     }
 
-    public int deleteExpiredTokens(Integer userId) {
+    public int deleteExpiredTokens(Long userId) {
         return tokenMapper.DELETE_EXP_TOKEN_BY_USER_ID(userId);
     }
 
-    public int revokeAllUserTokens(Integer userId) {
+    public int revokeAllUserTokens(Long userId) {
         return tokenMapper.REVOKE_ALL_USER_TOKENS(userId);
     }
 }

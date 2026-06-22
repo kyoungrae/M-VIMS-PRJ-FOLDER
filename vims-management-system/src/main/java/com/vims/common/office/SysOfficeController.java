@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysOfficeController extends AbstractCommonController<SysOffice> {
 
     private final SysOfficeService sysOfficeService;
-    private final SysOfficeRepository sysOfficeRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysOffice reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysOfficeController extends AbstractCommonController<SysOffice> {
 
     @PostMapping("/findAll")
     protected List<SysOffice> findAll(@RequestBody SysOffice request) throws Exception {
-        return sysOfficeRepository.findAll();
+        return sysOfficeService.findImpl(request);
     }
 
     @PostMapping("/find")

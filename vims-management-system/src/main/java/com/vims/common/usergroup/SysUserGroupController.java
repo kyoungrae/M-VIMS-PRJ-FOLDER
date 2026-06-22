@@ -1,6 +1,5 @@
 package com.vims.common.usergroup;
 
-import com.system.auth.authuser.AuthUser;
 import com.system.common.base.AbstractCommonController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,6 @@ import java.util.Map;
 public class SysUserGroupController extends AbstractCommonController<SysUserGroup> {
 
     private final SysUserGroupService sysUserGroupService;
-    private final SysUserGroupRepository sysUserGroupRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysUserGroup reqeust) throws Exception {
@@ -28,7 +26,7 @@ public class SysUserGroupController extends AbstractCommonController<SysUserGrou
 
     @PostMapping("/findAll")
     protected List<SysUserGroup> findAll(@RequestBody SysUserGroup request) throws Exception {
-        return sysUserGroupRepository.findAll();
+        return sysUserGroupService.findImpl(request);
     }
 
     @PostMapping("/find")

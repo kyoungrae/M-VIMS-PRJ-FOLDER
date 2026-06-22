@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysSiteConfigGroupController extends AbstractCommonController<SysSiteConfigGroup> {
 
     private final SysSiteConfigGroupService sysSiteConfigGroupService;
-    private final SysSiteConfigGroupRepository sysSiteConfigGroupRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysSiteConfigGroup reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysSiteConfigGroupController extends AbstractCommonController<SysSi
 
     @PostMapping("/findAll")
     protected List<SysSiteConfigGroup> findAll(@RequestBody SysSiteConfigGroup request) throws Exception {
-        return sysSiteConfigGroupRepository.findAll();
+        return sysSiteConfigGroupService.findImpl(request);
     }
 
     @PostMapping("/find")

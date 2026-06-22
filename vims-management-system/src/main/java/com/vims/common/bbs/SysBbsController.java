@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysBbsController extends AbstractCommonController<SysBbs> {
 
     private final SysBbsService sysBbsService;
-    private final SysBbsRepository sysBbsRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysBbs reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysBbsController extends AbstractCommonController<SysBbs> {
 
     @PostMapping("/findAll")
     protected List<SysBbs> findAll(@RequestBody SysBbs request) throws Exception {
-        return sysBbsRepository.findAll();
+        return sysBbsService.findImpl(request);
     }
 
     @PostMapping("/find")

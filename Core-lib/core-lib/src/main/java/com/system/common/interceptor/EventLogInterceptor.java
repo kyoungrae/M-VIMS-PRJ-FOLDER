@@ -7,8 +7,6 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -27,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * CRUD 감사 로그 인터셉터
- * INSERT, UPDATE, DELETE 수행 시 SYS_EVT_LOG 테이블에 로그를 남깁니다.
+ * INSERT, UPDATE, DELETE 수행 시 SYS_ADT_LOG 테이블에 로그를 남깁니다.
  */
 @Component
 @Intercepts({
@@ -252,18 +250,6 @@ public class EventLogInterceptor implements Interceptor {
         Map.Entry<String, String> idEntry = extractIdEntryFromParameter(parameter);
         final String targetId = idEntry != null ? idEntry.getValue() : "";
 
-        // IP 주소 추출
-        String extractedIp = "";
-        try {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
-                    .getRequestAttributes();
-            if (attributes != null) {
-                extractedIp = attributes.getRequest().getRemoteAddr();
-            }
-        } catch (Exception e) {
-        }
-        final String ipAddress = extractedIp;
-
         // 2. 유저 정보 추출 및 Null 처리
         String userEmailTemp = UserInfo.getUserEmail();
         if (userEmailTemp == null || userEmailTemp.trim().isEmpty()) {
@@ -287,7 +273,6 @@ public class EventLogInterceptor implements Interceptor {
                 logData.put("act_type", actionType);
                 logData.put("tgt_tbl", targetTable);
                 logData.put("tgt_id", targetId);
-                logData.put("ip_addr", ipAddress);
                 logData.put("bfr_data", beforeData);
 
                 try {

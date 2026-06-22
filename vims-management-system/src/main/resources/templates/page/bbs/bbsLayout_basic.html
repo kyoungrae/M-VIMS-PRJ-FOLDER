@@ -55,7 +55,7 @@
         // 페이지 타이틀 설정
         $("#basic-page-title").text(bbsNm);
 
-        // BBS 설정 조회 (reply_yn 확인)
+        // BBS 설정 조회 (cmnt_yn 확인)
         await checkBbsConfiguration();
 
         findByBoardList();
@@ -68,7 +68,7 @@
             const response = await axios.post(url, { bbs_id: bbsId });
             if (response.status === 200 && response.data.length > 0) {
                 let bbsInfo = response.data[0];
-                if (bbsInfo.reply_yn === '1') {
+                if (bbsInfo.cmnt_yn === '1') {
                     replyEnabled = true;
                 }
             }
@@ -103,7 +103,7 @@
             offset: (page - 1) * range
         };
         let cont1 = $("#searchDesc1").val();
-        if (formUtil.checkEmptyValue(cont1)) param._title = cont1;
+        if (formUtil.checkEmptyValue(cont1)) param._ttl = cont1;
 
         axios.post(url, param).then(response => {
             if (response.status === 200) {
@@ -114,12 +114,12 @@
                     title: bbsNm,
                     list: [
                         { HEADER: 'No', ID: 'no', WIDTH: '10', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
-                        { HEADER: Message.Label.Array["SYS_LAYOUT.TITLE"], ID: 'title', WIDTH: replyEnabled ? '45' : '50', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_LAYOUT.TITLE"], ID: 'ttl', WIDTH: replyEnabled ? '45' : '50', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
                         { HEADER: Message.Label.Array["SYS_BBS_RPLY.REPLY_COUNT"] || '댓글', ID: 'reply_count', WIDTH: '8', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: !replyEnabled },
                         { HEADER: Message.Label.Array["SYS_LAYOUT.WRTR_NM"], ID: 'wrtr_nm', WIDTH: '12', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
-                        { HEADER: Message.Label.Array["SYS_LAYOUT.HIT_CNT"], ID: 'hit_cnt', WIDTH: '10', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
+                        { HEADER: Message.Label.Array["SYS_LAYOUT.HIT_CNT"], ID: 'inq_cnt', WIDTH: '10', TYPE: 'text', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
                         { HEADER: Message.Label.Array["SYS_LAYOUT.CREATE_DATE"], ID: 'sys_crt_dt', WIDTH: '15', TYPE: 'date', TEXT_ALIGN: 'center', FONT_SIZE: '12px', HIDDEN: false },
-                        { HEADER: 'ID', ID: 'board_id', WIDTH: '0', TYPE: 'text', HIDDEN: true }
+                        { HEADER: 'ID', ID: 'pst_id', WIDTH: '0', TYPE: 'text', HIDDEN: true }
                     ]
                 };
 
@@ -127,7 +127,7 @@
                 grid.DataSet(data);
                 grid.pagingSet(findByBoardList);
                 grid.rowClick(function (rowData) {
-                    formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { board_id: rowData.board_id, bbs_id: bbsId });
+                    formUtil.apiLoadContent("cms", "/bbs/sysBbsBoardDetail", { pst_id: rowData.pst_id, bbs_id: bbsId });
                 });
             }
         });

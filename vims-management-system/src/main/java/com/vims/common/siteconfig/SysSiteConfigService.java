@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysSiteConfigService extends AbstractCommonService<SysSiteConfig> {
     private final SysSiteConfigMapper sysSiteConfigMapper;
-    private final SysSiteConfigRepository sysSiteConfigRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

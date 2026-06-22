@@ -14,96 +14,97 @@
         </choose>
     </sql>
 
+    <sql id="boardColumns">
+        pst_id AS pst_id,
+        bbs_id,
+        ttl AS ttl,
+        cn AS cn,
+        wrtr_nm,
+        inq_cnt AS inq_cnt,
+        file_uuid,
+        thmb_path AS thmb_path,
+        (SELECT COUNT(*)
+           FROM SYS_BBS_CMNT
+          WHERE CONVERT(SYS_BBS_CMNT.pst_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+              = CONVERT(SYS_BBS_PST.pst_id USING utf8mb4) COLLATE utf8mb4_unicode_ci) AS reply_count,
+        sys_crt_usr_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_mdfr_id AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt
+    </sql>
+
+    <sql id="boardWhere">
+        <where>
+            <if test="bbs_id != null and bbs_id != ''">AND bbs_id = #{bbs_id}</if>
+            <if test="pst_id != null and pst_id != ''">AND pst_id = #{pst_id}</if>
+            <if test="_ttl != null and _ttl != ''">AND ttl LIKE CONCAT('%', #{_ttl}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.bbs.SysBbsBoard">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC ) AS no,
-                board_id,
-                bbs_id,
-                title,
-                content,
-                wrtr_nm,
-                hit_cnt,
-                file_uuid,
-                thmbnl,
-                (SELECT COUNT(*) FROM SYS_BBS_RPLY WHERE SYS_BBS_RPLY.board_id = SYS_BBS_BRD.board_id) AS reply_count,
-                sys_crt_usr_id,
-                sys_crt_dt,
-                sys_upd_usr_id,
-                sys_upd_dt
-            FROM SYS_BBS_BRD
-            <where>
-                <if test="bbs_id != null and bbs_id != ''">AND bbs_id = #{bbs_id}</if>
-                <if test="board_id != null and board_id != ''">AND board_id = #{board_id}</if>
-                <if test="_title != null and _title != ''">AND title LIKE CONCAT('%', #{_title}, '%')</if>
-            </where>
+                row_number() over (ORDER BY sys_gen_dt DESC) AS no,
+                <include refid="boardColumns"/>
+            FROM SYS_BBS_PST
+            <include refid="boardWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_BBS_BRD
-        <where>
-            <if test="bbs_id != null and bbs_id != ''">AND bbs_id = #{bbs_id}</if>
-            <if test="_title != null and _title != ''">AND title LIKE CONCAT('%', #{_title}, '%')</if>
-        </where>
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_BBS_PST
+        <include refid="boardWhere"/>
     </select>
 
     <select id="SELECT_TOTAL_COUNT" resultType="int">
-        SELECT COUNT(*) FROM SYS_BBS_BRD
-        <where>
-            <if test="bbs_id != null and bbs_id != ''">AND bbs_id = #{bbs_id}</if>
-            <if test="_title != null and _title != ''">AND title LIKE CONCAT('%', #{_title}, '%')</if>
-        </where>
+        SELECT COUNT(*) FROM SYS_BBS_PST
+        <include refid="boardWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.bbs.SysBbsBoard">
         SELECT
-            board_id, bbs_id, title, content, wrtr_nm, hit_cnt, file_uuid, thmbnl,
-            sys_crt_usr_id, sys_crt_dt, sys_upd_usr_id, sys_upd_dt
-        FROM SYS_BBS_BRD
-        <where>
-            <if test="board_id != null and board_id != ''">AND board_id = #{board_id}</if>
-            <if test="bbs_id != null and bbs_id != ''">AND bbs_id = #{bbs_id}</if>
-        </where>
+            <include refid="boardColumns"/>
+        FROM SYS_BBS_PST
+        <include refid="boardWhere"/>
     </select>
 
     <insert id="INSERT">
-        INSERT INTO SYS_BBS_BRD(
-            board_id, bbs_id, title, content, wrtr_nm, hit_cnt, file_uuid, thmbnl,
-            sys_crt_usr_id, sys_crt_dt, sys_upd_usr_id, sys_upd_dt
+        INSERT INTO SYS_BBS_PST(
+            pst_id, bbs_id, ttl, cn, wrtr_nm, inq_cnt, file_uuid, thmb_path,
+            sys_crt_usr_id, sys_gen_dt, sys_mdfr_id, sys_mdfcn_dt
         )
         VALUES(
-            #{board_id}, #{bbs_id}, #{title}, #{content}, #{wrtr_nm}, 0, #{file_uuid}, #{thmbnl},
+            #{pst_id}, #{bbs_id}, #{ttl}, #{cn}, #{wrtr_nm}, 0, #{file_uuid}, #{thmb_path},
             #{sys_crt_usr_id}, NOW(), #{sys_upd_usr_id}, NOW()
         )
     </insert>
 
     <update id="UPDATE">
-        UPDATE SYS_BBS_BRD
+        UPDATE SYS_BBS_PST
         <set>
-            <if test="title != null">title = #{title},</if>
-            <if test="content != null">content = #{content},</if>
+            <if test="ttl != null">ttl = #{ttl},</if>
+            <if test="cn != null">cn = #{cn},</if>
             <if test="wrtr_nm != null">wrtr_nm = #{wrtr_nm},</if>
-            <if test="hit_cnt != 0">hit_cnt = #{hit_cnt},</if>
+            <if test="inq_cnt != 0">inq_cnt = #{inq_cnt},</if>
             <if test="file_uuid != null">file_uuid = #{file_uuid},</if>
-            <if test="thmbnl != null">thmbnl = #{thmbnl},</if>
-            sys_upd_usr_id = #{sys_upd_usr_id},
-            sys_upd_dt = NOW()
+            <if test="thmb_path != null">thmb_path = #{thmb_path},</if>
+            sys_mdfr_id = #{sys_upd_usr_id},
+            sys_mdfcn_dt = NOW()
         </set>
         <where>
-            AND board_id = #{board_id}
+            AND pst_id = #{pst_id}
         </where>
     </update>
 
     <update id="INCREMENT_HIT_CNT">
-        UPDATE SYS_BBS_BRD
-        SET hit_cnt = hit_cnt + 1
-        WHERE board_id = #{board_id}
+        UPDATE SYS_BBS_PST
+        SET inq_cnt = inq_cnt + 1
+        WHERE pst_id = #{pst_id}
     </update>
 
     <delete id="DELETE">
-        DELETE FROM SYS_BBS_BRD WHERE board_id = #{board_id}
+        DELETE FROM SYS_BBS_PST WHERE pst_id = #{pst_id}
     </delete>
 </mapper>

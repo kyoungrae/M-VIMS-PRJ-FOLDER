@@ -14,102 +14,62 @@
         </choose>
     </sql>
 
-    <select id="SELECT_PAGE" resultType="com.vims.common.group.SysDeptGroup">
-        SELECT
-        row_number() over ()AS no,
+    <sql id="deptGroupColumns">
         grp_id,
         grp_nm,
         grp_lvl,
-        top_grp_id,
+        up_grp_id AS top_grp_id,
         use_yn,
-        sys_crt_dt,
-        sys_crt_usr_id,
-        sys_upd_dt,
-        sys_upd_usr_id
-        FROM SYS_DEPT_GRP
+        sys_gen_dt AS sys_crt_dt,
+        sys_gen_id AS sys_crt_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        sys_mdfr_id AS sys_upd_usr_id
+    </sql>
+
+    <sql id="deptGroupWhere">
         <where>
             <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
             <if test="grp_nm != null and grp_nm != ''">AND grp_nm=#{grp_nm}</if>
             <if test="grp_lvl != null and grp_lvl != ''">AND grp_lvl=#{grp_lvl}</if>
-            <if test="top_grp_id != null and top_grp_id != ''">AND top_grp_id=#{top_grp_id}</if>
+            <if test="top_grp_id != null and top_grp_id != ''">AND up_grp_id=#{top_grp_id}</if>
             <if test="use_yn != null and use_yn != ''">AND use_yn=#{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt=#{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_gen_id=#{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt=#{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id=#{sys_upd_usr_id}</if>
 
             <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
             <if test="_grp_nm != null and _grp_nm != ''">AND grp_nm LIKE CONCAT('%', #{_grp_nm}, '%')</if>
             <if test="_grp_lvl != null and _grp_lvl != ''">AND grp_lvl LIKE CONCAT('%', #{_grp_lvl}, '%')</if>
-            <if test="_top_grp_id != null and _top_grp_id != ''">AND top_grp_id LIKE CONCAT('%', #{_top_grp_id}, '%')</if>
+            <if test="_top_grp_id != null and _top_grp_id != ''">AND up_grp_id LIKE CONCAT('%', #{_top_grp_id}, '%')</if>
             <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_gen_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
         </where>
+    </sql>
+
+    <select id="SELECT_PAGE" resultType="com.vims.common.group.SysDeptGroup">
+        SELECT
+        row_number() over ()AS no,
+        <include refid="deptGroupColumns"/>
+        FROM SYS_DEPT_GRP
+        <include refid="deptGroupWhere"/>
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*)/#{row_range}) FROM SYS_DEPT_GRP
-        <where>
-            <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
-            <if test="grp_nm != null and grp_nm != ''">AND grp_nm=#{grp_nm}</if>
-            <if test="grp_lvl != null and grp_lvl != ''">AND grp_lvl=#{grp_lvl}</if>
-            <if test="top_grp_id != null and top_grp_id != ''">AND top_grp_id=#{top_grp_id}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn=#{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
-
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_grp_nm != null and _grp_nm != ''">AND grp_nm LIKE CONCAT('%', #{_grp_nm}, '%')</if>
-            <if test="_grp_lvl != null and _grp_lvl != ''">AND grp_lvl LIKE CONCAT('%', #{_grp_lvl}, '%')</if>
-            <if test="_top_grp_id != null and _top_grp_id != ''">AND top_grp_id LIKE CONCAT('%', #{_top_grp_id}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="deptGroupWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.group.SysDeptGroup">
         SELECT
-        grp_id,
-        grp_nm,
-        grp_lvl,
-        top_grp_id,
-        use_yn,
-        sys_crt_dt,
-        sys_crt_usr_id,
-        sys_upd_dt,
-        sys_upd_usr_id
+        <include refid="deptGroupColumns"/>
         FROM SYS_DEPT_GRP
-        <where>
-            <if test="grp_id != null and grp_id != ''">AND grp_id=#{grp_id}</if>
-            <if test="grp_nm != null and grp_nm != ''">AND grp_nm=#{grp_nm}</if>
-            <if test="grp_lvl != null and grp_lvl != ''">AND grp_lvl=#{grp_lvl}</if>
-            <if test="top_grp_id != null and top_grp_id != ''">AND top_grp_id=#{top_grp_id}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn=#{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt=#{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id=#{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt=#{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id=#{sys_upd_usr_id}</if>
-
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_grp_nm != null and _grp_nm != ''">AND grp_nm LIKE CONCAT('%', #{_grp_nm}, '%')</if>
-            <if test="_grp_lvl != null and _grp_lvl != ''">AND grp_lvl LIKE CONCAT('%', #{_grp_lvl}, '%')</if>
-            <if test="_top_grp_id != null and _top_grp_id != ''">AND top_grp_id LIKE CONCAT('%', #{_top_grp_id}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="deptGroupWhere"/>
     </select>
 
     <insert id="INSERT">
@@ -117,12 +77,12 @@
         grp_id
         , grp_nm
         , grp_lvl
-        , sys_crt_dt
-        , sys_crt_usr_id
-        <if test="top_grp_id != null">, top_grp_id</if>
+        , sys_gen_dt
+        , sys_gen_id
+        , sys_mdfcn_dt
+        , sys_mdfr_id
+        <if test="top_grp_id != null">, up_grp_id</if>
         <if test="use_yn != null">, use_yn</if>
-        <if test="sys_upd_dt != null">, sys_upd_dt</if>
-        <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
         )
         VALUES(
         #{grp_id}
@@ -130,10 +90,10 @@
         , #{grp_lvl}
         , NOW()
         , #{sys_crt_usr_id}
+        , <choose><when test="sys_upd_dt != null">#{sys_upd_dt}</when><otherwise>NOW()</otherwise></choose>
+        , <choose><when test="sys_upd_usr_id != null">#{sys_upd_usr_id}</when><otherwise>#{sys_crt_usr_id}</otherwise></choose>
         <if test="top_grp_id != null">, #{top_grp_id}</if>
         <if test="use_yn != null">, #{use_yn}</if>
-        <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
-        <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
         )
     </insert>
 
@@ -143,12 +103,12 @@
             AND grp_id = #{grp_id}
             <if test="grp_nm != null">AND grp_nm = #{grp_nm}</if>
             <if test="grp_lvl != null">AND grp_lvl = #{grp_lvl}</if>
-            <if test="top_grp_id != null">AND top_grp_id = #{top_grp_id}</if>
+            <if test="top_grp_id != null">AND up_grp_id = #{top_grp_id}</if>
             <if test="use_yn != null">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null">AND sys_gen_id = #{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
@@ -157,12 +117,12 @@
         <set>
             <if test="grp_nm != null">grp_nm=#{grp_nm},</if>
             <if test="grp_lvl != null">grp_lvl=#{grp_lvl},</if>
-            <if test="top_grp_id != null">top_grp_id=#{top_grp_id},</if>
+            <if test="top_grp_id != null">up_grp_id=#{top_grp_id},</if>
             <if test="use_yn != null">use_yn=#{use_yn},</if>
-            <if test="sys_crt_dt != null">sys_crt_dt=#{sys_crt_dt},</if>
-            <if test="sys_crt_usr_id != null">sys_crt_usr_id=#{sys_crt_usr_id},</if>
-            <if test="sys_upd_dt != null">sys_upd_dt=#{sys_upd_dt},</if>
-            <if test="sys_upd_usr_id != null">sys_upd_usr_id=#{sys_upd_usr_id},</if>
+            <if test="sys_crt_dt != null">sys_gen_dt=#{sys_crt_dt},</if>
+            <if test="sys_crt_usr_id != null">sys_gen_id=#{sys_crt_usr_id},</if>
+            <if test="sys_upd_dt != null">sys_mdfcn_dt=#{sys_upd_dt},</if>
+            <if test="sys_upd_usr_id != null">sys_mdfr_id=#{sys_upd_usr_id},</if>
         </set>
         <where>
             grp_id = #{grp_id}
@@ -172,20 +132,14 @@
     <select id="SELECT_NOT_EXISTS_SYS_ACS_GRP_MENU" resultType="com.vims.common.group.SysDeptGroup">
         SELECT
             row_number() over (ORDER BY grp_lvl, grp_id) AS no,
-            grp_id,
-            grp_nm,
-            grp_lvl,
-            top_grp_id,
-            use_yn,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
+            <include refid="deptGroupColumns"/>
         FROM SYS_DEPT_GRP a
         WHERE NOT EXISTS(
             SELECT * FROM SYS_ACS_GRP_MENU b
-                     WHERE b.acs_rts_grp_id = a.grp_id
-                     AND b.menu_cd = #{menu_cd}
+                     WHERE CONVERT(b.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                         = CONVERT(a.grp_id USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                     AND CONVERT(b.menu_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                         = CONVERT(#{menu_cd} USING utf8mb4) COLLATE utf8mb4_unicode_ci
         )
         ORDER BY grp_lvl, grp_id
     </select>

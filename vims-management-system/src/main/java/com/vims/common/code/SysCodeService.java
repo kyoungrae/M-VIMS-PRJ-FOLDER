@@ -11,7 +11,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysCodeService extends AbstractCommonService<SysCode> {
 
-    private final SysCodeRepository sysCodeRepository;
     private final SysCodeMapper sysCodeMapper;
 
     protected List<SysCode> findSysCode(SysCode request) throws Exception {

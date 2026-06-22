@@ -6,5 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface SequenceMapper extends CommonMapper<AuthUser> {
-    int SELECT_NEXT_TOKEN_ID();
+    int INCREMENT_TOKEN_ID();
+
+    Long SELECT_NEXT_TOKEN_ID();
 }

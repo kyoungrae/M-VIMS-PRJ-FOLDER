@@ -19,7 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SysBbsService extends AbstractCommonService<SysBbs> {
     private final SysBbsMapper sysBbsMapper;
-    private final SysBbsRepository sysBbsRepository;
     private final MessageSource messageSource;
     private final FmsExcelClient fmsExcelClient; // FMS 서비스 통신용 Feign Client
     private final com.vims.common.menu.SysMenuService sysMenuService;
@@ -117,7 +116,7 @@ public class SysBbsService extends AbstractCommonService<SysBbs> {
                 com.vims.common.menu.SysMenu menu = com.vims.common.menu.SysMenu.builder()
                         .menu_cd(request.getBbs_id())
                         .menu_nm_kr(request.getBbs_nm())
-                        .top_menu_cd(request.getP_menu_cd())
+                        .top_menu_cd(request.getUp_menu_cd())
                         .url("/bbs/view?bbsId=" + request.getBbs_id())
                         .build();
                 try {
@@ -144,11 +143,11 @@ public class SysBbsService extends AbstractCommonService<SysBbs> {
             int result = sysBbsMapper.INSERT(request);
 
             // 3. 게시판 등록 성공 시에만 메뉴 테이블(SYS_MENU)에 등록
-            if (result > 0 && request.getP_menu_cd() != null && !request.getP_menu_cd().isEmpty()) {
+            if (result > 0 && request.getUp_menu_cd() != null && !request.getUp_menu_cd().isEmpty()) {
                 com.vims.common.menu.SysMenu menu = com.vims.common.menu.SysMenu.builder()
                         .menu_cd(request.getBbs_id()) // 게시판 ID를 메뉴 코드로 사용
                         .menu_nm_kr(request.getBbs_nm())
-                        .top_menu_cd(request.getP_menu_cd())
+                        .top_menu_cd(request.getUp_menu_cd())
                         .url("/bbs/view")
                         .prgm_url("cms") // Gateway용 prefix 추가
                         .use_yn("1") // 기본 사용

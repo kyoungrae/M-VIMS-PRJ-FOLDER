@@ -206,10 +206,12 @@
         const email = JwtUtils.getUserEmailFromJWT();
         const url = "/cms/common/sysUser/find";
 
-        axios.post(url, { email }).then(response => {
+        axios.post(url, { eml: email }).then(response => {
             const data = response.data[0];
-            $('#user-name-span').text(data.user_nm).css('font-size', '1rem');
-            $('#office-name-span').text(data.offc_nm).css('font-size', '0.8rem');
+            const userName = data.fnm || data.user_nm || "";
+            const officeName = data.inst_nm || data.offc_nm || "";
+            $('#user-name-span').text(userName).css('font-size', '1rem');
+            $('#office-name-span').text(officeName).css('font-size', '0.8rem');
         }).catch(error => {
             formUtil.showMessage("can not find user name");
         });

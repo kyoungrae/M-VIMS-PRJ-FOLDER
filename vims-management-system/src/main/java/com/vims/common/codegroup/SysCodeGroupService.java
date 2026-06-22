@@ -18,7 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 public class SysCodeGroupService extends AbstractCommonService<SysCodeGroup> {
     private final SysCodeGroupMapper sysCodeGroupMapper;
-    private final SysCodeGroupRepository sysCodeGroupRepository;
     private final MessageSource messageSource;
     private final SysCodeMapper sysCodeMapper;
 
@@ -28,7 +27,7 @@ public class SysCodeGroupService extends AbstractCommonService<SysCodeGroup> {
 
     protected List<SysCodeGroup> findByGroupId(SysCodeGroup request) throws Exception {
         try {
-            return sysCodeGroupRepository.findAll();
+            return sysCodeGroupMapper.SELECT(request);
         } catch (Exception e) {
             throw new Exception(e);
         }

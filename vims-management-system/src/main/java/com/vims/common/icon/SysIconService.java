@@ -17,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysIconService extends AbstractCommonService<SysIcon> {
     private final SysIconMapper sysIconMapper;
-    private final SysIconRepository sysIconRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

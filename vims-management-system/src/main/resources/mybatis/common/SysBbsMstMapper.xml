@@ -14,52 +14,58 @@
         </choose>
     </sql>
 
+    <sql id="bbsMstColumns">
+        bbs_mst_id,
+        bbs_nm,
+        bbs_type,
+        sys_crt_usr_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_mdfr_id AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt
+    </sql>
+
+    <sql id="bbsMstWhere">
+        <where>
+            <if test="bbs_mst_id != null and bbs_mst_id != ''">AND bbs_mst_id = #{bbs_mst_id}</if>
+            <if test="bbs_nm != null and bbs_nm != ''">AND bbs_nm = #{bbs_nm}</if>
+            <if test="bbs_type != null and bbs_type != ''">AND bbs_type = #{bbs_type}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_crt_dt != null and sys_crt_dt != ''">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null and sys_upd_dt != ''">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+
+            <if test="_bbs_mst_id != null and _bbs_mst_id != ''">AND bbs_mst_id LIKE CONCAT('%', #{_bbs_mst_id}, '%')</if>
+            <if test="_bbs_nm != null and _bbs_nm != ''">AND bbs_nm LIKE CONCAT('%', #{_bbs_nm}, '%')</if>
+            <if test="_bbs_type != null and _bbs_type != ''">AND bbs_type LIKE CONCAT('%', #{_bbs_type}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+
+            <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
+                AND sys_gen_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
+                AND sys_gen_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+
+            <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
+                AND sys_gen_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
+                AND sys_gen_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+
+            <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
+                AND sys_gen_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
+                AND sys_gen_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.bbs.SysBbsMst">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                
-                bbs_mst_id, 
-                bbs_nm, 
-                bbs_type, 
-                sys_crt_usr_id, 
-                sys_crt_dt,
-                sys_upd_usr_id, 
-                sys_upd_dt 
+                row_number() over (ORDER BY sys_gen_dt DESC) AS no,
+                <include refid="bbsMstColumns"/>
             FROM SYS_BBS_MST
-            <where>
-                
-                <if test="bbs_mst_id != null and bbs_mst_id != ''">AND bbs_mst_id = #{bbs_mst_id}</if>
-                <if test="bbs_nm != null and bbs_nm != ''">AND bbs_nm = #{bbs_nm}</if>
-                <if test="bbs_type != null and bbs_type != ''">AND bbs_type = #{bbs_type}</if>
-                <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-                <if test="sys_crt_dt != null and sys_crt_dt != ''">AND sys_crt_dt = #{sys_crt_dt}</if>
-                <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-                <if test="sys_upd_dt != null and sys_upd_dt != ''">AND sys_upd_dt = #{sys_upd_dt}</if>
-                
-                <if test="_bbs_mst_id != null and _bbs_mst_id != ''">AND bbs_mst_id LIKE CONCAT('%', #{_bbs_mst_id}, '%')</if>
-                <if test="_bbs_nm != null and _bbs_nm != ''">AND bbs_nm LIKE CONCAT('%', #{_bbs_nm}, '%')</if>
-                <if test="_bbs_type != null and _bbs_type != ''">AND bbs_type LIKE CONCAT('%', #{_bbs_type}, '%')</if>
-                <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-                <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-                <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-
-                <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-            </where>
+            <include refid="bbsMstWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
@@ -67,89 +73,30 @@
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_BBS_MST
-        <where>
-            
-            <if test="bbs_mst_id != null and bbs_mst_id != ''">AND bbs_mst_id = #{bbs_mst_id}</if>
-            <if test="bbs_nm != null and bbs_nm != ''">AND bbs_nm = #{bbs_nm}</if>
-            <if test="bbs_type != null and bbs_type != ''">AND bbs_type = #{bbs_type}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null and sys_crt_dt != ''">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null and sys_upd_dt != ''">AND sys_upd_dt = #{sys_upd_dt}</if>
-            
-            <if test="_bbs_mst_id != null and _bbs_mst_id != ''">AND bbs_mst_id LIKE CONCAT('%', #{_bbs_mst_id}, '%')</if>
-            <if test="_bbs_nm != null and _bbs_nm != ''">AND bbs_nm LIKE CONCAT('%', #{_bbs_nm}, '%')</if>
-            <if test="_bbs_type != null and _bbs_type != ''">AND bbs_type LIKE CONCAT('%', #{_bbs_type}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-        </where>
+        <include refid="bbsMstWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.bbs.SysBbsMst">
         SELECT
-            
-            bbs_mst_id,
-            bbs_nm,
-            bbs_type,
-            sys_crt_usr_id,
-            sys_crt_dt,
-            sys_upd_usr_id,
-            sys_upd_dt
+            <include refid="bbsMstColumns"/>
         FROM SYS_BBS_MST
-        <where>
-            
-            <if test="bbs_mst_id != null and bbs_mst_id != ''">AND bbs_mst_id = #{bbs_mst_id}</if>
-            <if test="bbs_nm != null and bbs_nm != ''">AND bbs_nm = #{bbs_nm}</if>
-            <if test="bbs_type != null and bbs_type != ''">AND bbs_type = #{bbs_type}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null and sys_crt_dt != ''">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null and sys_upd_dt != ''">AND sys_upd_dt = #{sys_upd_dt}</if>
-            
-            <if test="_bbs_mst_id != null and _bbs_mst_id != ''">AND bbs_mst_id LIKE CONCAT('%', #{_bbs_mst_id}, '%')</if>
-            <if test="_bbs_nm != null and _bbs_nm != ''">AND bbs_nm LIKE CONCAT('%', #{_bbs_nm}, '%')</if>
-            <if test="_bbs_type != null and _bbs_type != ''">AND bbs_type LIKE CONCAT('%', #{_bbs_type}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-        </where>
+        <include refid="bbsMstWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_BBS_MST(
-            
-              bbs_mst_id 
-            , bbs_nm 
-            , bbs_type 
-            
+              bbs_mst_id
+            , bbs_nm
+            , bbs_type
             <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
-            <if test="sys_crt_dt != null">, sys_crt_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
+            <if test="sys_crt_dt != null">, sys_gen_dt</if>
+            <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
         )
         VALUES(
-            
               #{bbs_mst_id}
             , #{bbs_nm}
             , #{bbs_type}
-            
             <if test="sys_crt_usr_id != null">, #{sys_crt_usr_id}</if>
             <if test="sys_crt_dt != null">, #{sys_crt_dt}</if>
             <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
@@ -160,31 +107,27 @@
     <delete id="DELETE">
         DELETE FROM SYS_BBS_MST
         <where>
-            
             AND bbs_mst_id = #{bbs_mst_id}
-            
             <if test="bbs_nm != null">AND bbs_nm = #{bbs_nm}</if>
             <if test="bbs_type != null">AND bbs_type = #{bbs_type}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_BBS_MST
         <set>
-            
             <if test="bbs_nm != null">,bbs_nm = #{bbs_nm}</if>
             <if test="bbs_type != null">,bbs_type = #{bbs_type}</if>
             <if test="sys_crt_usr_id != null">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
+            <if test="sys_crt_dt != null">,sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null">,sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">,sys_mdfcn_dt = #{sys_upd_dt}</if>
         </set>
         <where>
-            
             AND bbs_mst_id = #{bbs_mst_id}
         </where>
     </update>

@@ -3,6 +3,7 @@ package com.vims.common.user;
 import com.system.auth.authuser.AuthUser;
 import com.system.common.base.CommonMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -24,6 +25,6 @@ public interface SysUserMapper extends CommonMapper<SysUser> {
 
     int DELETE_TOKEN(AuthUser vo);
 
-    String GET_USER_IMAGE_FILE_NM_BY_EMAIL(String email);
+    String GET_USER_IMAGE_FILE_NM_BY_EMAIL(@Param("eml") String eml);
 
 }

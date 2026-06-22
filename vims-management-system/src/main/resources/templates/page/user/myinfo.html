@@ -32,15 +32,15 @@
 
                         <div class="gi-flex gi-grid-gap-20px">
                             <div class="gi-input-container" style="flex: 1;">
-                                <label for="user_nm" class="gi-input-label" data-focus-label="true"
+                                <label for="fnm" class="gi-input-label" data-focus-label="true"
                                     data-required="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_NAME"]</label>
-                                <input data-field="user_nm" id="user_nm" name="user_nm" class="gi-input"
+                                <input data-field="fnm" id="fnm" name="fnm" class="gi-input"
                                     data-required="true" autocomplete="off" />
                             </div>
                             <div class="gi-input-container" style="flex: 1;">
                                 <label for="tel" class="gi-input-label"
                                     data-focus-label="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_PHONE_NUMBER"]</label>
-                                <input data-field="tel" id="tel" name="tel" class="gi-input" autocomplete="off"
+                                <input data-field="telno" id="tel" name="tel" class="gi-input" autocomplete="off"
                                     gi-format-check="phone_number" />
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                             <div class="gi-input-container" style="flex: 1;">
                                 <label for="email" class="gi-input-label" data-focus-label="true"
                                     data-required="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_EMAIL"]</label>
-                                <input data-field="email" id="email" name="email" class="gi-input" data-required="true"
+                                <input data-field="eml" id="email" name="email" class="gi-input" data-required="true"
                                     autocomplete="off" data-disabled />
                             </div>
                             <div class="gi-input-container" style="flex: 1;">
@@ -64,7 +64,7 @@
                             <div class="gi-input-container" style="flex: 4;">
                                 <label for="address" class="gi-input-label"
                                     data-focus-label="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_ADDR"]</label>
-                                <input data-field="address" id="address" name="address" class="gi-input"
+                                <input data-field="addr" id="address" name="address" class="gi-input"
                                     autocomplete="off" data-disabled />
                             </div>
                             <button id="address-btn" class="gi-btn" type="button" gi-address
@@ -89,15 +89,15 @@
                         <div class="gi-flex gi-flex-column gi-grid-gap-20px">
                             <div class="gi-flex gi-grid-gap-20px">
                                 <div class="gi-input-container" style="flex: 1;">
-                                    <label for="offc_nm" class="gi-input-label"
+                                    <label for="inst_nm" class="gi-input-label"
                                         data-focus-label="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_OFFC_NM"]</label>
-                                    <input data-field="offc_nm" id="offc_nm" name="offc_nm" class="gi-input"
+                                    <input data-field="inst_nm" id="inst_nm" name="inst_nm" class="gi-input"
                                         autocomplete="off" data-disabled />
                                 </div>
                                 <div class="gi-input-container" style="flex: 1;">
-                                    <label for="offc_cd" class="gi-input-label"
+                                    <label for="inst_cd" class="gi-input-label"
                                         data-focus-label="true">[Page.Message].Message.Label.Array["SYS_USER.MYINFO.MY_OFFC_CD"]</label>
-                                    <input data-field="offc_cd" id="offc_cd" name="offc_cd" class="gi-input"
+                                    <input data-field="inst_cd" id="inst_cd" name="inst_cd" class="gi-input"
                                         autocomplete="off" data-disabled />
                                 </div>
                             </div>
@@ -231,8 +231,8 @@
             const email = JwtUtils.getUserEmailFromJWT();
 
             const [userResponse, userGroupsResponse] = await Promise.all([
-                axios.post('/cms/common/sysUser/find', { email }),
-                axios.post('/cms/common/sysUserGroup/find', { user_email: email })
+                axios.post('/cms/common/sysUser/find', { eml: email }),
+                axios.post('/cms/common/sysUserGroup/find', { eml: email })
             ]);
 
             return {
@@ -275,9 +275,9 @@
             let url = "/cms/common/sysUser/update";
             let param = {
                 id: data.id,
-                user_nm: data.user_nm,
-                tel: data.tel,
-                address: data.addr,
+                fnm: data.fnm,
+                telno: data.telno,
+                addr: data.addr,
                 addr_dtl: data.addr_dtl,
                 post_cd: data.post_cd,
             };
@@ -344,8 +344,8 @@
         const url = "/cms/common/sysUser/changePassword";
         const param = {
             before_pwd: cont.beforePassword,
-            password: cont.newPassword,
-            email: JwtUtils.getUserEmailFromJWT()
+            pswd: cont.newPassword,
+            eml: JwtUtils.getUserEmailFromJWT()
         };
         axios.post(url, param).then(response => {
             console.log(response)

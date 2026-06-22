@@ -3,7 +3,6 @@ package com.system.common.eventlog;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,7 +18,7 @@ import java.util.Arrays;
 @SuperBuilder
 public class SysEventLog extends Common {
     @Transient
-    private String keys = Arrays.toString(new String[] { "id", "user_id", "act_type", "sys_crt_dt" });
+    private String keys = Arrays.toString(new String[] { "id" });
 
     @Id
     /***

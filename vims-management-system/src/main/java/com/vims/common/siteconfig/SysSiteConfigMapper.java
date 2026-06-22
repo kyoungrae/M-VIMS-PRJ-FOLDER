@@ -4,8 +4,6 @@ import com.system.common.base.CommonMapper;
 import com.system.common.util.passwordvalidation.PasswordPolicy;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface SysSiteConfigMapper extends CommonMapper<SysSiteConfig> {

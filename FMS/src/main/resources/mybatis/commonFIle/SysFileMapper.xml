@@ -14,33 +14,39 @@
         </choose>
     </sql>
 
+    <sql id="fileColumns">
+        file_uuid,
+        CASE WHEN tmpr_file_yn = 'Y' THEN 1 ELSE 0 END AS temp_yn,
+        sys_gen_dt AS sys_crt_dt,
+        sys_crt_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        sys_mdfr_id AS sys_upd_usr_id
+    </sql>
+
+    <sql id="fileWhere">
+        <where>
+            <if test="file_uuid != null and file_uuid != ''">AND file_uuid = #{file_uuid}</if>
+            <if test="temp_yn != null">AND tmpr_file_yn = CASE WHEN CAST(#{temp_yn} AS CHAR) IN ('1', 'Y', 'y') THEN 'Y' ELSE 'N' END</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+
+            <if test="_file_uuid != null and _file_uuid != ''">AND file_uuid LIKE CONCAT('%', #{_file_uuid}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.fms.common.SysFile">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                
-                file_uuid,
-                temp_yn,
-                sys_crt_dt, 
-                sys_crt_usr_id, 
-                sys_upd_dt, 
-                sys_upd_usr_id 
+                row_number() over (ORDER BY sys_gen_dt DESC )AS no,
+                <include refid="fileColumns"/>
             FROM SYS_FILE
-            <where>
-                
-                <if test="file_uuid != null and file_uuid != ''">AND file_uuid = #{file_uuid}</if>
-                <if test="temp_yn != null and temp_yn != ''">AND temp_yn = #{temp_yn}</if>
-                <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-                <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-                <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-                <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-                
-                <if test="_file_uuid != null and _file_uuid != ''">AND file_uuid LIKE CONCAT('%', #{_file_uuid}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-                <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-                <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-                <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            </where>
+            <include refid="fileWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
@@ -48,68 +54,30 @@
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_FILE
-        <where>
-            
-            <if test="file_uuid != null and file_uuid != ''">AND file_uuid = #{file_uuid}</if>
-            <if test="temp_yn != null and temp_yn != ''">AND temp_yn = #{temp_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_file_uuid != null and _file_uuid != ''">AND file_uuid LIKE CONCAT('%', #{_file_uuid}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="fileWhere"/>
     </select>
 
     <select id="SYS_FILE_SELECT" resultType="com.fms.common.SysFile">
         SELECT
-            
-            file_uuid,
-            temp_yn,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
+            <include refid="fileColumns"/>
         FROM SYS_FILE
-        <where>
-            
-            <if test="file_uuid != null and file_uuid != ''">AND file_uuid = #{file_uuid}</if>
-            <if test="temp_yn != null and temp_yn != ''">AND temp_yn = #{temp_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_file_uuid != null and _file_uuid != ''">AND file_uuid LIKE CONCAT('%', #{_file_uuid}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="fileWhere"/>
     </select>
 
     <insert id="SYS_FILE_INSERT" parameterType="com.fms.common.SysFile">
         INSERT INTO SYS_FILE(
-            
              file_uuid
-            , temp_yn
-            , sys_crt_dt 
-            , sys_crt_usr_id 
-            
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
+            , tmpr_file_yn
+            , sys_gen_dt
+            , sys_crt_usr_id
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
+            <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
         )
         VALUES(
-            
              #{file_uuid}
-            , #{temp_yn}
+            , CASE WHEN CAST(#{temp_yn} AS CHAR) IN ('1', 'Y', 'y') THEN 'Y' ELSE 'N' END
             , #{sys_crt_dt}
             , #{sys_crt_usr_id}
-            
             <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
             <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
         )
@@ -117,20 +85,20 @@
     <insert id="SYS_FILE_DTL_INSERT" parameterType="com.fms.common.SysFileDetail">
         INSERT INTO SYS_FILE_DTL(
         file_id
-        ,file_uuid
+        , file_uuid
         , file_nm
         , file_sz
-        , file_ext
+        , fext
         , file_path
-        , sys_crt_dt
+        , sys_gen_dt
         , sys_crt_usr_id
- 
-        <if test="sys_upd_dt != null">, sys_upd_dt</if>
-        <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
+
+        <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
+        <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
         <if test="menu_cd != null">, menu_cd</if>
         )
         VALUES(
- 
+
           #{file_id}
         , #{file_uuid}
         , #{file_nm}
@@ -139,7 +107,7 @@
         , #{file_path}
         , #{sys_crt_dt}
         , #{sys_crt_usr_id}
- 
+
         <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
         <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
         <if test="menu_cd != null">, #{menu_cd}</if>
@@ -149,29 +117,26 @@
     <delete id="SYS_FILE_DELETE">
         DELETE FROM SYS_FILE
         <where>
-            
             AND file_uuid = #{file_uuid}
-            
-            <if test="temp_yn != null">AND temp_yn = #{temp_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+
+            <if test="temp_yn != null">AND tmpr_file_yn = CASE WHEN CAST(#{temp_yn} AS CHAR) IN ('1', 'Y', 'y') THEN 'Y' ELSE 'N' END</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_FILE
         <set>
-            
-            <if test="temp_yn != null and temp_yn != '' ">,temp_yn = #{temp_yn}</if>
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != '' ">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="temp_yn != null">tmpr_file_yn = CASE WHEN CAST(#{temp_yn} AS CHAR) IN ('1', 'Y', 'y') THEN 'Y' ELSE 'N' END,</if>
+            <if test="sys_crt_dt != null">sys_gen_dt = #{sys_crt_dt},</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != '' ">sys_crt_usr_id = #{sys_crt_usr_id},</if>
+            <if test="sys_upd_dt != null">sys_mdfcn_dt = #{sys_upd_dt},</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">sys_mdfr_id = #{sys_upd_usr_id},</if>
         </set>
         <where>
-            
             AND file_uuid = #{file_uuid}
         </where>
     </update>

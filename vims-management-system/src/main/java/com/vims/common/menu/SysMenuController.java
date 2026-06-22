@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysMenuController extends AbstractCommonController<SysMenu> {
 
     private final SysMenuService sysMenuService;
-    private final SysMenuRepository sysMenuRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysMenu reqeust) throws Exception {
@@ -37,7 +36,7 @@ public class SysMenuController extends AbstractCommonController<SysMenu> {
 
     @PostMapping("/findAll")
     protected List<SysMenu> findAll(@RequestBody SysMenu request) throws Exception {
-        return sysMenuRepository.findAll();
+        return sysMenuService.findImpl(request);
     }
 
     @PostMapping("/find")

@@ -14,34 +14,40 @@
         </choose>
     </sql>
 
+    <sql id="accsGroupMenuColumns">
+        menu_cd,
+        grp_id AS acs_rts_grp_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_crt_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        sys_mdfr_id AS sys_upd_usr_id
+    </sql>
+
+    <sql id="accsGroupMenuWhere">
+        <where>
+            <if test="menu_cd != null and menu_cd != ''">AND menu_cd = #{menu_cd}</if>
+            <if test="acs_rts_grp_id != null and acs_rts_grp_id != ''">AND grp_id = #{acs_rts_grp_id}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+
+            <if test="_menu_cd != null and _menu_cd != ''">AND menu_cd LIKE CONCAT('%', #{_menu_cd}, '%')</if>
+            <if test="_acs_rts_grp_id != null and _acs_rts_grp_id != ''">AND grp_id LIKE CONCAT('%', #{_acs_rts_grp_id}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.accessgroupmenu.SysAccsGroupMenu">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                
-                menu_cd, 
-                acs_rts_grp_id, 
-                sys_crt_dt, 
-                sys_crt_usr_id, 
-                sys_upd_dt, 
-                sys_upd_usr_id 
+                row_number() over (ORDER BY sys_gen_dt DESC )AS no,
+                <include refid="accsGroupMenuColumns"/>
             FROM SYS_ACS_GRP_MENU
-            <where>
-                
-                <if test="menu_cd != null and menu_cd != ''">AND menu_cd = #{menu_cd}</if>
-                <if test="acs_rts_grp_id != null and acs_rts_grp_id != ''">AND acs_rts_grp_id = #{acs_rts_grp_id}</if>
-                <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-                <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-                <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-                <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-                
-                <if test="_menu_cd != null and _menu_cd != ''">AND menu_cd LIKE CONCAT('%', #{_menu_cd}, '%')</if>
-                <if test="_acs_rts_grp_id != null and _acs_rts_grp_id != ''">AND acs_rts_grp_id LIKE CONCAT('%', #{_acs_rts_grp_id}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-                <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-                <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-                <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            </where>
+            <include refid="accsGroupMenuWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
@@ -49,68 +55,28 @@
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_ACS_GRP_MENU
-        <where>
-            
-            <if test="menu_cd != null and menu_cd != ''">AND menu_cd = #{menu_cd}</if>
-            <if test="acs_rts_grp_id != null and acs_rts_grp_id != ''">AND acs_rts_grp_id = #{acs_rts_grp_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_menu_cd != null and _menu_cd != ''">AND menu_cd LIKE CONCAT('%', #{_menu_cd}, '%')</if>
-            <if test="_acs_rts_grp_id != null and _acs_rts_grp_id != ''">AND acs_rts_grp_id LIKE CONCAT('%', #{_acs_rts_grp_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="accsGroupMenuWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.accessgroupmenu.SysAccsGroupMenu">
         SELECT
-            
-            menu_cd,
-            acs_rts_grp_id,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
+            <include refid="accsGroupMenuColumns"/>
         FROM SYS_ACS_GRP_MENU
-        <where>
-            
-            <if test="menu_cd != null and menu_cd != ''">AND menu_cd = #{menu_cd}</if>
-            <if test="acs_rts_grp_id != null and acs_rts_grp_id != ''">AND acs_rts_grp_id = #{acs_rts_grp_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_menu_cd != null and _menu_cd != ''">AND menu_cd LIKE CONCAT('%', #{_menu_cd}, '%')</if>
-            <if test="_acs_rts_grp_id != null and _acs_rts_grp_id != ''">AND acs_rts_grp_id LIKE CONCAT('%', #{_acs_rts_grp_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="accsGroupMenuWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_ACS_GRP_MENU(
-            
-             menu_cd 
-            , acs_rts_grp_id 
-            
-            <if test="sys_crt_dt != null">, sys_crt_dt</if>
+             menu_cd
+            , grp_id
+            <if test="sys_crt_dt != null">, sys_gen_dt</if>
             <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
+            <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
         )
         VALUES(
-            
              #{menu_cd}
             , #{acs_rts_grp_id}
-            
             <if test="sys_crt_dt != null">, #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">, #{sys_crt_usr_id}</if>
             <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
@@ -121,30 +87,27 @@
     <delete id="DELETE">
         DELETE FROM SYS_ACS_GRP_MENU
         <where>
-            
              menu_cd = #{menu_cd}
-            AND acs_rts_grp_id = #{acs_rts_grp_id}
-            
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+            AND grp_id = #{acs_rts_grp_id}
+
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_ACS_GRP_MENU
         <set>
-            
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_crt_dt != null">sys_gen_dt = #{sys_crt_dt},</if>
+            <if test="sys_crt_usr_id != null">sys_crt_usr_id = #{sys_crt_usr_id},</if>
+            <if test="sys_upd_dt != null">sys_mdfcn_dt = #{sys_upd_dt},</if>
+            <if test="sys_upd_usr_id != null">sys_mdfr_id = #{sys_upd_usr_id},</if>
         </set>
         <where>
-            
              menu_cd = #{menu_cd}
-            AND acs_rts_grp_id = #{acs_rts_grp_id}
+            AND grp_id = #{acs_rts_grp_id}
         </where>
     </update>
 </mapper>

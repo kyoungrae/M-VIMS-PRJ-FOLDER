@@ -17,7 +17,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysCodeGroupController extends AbstractCommonController<SysCodeGroup> {
     private final SysCodeGroupService sysCodeGroupService;
-    private final SysCodeGroupRepository sysCodeGroupRepository;
 
     @RequestMapping("/findByGroupId")
     protected List<SysCodeGroup> findByGroupId(@RequestBody SysCodeGroup request) throws Exception {
@@ -31,7 +30,7 @@ public class SysCodeGroupController extends AbstractCommonController<SysCodeGrou
 
     @PostMapping("/findAll")
     protected List<SysCodeGroup> findAll(@RequestBody SysCodeGroup request) throws Exception {
-        return sysCodeGroupRepository.findAll();
+        return sysCodeGroupService.findImpl(request);
     }
 
     @Override

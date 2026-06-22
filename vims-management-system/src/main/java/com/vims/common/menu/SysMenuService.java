@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysMenuService extends AbstractCommonService<SysMenu> {
     private final SysMenuMapper sysMenuMapper;
-    private final SysMenuRepository sysMenuRepository;
     private final MessageSource messageSource;
     private final SysAccsGroupMenuMapper sysAccsGroupMenuMapper;
 

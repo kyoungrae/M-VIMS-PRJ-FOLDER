@@ -17,29 +17,40 @@
 
     <select id="SELECT_TOKEN" resultMap="TokenResult">
         SELECT
-            T.*,
+            T.id,
+            T.token_vl AS token,
+            T.token_type,
+            T.dscd_yn AS revok,
+            T.expry_yn AS exp,
+            T.user_id,
             U.user_id as user_id_string,
-            U.email as email
+            U.eml as email
         FROM
-            TOKEN T
+            SYS_TOKEN T
         LEFT JOIN SYS_USER U ON T.user_id = U.id
-        WHERE T.token = #{token}
+        WHERE T.token_vl = #{token}
     </select>
 
     <select id="SELECT_ALL_TOKEN" parameterType="com.system.auth.domain.Token" resultType="com.system.auth.domain.Token">
-        SELECT *
-        FROM TOKEN
+        SELECT
+            id,
+            token_vl AS token,
+            token_type,
+            dscd_yn AS revok,
+            expry_yn AS exp,
+            user_id
+        FROM SYS_TOKEN
         WHERE user_id = #{auth_user.id}
-          AND exp = #{exp}
-          AND revok = #{revok}
+          AND expry_yn = #{exp}
+          AND dscd_yn = #{revok}
     </select>
     <insert id="INSERT_TOKEN" parameterType="com.system.auth.domain.Token">
-        INSERT INTO TOKEN(
+        INSERT INTO SYS_TOKEN(
             id,
-            exp,
-            revok,
+            expry_yn,
+            dscd_yn,
             user_id,
-            token,
+            token_vl,
             token_type
         )VALUES(
             #{id},
@@ -51,19 +62,19 @@
         )
     </insert>
     <update id="UPDATE_TOKEN" parameterType="com.system.auth.domain.Token">
-        UPDATE TOKEN
-        SET exp = #{exp}, revok = #{revok}
-        WHERE token = #{token}
+        UPDATE SYS_TOKEN
+        SET expry_yn = #{exp}, dscd_yn = #{revok}
+        WHERE token_vl = #{token}
     </update>
 
-    <delete id="DELETE_EXP_TOKEN_BY_USER_ID" parameterType="int">
-        DELETE FROM TOKEN
-        WHERE user_id = #{userId} AND (exp = 1 OR revok = 1)
+    <delete id="DELETE_EXP_TOKEN_BY_USER_ID" parameterType="long">
+        DELETE FROM SYS_TOKEN
+        WHERE user_id = #{userId} AND (expry_yn = 1 OR dscd_yn = 1)
     </delete>
 
-    <update id="REVOKE_ALL_USER_TOKENS" parameterType="int">
-        UPDATE TOKEN
-        SET exp = 1, revok = 1
-        WHERE user_id = #{userId} AND exp = 0 AND revok = 0
+    <update id="REVOKE_ALL_USER_TOKENS" parameterType="long">
+        UPDATE SYS_TOKEN
+        SET expry_yn = 1, dscd_yn = 1
+        WHERE user_id = #{userId} AND expry_yn = 0 AND dscd_yn = 0
     </update>
 </mapper>

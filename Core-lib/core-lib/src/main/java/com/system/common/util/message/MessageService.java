@@ -308,14 +308,11 @@ public class MessageService {
             messageCache.putIfAbsent(locale, new HashMap<>());
             Map<String, String> localeMessages = messageCache.get(locale);
 
-            int messageCount = 0;
             while (matcher.find()) {
                 String key = matcher.group(1);
                 String value = matcher.group(2);
                 localeMessages.put(key, value);
-                messageCount++;
             }
-            // System.out.println(" → 파싱된 메시지 수: " + messageCount);
         } catch (IOException e) {
             // System.err.println(" ✗ 파싱 중 오류 발생");
             e.printStackTrace();

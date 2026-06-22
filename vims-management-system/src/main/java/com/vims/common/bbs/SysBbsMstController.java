@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysBbsMstController extends AbstractCommonController<SysBbsMst> {
 
     private final SysBbsMstService sysBbsMstService;
-    private final SysBbsMstRepository sysBbsMstRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysBbsMst reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysBbsMstController extends AbstractCommonController<SysBbsMst> {
 
     @PostMapping("/findAll")
     protected List<SysBbsMst> findAll(@RequestBody SysBbsMst request) throws Exception {
-        return sysBbsMstRepository.findAll();
+        return sysBbsMstService.findImpl(request);
     }
 
     @PostMapping("/find")

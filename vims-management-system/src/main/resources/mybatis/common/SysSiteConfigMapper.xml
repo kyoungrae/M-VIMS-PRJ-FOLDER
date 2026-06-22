@@ -14,42 +14,49 @@
         </choose>
     </sql>
 
+    <sql id="siteConfigColumns">
+        cfg_grp_id,
+        cfg_key,
+        cfg_val,
+        description,
+        use_yn,
+        sys_gen_dt AS sys_crt_dt,
+        sys_crt_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        sys_mdfr_id AS sys_upd_usr_id
+    </sql>
+
+    <sql id="siteConfigWhere">
+        <where>
+            <if test="cfg_grp_id != null and cfg_grp_id != ''">AND cfg_grp_id = #{cfg_grp_id}</if>
+            <if test="cfg_key != null and cfg_key != ''">AND cfg_key = #{cfg_key}</if>
+            <if test="cfg_val != null and cfg_val != ''">AND cfg_val = #{cfg_val}</if>
+            <if test="description != null and description != ''">AND description = #{description}</if>
+            <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+
+            <if test="_cfg_grp_id != null and _cfg_grp_id != ''">AND cfg_grp_id LIKE CONCAT('%', #{_cfg_grp_id}, '%')</if>
+            <if test="_cfg_key != null and _cfg_key != ''">AND cfg_key LIKE CONCAT('%', #{_cfg_key}, '%')</if>
+            <if test="_cfg_val != null and _cfg_val != ''">AND cfg_val LIKE CONCAT('%', #{_cfg_val}, '%')</if>
+            <if test="_description != null and _description != ''">AND description LIKE CONCAT('%', #{_description}, '%')</if>
+            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.siteconfig.SysSiteConfig">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                cfg_grp_id,
-                cfg_key,
-                cfg_val,
-                description,
-                use_yn,
-                sys_crt_dt,
-                sys_crt_usr_id,
-                sys_upd_dt,
-                sys_upd_usr_id
+                row_number() over (ORDER BY sys_gen_dt DESC )AS no,
+                <include refid="siteConfigColumns"/>
             FROM SYS_SITE_CFG
-            <where>
-
-                <if test="cfg_grp_id != null and cfg_grp_id != ''">AND cfg_grp_id = #{cfg_grp_id}</if>
-                <if test="cfg_key != null and cfg_key != ''">AND cfg_key = #{cfg_key}</if>
-                <if test="cfg_val != null and cfg_val != ''">AND cfg_val = #{cfg_val}</if>
-                <if test="description != null and description != ''">AND description = #{description}</if>
-                <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-                <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-                <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-                <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-                <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-
-                <if test="_cfg_grp_id != null and _cfg_grp_id != ''">AND cfg_grp_id LIKE CONCAT('%', #{_cfg_grp_id}, '%')</if>
-                <if test="_cfg_key != null and _cfg_key != ''">AND cfg_key LIKE CONCAT('%', #{_cfg_key}, '%')</if>
-                <if test="_cfg_val != null and _cfg_val != ''">AND cfg_val LIKE CONCAT('%', #{_cfg_val}, '%')</if>
-                <if test="_description != null and _description != ''">AND description LIKE CONCAT('%', #{_description}, '%')</if>
-                <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-                <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-                <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-                <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            </where>
+            <include refid="siteConfigWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
@@ -57,125 +64,68 @@
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_SITE_CFG
-        <where>
-            
-            <if test="cfg_grp_id != null and cfg_grp_id != ''">AND cfg_grp_id = #{cfg_grp_id}</if>
-            <if test="cfg_key != null and cfg_key != ''">AND cfg_key = #{cfg_key}</if>
-            <if test="cfg_val != null and cfg_val != ''">AND cfg_val = #{cfg_val}</if>
-            <if test="description != null and description != ''">AND description = #{description}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_cfg_grp_id != null and _cfg_grp_id != ''">AND cfg_grp_id LIKE CONCAT('%', #{_cfg_grp_id}, '%')</if>
-            <if test="_cfg_key != null and _cfg_key != ''">AND cfg_key LIKE CONCAT('%', #{_cfg_key}, '%')</if>
-            <if test="_cfg_val != null and _cfg_val != ''">AND cfg_val LIKE CONCAT('%', #{_cfg_val}, '%')</if>
-            <if test="_description != null and _description != ''">AND description LIKE CONCAT('%', #{_description}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="siteConfigWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.siteconfig.SysSiteConfig">
         SELECT
-            
-            cfg_grp_id,
-            cfg_key,
-            cfg_val,
-            description,
-            use_yn,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
+            <include refid="siteConfigColumns"/>
         FROM SYS_SITE_CFG
-        <where>
-            
-            <if test="cfg_grp_id != null and cfg_grp_id != ''">AND cfg_grp_id = #{cfg_grp_id}</if>
-            <if test="cfg_key != null and cfg_key != ''">AND cfg_key = #{cfg_key}</if>
-            <if test="cfg_val != null and cfg_val != ''">AND cfg_val = #{cfg_val}</if>
-            <if test="description != null and description != ''">AND description = #{description}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_cfg_grp_id != null and _cfg_grp_id != ''">AND cfg_grp_id LIKE CONCAT('%', #{_cfg_grp_id}, '%')</if>
-            <if test="_cfg_key != null and _cfg_key != ''">AND cfg_key LIKE CONCAT('%', #{_cfg_key}, '%')</if>
-            <if test="_cfg_val != null and _cfg_val != ''">AND cfg_val LIKE CONCAT('%', #{_cfg_val}, '%')</if>
-            <if test="_description != null and _description != ''">AND description LIKE CONCAT('%', #{_description}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="siteConfigWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_SITE_CFG(
-            
-             cfg_grp_id 
-            , cfg_key 
-            , cfg_val 
-            , use_yn 
-            , sys_crt_dt 
-            , sys_crt_usr_id 
-            
+             cfg_grp_id
+            , cfg_key
+            , cfg_val
+            , use_yn
+            , sys_gen_dt
+            , sys_crt_usr_id
+            , sys_mdfcn_dt
+            , sys_mdfr_id
             <if test="description != null">, description</if>
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
         )
         VALUES(
-            
              #{cfg_grp_id}
             , #{cfg_key}
             , #{cfg_val}
             , #{use_yn}
-            , #{sys_crt_dt}
+            , <choose><when test="sys_crt_dt != null">#{sys_crt_dt}</when><otherwise>NOW()</otherwise></choose>
             , #{sys_crt_usr_id}
-            
+            , <choose><when test="sys_upd_dt != null">#{sys_upd_dt}</when><when test="sys_crt_dt != null">#{sys_crt_dt}</when><otherwise>NOW()</otherwise></choose>
+            , <choose><when test="sys_upd_usr_id != null">#{sys_upd_usr_id}</when><otherwise>#{sys_crt_usr_id}</otherwise></choose>
             <if test="description != null">, #{description}</if>
-            <if test="sys_upd_dt != null">, #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
         )
     </insert>
 
     <delete id="DELETE">
         DELETE FROM SYS_SITE_CFG
         <where>
-            
             AND cfg_key = #{cfg_key}
-            
+
             <if test="cfg_grp_id != null">AND cfg_grp_id = #{cfg_grp_id}</if>
             <if test="cfg_val != null">AND cfg_val = #{cfg_val}</if>
             <if test="description != null">AND description = #{description}</if>
             <if test="use_yn != null">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_SITE_CFG
         <set>
-            
             <if test="cfg_grp_id != null">,cfg_grp_id = #{cfg_grp_id}</if>
             <if test="cfg_val != null">,cfg_val = #{cfg_val}</if>
             <if test="description != null">,description = #{description}</if>
             <if test="use_yn != null">,use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_dt != null">,sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">,sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">,sys_mdfr_id = #{sys_upd_usr_id}</if>
         </set>
         <where>
             AND cfg_key = #{cfg_key}

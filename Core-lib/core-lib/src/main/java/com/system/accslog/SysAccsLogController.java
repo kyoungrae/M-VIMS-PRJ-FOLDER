@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysAccsLogController extends AbstractCommonController<SysAccsLog> {
 
     private final SysAccsLogService sysAccsLogService;
-    private final SysAccsLogRepository sysAccsLogRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysAccsLog reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysAccsLogController extends AbstractCommonController<SysAccsLog> {
 
     @PostMapping("/findAll")
     protected List<SysAccsLog> findAll(@RequestBody SysAccsLog request) throws Exception {
-        return sysAccsLogRepository.findAll();
+        return sysAccsLogService.findImpl(request);
     }
 
     @PostMapping("/find")

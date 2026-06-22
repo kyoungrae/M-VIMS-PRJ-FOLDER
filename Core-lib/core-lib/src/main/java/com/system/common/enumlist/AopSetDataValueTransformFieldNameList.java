@@ -1,7 +1,5 @@
 package com.system.common.enumlist;
 
-import com.system.common.annotation.*;
-
 /**
  * - @SetHypenRegident: 주민등록번호 하이픈 추가
  * - @SetHypenPhone: 전화번호 하이픈 추가

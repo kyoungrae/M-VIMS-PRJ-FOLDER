@@ -382,12 +382,12 @@
                     list: [
                         { HEADER: "No", ID: "no", WIDTH: "5", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: '[Page.Message].Message.Label.Array["SYS_DEPT_GRP.GRP_ID"]', ID: "grp_id", WIDTH: "20", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER_GRP.USER_EMAIL"]', ID: "user_email", WIDTH: "25", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER_GRP.USER_EMAIL"]', ID: "eml", WIDTH: "25", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: '[Page.Message].Message.Label.Array["SYS_USER_GRP.USER_ID"]', ID: "user_id", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER.OFFC_NM"]', ID: "offc_nm", WIDTH: "25", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER.OFFC_NM"]', ID: "inst_nm", WIDTH: "25", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: '[Page.Message].Message.Label.Array["DELETE_BTN"]', ID: "userGroupDelete_btn", WIDTH: "10", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
 
-                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER.OFFC_CD"]', ID: "offc_cd", WIDTH: "20", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
+                        { HEADER: '[Page.Message].Message.Label.Array["SYS_USER.OFFC_CD"]', ID: "inst_cd", WIDTH: "20", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
                         { HEADER: "ID", ID: "id", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
                         { HEADER: '[Page.Message].Message.Label.Array["SYS_DEPT_GRP.SYS_CRT_DT"]', ID: "sys_crt_dt", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
                         { HEADER: '[Page.Message].Message.Label.Array["SYS_DEPT_GRP.SYS_CRT_USR_ID"]', ID: "sys_crt_usr_id", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
@@ -456,9 +456,9 @@
                     title: "사용자등록",
                     list: [
                         { HEADER: "No", ID: "no", WIDTH: "7", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: Message.Label.Array['SYS_USER_GRP.USER_EMAIL'], ID: "user_email", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array['SYS_USER_GRP.USER_EMAIL'], ID: "eml", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: Message.Label.Array['SYS_USER.USER_ID'], ID: "user_id", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
-                        { HEADER: Message.Label.Array['SYS_USER.OFFC_CD'], ID: "offc_cd", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
+                        { HEADER: Message.Label.Array['SYS_USER.OFFC_CD'], ID: "inst_cd", WIDTH: "40", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
                         { HEADER: Message.Label.Array['REGISTER_BTN'], ID: "register_btn", WIDTH: "15", TYPE: "button", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: false },
 
                         { HEADER: "ID", ID: "id", WIDTH: "15", TYPE: "text", FONT_SIZE: "12px", TEXT_ALIGN: "center", HIDDEN: true },
@@ -507,9 +507,9 @@
         let param = {
             id: data.id,
             grp_id: groupId,
-            user_email: data.user_email,
+            eml: data.eml,
             user_id: data.user_id,
-            offc_cd: data.offc_cd
+            inst_cd: data.inst_cd
         };
         axios.post(url, param).then(response => {
             let status = response.status;
@@ -623,7 +623,7 @@
         let param = {
             id: data.id,
             grp_id: data.grp_id,
-            user_email: data.user_email,
+            eml: data.eml,
             user_id: data.user_id
         };
         axios.post(url, param).then(response => {

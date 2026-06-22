@@ -17,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysAccsGroupMenuService extends AbstractCommonService<SysAccsGroupMenu> {
     private final SysAccsGroupMenuMapper sysAccsGroupMenuMapper;
-    private final SysAccsGroupMenuRepository sysAccsGroupMenuRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

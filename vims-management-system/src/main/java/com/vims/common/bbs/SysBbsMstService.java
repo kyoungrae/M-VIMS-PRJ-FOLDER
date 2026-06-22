@@ -22,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysBbsMstService extends AbstractCommonService<SysBbsMst> {
     private final SysBbsMstMapper sysBbsMstMapper;
-    private final SysBbsMstRepository sysBbsMstRepository;
     private final MessageSource messageSource;
     private final FmsExcelClient fmsExcelClient; // FMS 서비스 통신용 Feign Client
 

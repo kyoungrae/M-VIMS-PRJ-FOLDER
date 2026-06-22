@@ -3,7 +3,6 @@ package com.vims.common.office;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,43 +18,43 @@ import java.util.Arrays;
 @SuperBuilder
 public class SysOffice extends Common {
     @Transient
-    private String keys = Arrays.toString(new String[] { "offc_cd" });
+    private String keys = Arrays.toString(new String[] { "inst_cd" });
 
     @Id
     /***
      * <pre>
-     *  top_offc_cd : 최상위 코드
+     *  up_inst_cd : 최상위 코드
      * </pre>
      */
-    private String top_offc_cd;
+    private String up_inst_cd;
 
     /***
      * <pre>
-     *  offc_nm : 기관명
+     *  inst_nm : 기관명
      * </pre>
      */
-    private String offc_nm;
+    private String inst_nm;
 
     /***
      * <pre>
-     *  offc_cd : 기관코드
+     *  inst_cd : 기관코드
      * </pre>
      */
-    private String offc_cd;
+    private String inst_cd;
 
     /***
      * <pre>
-     *  offc_type : 기관유형
+     *  inst_se_cd : 기관유형
      * </pre>
      */
-    private String offc_type;
+    private String inst_se_cd;
 
     /***
      * <pre>
-     *  offc_type_cd : 등록관청 구분부호
+     *  inst_type_cd : 등록관청 구분부호
      * </pre>
      */
-    private String offc_type_cd;
+    private String inst_type_cd;
 
     /***
      * <pre>
@@ -87,43 +86,43 @@ public class SysOffice extends Common {
 
     /***
      * <pre>
-     *  top_offc_cd : 최상위 코드
+     *  up_inst_cd : 최상위 코드
      * </pre>
      */
     @Transient
-    private String _top_offc_cd;
+    private String _up_inst_cd;
 
     /***
      * <pre>
-     *  offc_nm : 기관명
+     *  inst_nm : 기관명
      * </pre>
      */
     @Transient
-    private String _offc_nm;
+    private String _inst_nm;
 
     /***
      * <pre>
-     *  offc_cd : 기관코드
+     *  inst_cd : 기관코드
      * </pre>
      */
     @Transient
-    private String _offc_cd;
+    private String _inst_cd;
 
     /***
      * <pre>
-     *  offc_type : 기관유형
+     *  inst_se_cd : 기관유형
      * </pre>
      */
     @Transient
-    private String _offc_type;
+    private String _inst_se_cd;
 
     /***
      * <pre>
-     *  offc_type_cd : 등록관청 구분부호
+     *  inst_type_cd : 등록관청 구분부호
      * </pre>
      */
     @Transient
-    private String _offc_type_cd;
+    private String _inst_type_cd;
 
     /***
      * <pre>

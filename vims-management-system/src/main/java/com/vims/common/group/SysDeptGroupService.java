@@ -19,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysDeptGroupService extends AbstractCommonService<SysDeptGroup> {
     private final SysDeptGroupMapper sysDeptGroupMapper;
-    private final SysDeptGroupRepository sysDeptGroupRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

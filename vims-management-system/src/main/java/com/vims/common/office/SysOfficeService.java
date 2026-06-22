@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysOfficeService extends AbstractCommonService<SysOffice> {
     private final SysOfficeMapper sysOfficeMapper;
-    private final SysOfficeRepository sysOfficeRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

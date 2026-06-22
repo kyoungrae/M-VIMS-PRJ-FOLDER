@@ -3,7 +3,6 @@ package com.vims.common.accessgroupmenu;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

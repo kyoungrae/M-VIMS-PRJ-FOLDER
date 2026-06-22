@@ -17,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysEventLogService extends AbstractCommonService<SysEventLog> {
     private final SysEventLogMapper sysEventLogMapper;
-    private final SysEventLogRepository sysEventLogRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

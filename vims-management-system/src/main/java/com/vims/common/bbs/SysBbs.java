@@ -3,7 +3,6 @@ package com.vims.common.bbs;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -46,24 +45,24 @@ public class SysBbs extends Common {
 
     /***
      * <pre>
-     *  bbs_manager : 게시판 관리자
+     *  bbs_mngr : 게시판 관리자
      * </pre>
      */
-    private String bbs_manager;
+    private String bbs_mngr;
 
     /***
      * <pre>
-     *  file_yn : 파일첨부 가능 여부
+     *  file_atch_yn : 파일첨부 가능 여부
      * </pre>
      */
-    private String file_yn;
+    private String file_atch_yn;
 
     /***
      * <pre>
-     *  reply_yn : 댓글 가능 여부
+     *  cmnt_yn : 댓글 가능 여부
      * </pre>
      */
-    private String reply_yn;
+    private String cmnt_yn;
 
     /***
      * <pre>
@@ -95,10 +94,10 @@ public class SysBbs extends Common {
 
     /***
      * <pre>
-     *  p_menu_cd : 상위 메뉴 코드
+     *  up_menu_cd : 상위 메뉴 코드
      * </pre>
      */
-    private String p_menu_cd;
+    private String up_menu_cd;
 
     /***
      * <pre>
@@ -134,27 +133,27 @@ public class SysBbs extends Common {
 
     /***
      * <pre>
-     *  bbs_manager : 게시판 관리자
+     *  bbs_mngr : 게시판 관리자
      * </pre>
      */
     @Transient
-    private String _bbs_manager;
+    private String _bbs_mngr;
 
     /***
      * <pre>
-     *  file_yn : 파일첨부 가능 여부
+     *  file_atch_yn : 파일첨부 가능 여부
      * </pre>
      */
     @Transient
-    private String _file_yn;
+    private String _file_atch_yn;
 
     /***
      * <pre>
-     *  reply_yn : 댓글 가능 여부
+     *  cmnt_yn : 댓글 가능 여부
      * </pre>
      */
     @Transient
-    private String _reply_yn;
+    private String _cmnt_yn;
 
     /***
      * <pre>

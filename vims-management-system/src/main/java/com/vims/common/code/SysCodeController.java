@@ -17,7 +17,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysCodeController extends AbstractCommonController<SysCode> {
     private final SysCodeService sysCodeService;
-    private final SysCodeRepository sysCodeRepository;
 
     @RequestMapping("/findSysCode")
     protected List<SysCode> findSysCode(@RequestBody SysCode request) throws Exception {
@@ -31,7 +30,7 @@ public class SysCodeController extends AbstractCommonController<SysCode> {
 
     @PostMapping("/findAll")
     protected List<SysCode> findAll(@RequestBody SysCode request) throws Exception {
-        return sysCodeRepository.findAll();
+        return sysCodeService.findImpl(request);
     }
 
     @Override

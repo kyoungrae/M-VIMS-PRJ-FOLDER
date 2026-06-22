@@ -14,127 +14,79 @@
         </choose>
     </sql>
 
-    <select id="SELECT_PAGE" resultType="com.vims.common.code.SysCode">
-        SELECT
-            row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-            cd_id, 
-            grp_id, 
-            cd_nm, 
-            cd_no, 
-            use_yn, 
-            sys_crt_dt, 
-            sys_crt_usr_id, 
-            sys_upd_dt, 
-            sys_upd_usr_id 
-        FROM SYS_CD
+    <sql id="codeColumns">
+        cd_id,
+        grp_id,
+        cd_nm,
+        cd_no,
+        use_yn,
+        sys_gen_dt AS sys_crt_dt,
+        sys_crt_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        tun_aprv_ymd AS sys_upd_usr_id
+    </sql>
+
+    <sql id="codeWhere">
         <where>
-            
             <if test="cd_id != null and cd_id != ''">AND cd_id = #{cd_id}</if>
             <if test="grp_id != null and grp_id != ''">AND grp_id = #{grp_id}</if>
             <if test="cd_nm != null and cd_nm != ''">AND cd_nm = #{cd_nm}</if>
             <if test="cd_no != null and cd_no != ''">AND cd_no = #{cd_no}</if>
             <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND tun_aprv_ymd = #{sys_upd_usr_id}</if>
+
             <if test="_cd_id != null and _cd_id != ''">AND cd_id LIKE CONCAT('%', #{_cd_id}, '%')</if>
             <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
             <if test="_cd_nm != null and _cd_nm != ''">AND cd_nm LIKE CONCAT('%', #{_cd_nm}, '%')</if>
             <if test="_cd_no != null and _cd_no != ''">AND cd_no LIKE CONCAT('%', #{_cd_no}, '%')</if>
             <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
             <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND tun_aprv_ymd LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
         </where>
+    </sql>
+
+    <select id="SELECT_PAGE" resultType="com.vims.common.code.SysCode">
+        SELECT
+            row_number() over (ORDER BY sys_gen_dt DESC )AS no,
+            <include refid="codeColumns"/>
+        FROM SYS_CD
+        <include refid="codeWhere"/>
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_CD
-        <where>
-            
-            <if test="cd_id != null and cd_id != ''">AND cd_id = #{cd_id}</if>
-            <if test="grp_id != null and grp_id != ''">AND grp_id = #{grp_id}</if>
-            <if test="cd_nm != null and cd_nm != ''">AND cd_nm = #{cd_nm}</if>
-            <if test="cd_no != null and cd_no != ''">AND cd_no = #{cd_no}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            
-            <if test="_cd_id != null and _cd_id != ''">AND cd_id LIKE CONCAT('%', #{_cd_id}, '%')</if>
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_cd_nm != null and _cd_nm != ''">AND cd_nm LIKE CONCAT('%', #{_cd_nm}, '%')</if>
-            <if test="_cd_no != null and _cd_no != ''">AND cd_no LIKE CONCAT('%', #{_cd_no}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="codeWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.code.SysCode">
         SELECT
-            
-            cd_id,
-            grp_id,
-            cd_nm,
-            cd_no,
-            use_yn,
-            sys_crt_dt,
-            sys_crt_usr_id,
-            sys_upd_dt,
-            sys_upd_usr_id
+            <include refid="codeColumns"/>
         FROM SYS_CD
-        <where>
-
-            <if test="cd_id != null and cd_id != ''">AND cd_id = #{cd_id}</if>
-            <if test="grp_id != null and grp_id != ''">AND grp_id = #{grp_id}</if>
-            <if test="cd_nm != null and cd_nm != ''">AND cd_nm = #{cd_nm}</if>
-            <if test="cd_no != null and cd_no != ''">AND cd_no = #{cd_no}</if>
-            <if test="use_yn != null and use_yn != ''">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-
-            <if test="_cd_id != null and _cd_id != ''">AND cd_id LIKE CONCAT('%', #{_cd_id}, '%')</if>
-            <if test="_grp_id != null and _grp_id != ''">AND grp_id LIKE CONCAT('%', #{_grp_id}, '%')</if>
-            <if test="_cd_nm != null and _cd_nm != ''">AND cd_nm LIKE CONCAT('%', #{_cd_nm}, '%')</if>
-            <if test="_cd_no != null and _cd_no != ''">AND cd_no LIKE CONCAT('%', #{_cd_no}, '%')</if>
-            <if test="_use_yn != null and _use_yn != ''">AND use_yn LIKE CONCAT('%', #{_use_yn}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-        </where>
+        <include refid="codeWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_CD(
-            
-             cd_id 
-            , grp_id 
-            
+             cd_id
+            , grp_id
             <if test="cd_nm != null">, cd_nm</if>
             <if test="cd_no != null">, cd_no</if>
             <if test="use_yn != null">, use_yn</if>
-            <if test="sys_crt_dt != null">, sys_crt_dt</if>
+            <if test="sys_crt_dt != null">, sys_gen_dt</if>
             <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
+            <if test="sys_upd_usr_id != null">, tun_aprv_ymd</if>
         )
         VALUES(
-            
              #{cd_id}
             , #{grp_id}
-            
             <if test="cd_nm != null">, #{cd_nm}</if>
             <if test="cd_no != null">, #{cd_no}</if>
             <if test="use_yn != null">, #{use_yn}</if>
@@ -148,34 +100,31 @@
     <delete id="DELETE">
         DELETE FROM SYS_CD
         <where>
-            
              cd_id = #{cd_id}
             AND grp_id = #{grp_id}
-            
+
             <if test="cd_nm != null">AND cd_nm = #{cd_nm}</if>
             <if test="cd_no != null">AND cd_no = #{cd_no}</if>
             <if test="use_yn != null">AND use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">AND tun_aprv_ymd = #{sys_upd_usr_id}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
         UPDATE SYS_CD
         <set>
-            
             <if test="cd_nm != null">,cd_nm = #{cd_nm}</if>
             <if test="cd_no != null">,cd_no = #{cd_no}</if>
             <if test="use_yn != null">,use_yn = #{use_yn}</if>
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
+            <if test="sys_crt_dt != null">,sys_gen_dt = #{sys_crt_dt}</if>
             <if test="sys_crt_usr_id != null">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="sys_upd_usr_id != null">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">,sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="sys_upd_usr_id != null">,tun_aprv_ymd = #{sys_upd_usr_id}</if>
         </set>
         <where>
-            
              cd_id = #{cd_id}
             AND grp_id = #{grp_id}
         </where>

@@ -14,133 +14,84 @@
         </choose>
     </sql>
 
+    <sql id="officeColumns">
+        up_inst_cd AS up_inst_cd,
+        inst_nm AS inst_nm,
+        inst_cd AS inst_cd,
+        inst_se_cd AS inst_se_cd,
+        inst_type_cd AS inst_type_cd,
+        sys_crt_usr_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_mdfr_id AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt
+    </sql>
+
+    <sql id="officeWhere">
+        <where>
+            <if test="up_inst_cd != null and up_inst_cd != ''">AND up_inst_cd = #{up_inst_cd}</if>
+            <if test="inst_nm != null and inst_nm != ''">AND inst_nm = #{inst_nm}</if>
+            <if test="inst_cd != null and inst_cd != ''">AND inst_cd = #{inst_cd}</if>
+            <if test="inst_se_cd != null and inst_se_cd != ''">AND inst_se_cd = #{inst_se_cd}</if>
+            <if test="inst_type_cd != null and inst_type_cd != ''">AND inst_type_cd = #{inst_type_cd}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+
+            <if test="_up_inst_cd != null and _up_inst_cd != ''">AND up_inst_cd LIKE CONCAT('%', #{_up_inst_cd}, '%')</if>
+            <if test="_inst_nm != null and _inst_nm != ''">AND inst_nm LIKE CONCAT('%', #{_inst_nm}, '%')</if>
+            <if test="_inst_cd != null and _inst_cd != ''">AND inst_cd LIKE CONCAT('%', #{_inst_cd}, '%')</if>
+            <if test="_inst_se_cd != null and _inst_se_cd != ''">AND inst_se_cd LIKE CONCAT('%', #{_inst_se_cd}, '%')</if>
+            <if test="_inst_type_cd != null and _inst_type_cd != ''">AND inst_type_cd LIKE CONCAT('%', #{_inst_type_cd}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.vims.common.office.SysOffice">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                
-                top_offc_cd, 
-                offc_nm, 
-                offc_cd, 
-                offc_type, 
-                offc_type_cd, 
-                sys_crt_usr_id, 
-                sys_crt_dt, 
-                sys_upd_usr_id, 
-                sys_upd_dt 
-            FROM SYS_OFFC
-            <where>
-                
-                <if test="top_offc_cd != null and top_offc_cd != ''">AND top_offc_cd = #{top_offc_cd}</if>
-                <if test="offc_nm != null and offc_nm != ''">AND offc_nm = #{offc_nm}</if>
-                <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
-                <if test="offc_type != null and offc_type != ''">AND offc_type = #{offc_type}</if>
-                <if test="offc_type_cd != null and offc_type_cd != ''">AND offc_type_cd = #{offc_type_cd}</if>
-                <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-                <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-                <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-                <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-                
-                <if test="_top_offc_cd != null and _top_offc_cd != ''">AND top_offc_cd LIKE CONCAT('%', #{_top_offc_cd}, '%')</if>
-                <if test="_offc_nm != null and _offc_nm != ''">AND offc_nm LIKE CONCAT('%', #{_offc_nm}, '%')</if>
-                <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-                <if test="_offc_type != null and _offc_type != ''">AND offc_type LIKE CONCAT('%', #{_offc_type}, '%')</if>
-                <if test="_offc_type_cd != null and _offc_type_cd != ''">AND offc_type_cd LIKE CONCAT('%', #{_offc_type_cd}, '%')</if>
-                <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-                <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-                <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            </where>
+                row_number() over (ORDER BY sys_gen_dt DESC) AS no,
+                <include refid="officeColumns"/>
+            FROM SYS_INST
+            <include refid="officeWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_OFFC
-        <where>
-            
-            <if test="top_offc_cd != null and top_offc_cd != ''">AND top_offc_cd = #{top_offc_cd}</if>
-            <if test="offc_nm != null and offc_nm != ''">AND offc_nm = #{offc_nm}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
-            <if test="offc_type != null and offc_type != ''">AND offc_type = #{offc_type}</if>
-            <if test="offc_type_cd != null and offc_type_cd != ''">AND offc_type_cd = #{offc_type_cd}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            
-            <if test="_top_offc_cd != null and _top_offc_cd != ''">AND top_offc_cd LIKE CONCAT('%', #{_top_offc_cd}, '%')</if>
-            <if test="_offc_nm != null and _offc_nm != ''">AND offc_nm LIKE CONCAT('%', #{_offc_nm}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_offc_type != null and _offc_type != ''">AND offc_type LIKE CONCAT('%', #{_offc_type}, '%')</if>
-            <if test="_offc_type_cd != null and _offc_type_cd != ''">AND offc_type_cd LIKE CONCAT('%', #{_offc_type_cd}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-        </where>
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_INST
+        <include refid="officeWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.office.SysOffice">
         SELECT
-            
-            top_offc_cd,
-            offc_nm,
-            offc_cd,
-            offc_type,
-            offc_type_cd,
-            sys_crt_usr_id,
-            sys_crt_dt,
-            sys_upd_usr_id,
-            sys_upd_dt
-        FROM SYS_OFFC
-        <where>
-            
-            <if test="top_offc_cd != null and top_offc_cd != ''">AND top_offc_cd = #{top_offc_cd}</if>
-            <if test="offc_nm != null and offc_nm != ''">AND offc_nm = #{offc_nm}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
-            <if test="offc_type != null and offc_type != ''">AND offc_type = #{offc_type}</if>
-            <if test="offc_type_cd != null and offc_type_cd != ''">AND offc_type_cd = #{offc_type_cd}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            
-            <if test="_top_offc_cd != null and _top_offc_cd != ''">AND top_offc_cd LIKE CONCAT('%', #{_top_offc_cd}, '%')</if>
-            <if test="_offc_nm != null and _offc_nm != ''">AND offc_nm LIKE CONCAT('%', #{_offc_nm}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_offc_type != null and _offc_type != ''">AND offc_type LIKE CONCAT('%', #{_offc_type}, '%')</if>
-            <if test="_offc_type_cd != null and _offc_type_cd != ''">AND offc_type_cd LIKE CONCAT('%', #{_offc_type_cd}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-        </where>
+            <include refid="officeColumns"/>
+        FROM SYS_INST
+        <include refid="officeWhere"/>
     </select>
 
     <insert id="INSERT">
-        INSERT INTO SYS_OFFC(
-            
-             top_offc_cd 
-            , offc_nm 
-            , offc_cd 
-            
-            <if test="offc_type != null">, offc_type</if>
-            <if test="offc_type_cd != null">, offc_type_cd</if>
+        INSERT INTO SYS_INST(
+             up_inst_cd
+            , inst_nm
+            , inst_cd
+            <if test="inst_se_cd != null">, inst_se_cd</if>
+            <if test="inst_type_cd != null">, inst_type_cd</if>
             <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
-            <if test="sys_crt_dt != null">, sys_crt_dt</if>
-            <if test="sys_upd_usr_id != null">, sys_upd_usr_id</if>
-            <if test="sys_upd_dt != null">, sys_upd_dt</if>
+            <if test="sys_crt_dt != null">, sys_gen_dt</if>
+            <if test="sys_upd_usr_id != null">, sys_mdfr_id</if>
+            <if test="sys_upd_dt != null">, sys_mdfcn_dt</if>
         )
         VALUES(
-            
-             #{top_offc_cd}
-            , #{offc_nm}
-            , #{offc_cd}
-            
-            <if test="offc_type != null">, #{offc_type}</if>
-            <if test="offc_type_cd != null">, #{offc_type_cd}</if>
+             #{up_inst_cd}
+            , #{inst_nm}
+            , #{inst_cd}
+            <if test="inst_se_cd != null">, #{inst_se_cd}</if>
+            <if test="inst_type_cd != null">, #{inst_type_cd}</if>
             <if test="sys_crt_usr_id != null">, #{sys_crt_usr_id}</if>
             <if test="sys_crt_dt != null">, #{sys_crt_dt}</if>
             <if test="sys_upd_usr_id != null">, #{sys_upd_usr_id}</if>
@@ -149,38 +100,34 @@
     </insert>
 
     <delete id="DELETE">
-        DELETE FROM SYS_OFFC
+        DELETE FROM SYS_INST
         <where>
-            
-            AND offc_cd = #{offc_cd}
-            
-            <if test="top_offc_cd != null">AND top_offc_cd = #{top_offc_cd}</if>
-            <if test="offc_nm != null">AND offc_nm = #{offc_nm}</if>
-            <if test="offc_type != null">AND offc_type = #{offc_type}</if>
-            <if test="offc_type_cd != null">AND offc_type_cd = #{offc_type_cd}</if>
+            AND inst_cd = #{inst_cd}
+            <if test="up_inst_cd != null">AND up_inst_cd = #{up_inst_cd}</if>
+            <if test="inst_nm != null">AND inst_nm = #{inst_nm}</if>
+            <if test="inst_se_cd != null">AND inst_se_cd = #{inst_se_cd}</if>
+            <if test="inst_type_cd != null">AND inst_type_cd = #{inst_type_cd}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
         </where>
     </delete>
 
     <update id="UPDATE">
-        UPDATE SYS_OFFC
+        UPDATE SYS_INST
         <set>
-            
-            <if test="top_offc_cd != null and top_offc_cd != '' ">,top_offc_cd = #{top_offc_cd}</if>
-            <if test="offc_nm != null and offc_nm != '' ">,offc_nm = #{offc_nm}</if>
-            <if test="offc_type != null and offc_type != '' ">,offc_type = #{offc_type}</if>
-            <if test="offc_type_cd != null and offc_type_cd != '' ">,offc_type_cd = #{offc_type_cd}</if>
+            <if test="up_inst_cd != null and up_inst_cd != '' ">,up_inst_cd = #{up_inst_cd}</if>
+            <if test="inst_nm != null and inst_nm != '' ">,inst_nm = #{inst_nm}</if>
+            <if test="inst_se_cd != null and inst_se_cd != '' ">,inst_se_cd = #{inst_se_cd}</if>
+            <if test="inst_type_cd != null and inst_type_cd != '' ">,inst_type_cd = #{inst_type_cd}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != '' ">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">,sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">,sys_upd_dt = #{sys_upd_dt}</if>
+            <if test="sys_crt_dt != null">,sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">,sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">,sys_mdfcn_dt = #{sys_upd_dt}</if>
         </set>
         <where>
-            
-            AND offc_cd = #{offc_cd}
+            AND inst_cd = #{inst_cd}
         </where>
     </update>
 </mapper>

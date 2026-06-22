@@ -3,7 +3,6 @@
  */
 package com.vims.common.usergroup;
 
-import com.system.auth.authuser.AuthUser;
 import com.system.common.base.AbstractCommonService;
 import com.system.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysUserGroupService extends AbstractCommonService<SysUserGroup> {
     private final SysUserGroupMapper sysUserGroupMapper;
-    private final SysUserGroupRepository sysUserGroupRepository;
     private final MessageSource messageSource;
 
     private String getMessage(String code) {

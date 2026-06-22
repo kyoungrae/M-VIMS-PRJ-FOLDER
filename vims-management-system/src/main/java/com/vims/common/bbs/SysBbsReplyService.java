@@ -101,8 +101,8 @@ public class SysBbsReplyService extends AbstractCommonService<SysBbsReply> {
 
     @Override
     protected int registerImpl(SysBbsReply request) {
-        if (request.getReply_id() == null || request.getReply_id().isEmpty()) {
-            request.setReply_id(UUID.randomUUID().toString());
+        if (request.getCmnt_id() == null || request.getCmnt_id().isEmpty()) {
+            request.setCmnt_id(UUID.randomUUID().toString());
         }
         return sysBbsReplyMapper.INSERT(request);
     }

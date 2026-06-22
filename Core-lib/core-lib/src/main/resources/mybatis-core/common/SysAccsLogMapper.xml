@@ -14,58 +14,64 @@
         </choose>
     </sql>
 
+    <sql id="accsLogColumns">
+        id,
+        user_id,
+        up_grp_id AS email,
+        sys_lgn_dt AS sys_login_dt,
+        sys_lgt_dt AS sys_logout_dt,
+        ip_addr,
+        istr_type AS dev_type,
+        os_nm,
+        brwsr_nm
+    </sql>
+
+    <sql id="accsLogWhere">
+        <where>
+            <if test="id != null and id != ''">AND id = #{id}</if>
+            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
+            <if test="email != null and email != ''">AND up_grp_id = #{email}</if>
+            <if test="sys_login_dt != null and sys_login_dt != ''">AND sys_lgn_dt = #{sys_login_dt}</if>
+            <if test="sys_logout_dt != null and sys_logout_dt != ''">AND sys_lgt_dt = #{sys_logout_dt}</if>
+            <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
+            <if test="dev_type != null and dev_type != ''">AND istr_type = #{dev_type}</if>
+            <if test="os_nm != null and os_nm != ''">AND os_nm = #{os_nm}</if>
+            <if test="brwsr_nm != null and brwsr_nm != ''">AND brwsr_nm = #{brwsr_nm}</if>
+
+            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
+            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
+            <if test="_email != null and _email != ''">AND up_grp_id LIKE CONCAT('%', #{_email}, '%')</if>
+            <if test="_sys_login_dt != null and _sys_login_dt != ''">AND sys_lgn_dt LIKE CONCAT('%', #{_sys_login_dt}, '%')</if>
+            <if test="_sys_logout_dt != null and _sys_logout_dt != ''">AND sys_lgt_dt LIKE CONCAT('%', #{_sys_logout_dt}, '%')</if>
+            <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
+            <if test="_dev_type != null and _dev_type != ''">AND istr_type LIKE CONCAT('%', #{_dev_type}, '%')</if>
+            <if test="_os_nm != null and _os_nm != ''">AND os_nm LIKE CONCAT('%', #{_os_nm}, '%')</if>
+            <if test="_brwsr_nm != null and _brwsr_nm != ''">AND brwsr_nm LIKE CONCAT('%', #{_brwsr_nm}, '%')</if>
+
+            <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
+                AND sys_lgn_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
+                AND sys_lgn_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+
+            <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
+                AND sys_lgn_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
+                AND sys_lgn_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+
+            <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
+                AND sys_lgn_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
+                AND sys_lgn_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
+            </if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.system.accslog.SysAccsLog">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_login_dt DESC )AS no,
-                
-                id, 
-                user_id, 
-                email, 
-                sys_login_dt, 
-                sys_logout_dt, 
-                ip_addr, 
-                dev_type, 
-                os_nm, 
-                brwsr_nm 
+                row_number() over (ORDER BY sys_lgn_dt DESC) AS no,
+                <include refid="accsLogColumns"/>
             FROM SYS_ACS_LOG
-            <where>
-                
-                <if test="id != null and id != ''">AND id = #{id}</if>
-                <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-                <if test="email != null and email != ''">AND email = #{email}</if>
-                <if test="sys_login_dt != null and sys_login_dt != ''">AND sys_login_dt = #{sys_login_dt}</if>
-                <if test="sys_logout_dt != null and sys_logout_dt != ''">AND sys_logout_dt = #{sys_logout_dt}</if>
-                <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-                <if test="dev_type != null and dev_type != ''">AND dev_type = #{dev_type}</if>
-                <if test="os_nm != null and os_nm != ''">AND os_nm = #{os_nm}</if>
-                <if test="brwsr_nm != null and brwsr_nm != ''">AND brwsr_nm = #{brwsr_nm}</if>
-                
-                <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-                <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-                <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-                <if test="_sys_login_dt != null and _sys_login_dt != ''">AND sys_login_dt LIKE CONCAT('%', #{_sys_login_dt}, '%')</if>
-                <if test="_sys_logout_dt != null and _sys_logout_dt != ''">AND sys_logout_dt LIKE CONCAT('%', #{_sys_logout_dt}, '%')</if>
-                <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-                <if test="_dev_type != null and _dev_type != ''">AND dev_type LIKE CONCAT('%', #{_dev_type}, '%')</if>
-                <if test="_os_nm != null and _os_nm != ''">AND os_nm LIKE CONCAT('%', #{_os_nm}, '%')</if>
-                <if test="_brwsr_nm != null and _brwsr_nm != ''">AND brwsr_nm LIKE CONCAT('%', #{_brwsr_nm}, '%')</if>
-
-                <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                    AND sys_login_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                    AND sys_login_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                    AND sys_login_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                    AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-            </where>
+            <include refid="accsLogWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
@@ -73,97 +79,32 @@
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_ACS_LOG
-        <where>
-            
-            <if test="id != null and id != ''">AND id = #{id}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="sys_login_dt != null and sys_login_dt != ''">AND sys_login_dt = #{sys_login_dt}</if>
-            <if test="sys_logout_dt != null and sys_logout_dt != ''">AND sys_logout_dt = #{sys_logout_dt}</if>
-            <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-            <if test="dev_type != null and dev_type != ''">AND dev_type = #{dev_type}</if>
-            <if test="os_nm != null and os_nm != ''">AND os_nm = #{os_nm}</if>
-            <if test="brwsr_nm != null and brwsr_nm != ''">AND brwsr_nm = #{brwsr_nm}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_sys_login_dt != null and _sys_login_dt != ''">AND sys_login_dt LIKE CONCAT('%', #{_sys_login_dt}, '%')</if>
-            <if test="_sys_logout_dt != null and _sys_logout_dt != ''">AND sys_logout_dt LIKE CONCAT('%', #{_sys_logout_dt}, '%')</if>
-            <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-            <if test="_dev_type != null and _dev_type != ''">AND dev_type LIKE CONCAT('%', #{_dev_type}, '%')</if>
-            <if test="_os_nm != null and _os_nm != ''">AND os_nm LIKE CONCAT('%', #{_os_nm}, '%')</if>
-            <if test="_brwsr_nm != null and _brwsr_nm != ''">AND brwsr_nm LIKE CONCAT('%', #{_brwsr_nm}, '%')</if>
-            <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                AND sys_login_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                AND sys_login_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                AND sys_login_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                AND sys_login_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-        </where>
+        <include refid="accsLogWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.system.accslog.SysAccsLog">
         SELECT
-            
-            id,
-            user_id,
-            email,
-            sys_login_dt,
-            sys_logout_dt,
-            ip_addr,
-            dev_type,
-            os_nm,
-            brwsr_nm
+            <include refid="accsLogColumns"/>
         FROM SYS_ACS_LOG
-        <where>
-            
-            <if test="id != null and id != ''">AND id = #{id}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="sys_login_dt != null and sys_login_dt != ''">AND sys_login_dt = #{sys_login_dt}</if>
-            <if test="sys_logout_dt != null and sys_logout_dt != ''">AND sys_logout_dt = #{sys_logout_dt}</if>
-            <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-            <if test="dev_type != null and dev_type != ''">AND dev_type = #{dev_type}</if>
-            <if test="os_nm != null and os_nm != ''">AND os_nm = #{os_nm}</if>
-            <if test="brwsr_nm != null and brwsr_nm != ''">AND brwsr_nm = #{brwsr_nm}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_sys_login_dt != null and _sys_login_dt != ''">AND sys_login_dt LIKE CONCAT('%', #{_sys_login_dt}, '%')</if>
-            <if test="_sys_logout_dt != null and _sys_logout_dt != ''">AND sys_logout_dt LIKE CONCAT('%', #{_sys_logout_dt}, '%')</if>
-            <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-            <if test="_dev_type != null and _dev_type != ''">AND dev_type LIKE CONCAT('%', #{_dev_type}, '%')</if>
-            <if test="_os_nm != null and _os_nm != ''">AND os_nm LIKE CONCAT('%', #{_os_nm}, '%')</if>
-            <if test="_brwsr_nm != null and _brwsr_nm != ''">AND brwsr_nm LIKE CONCAT('%', #{_brwsr_nm}, '%')</if>
-        </where>
+        <include refid="accsLogWhere"/>
     </select>
 
     <insert id="INSERT">
         INSERT INTO SYS_ACS_LOG(
-            id 
-            , user_id 
-            , email 
-            , ip_addr 
-            <if test="sys_login_dt != null">, sys_login_dt</if>
-            <if test="sys_logout_dt != null">, sys_logout_dt</if>
-            <if test="dev_type != null">, dev_type</if>
+            id
+            , user_id
+            , up_grp_id
+            , ip_addr
+            <if test="sys_login_dt != null">, sys_lgn_dt</if>
+            <if test="sys_logout_dt != null">, sys_lgt_dt</if>
+            <if test="dev_type != null">, istr_type</if>
             <if test="os_nm != null">, os_nm</if>
             <if test="brwsr_nm != null">, brwsr_nm</if>
         )
         VALUES(
             #{id}
             , #{user_id}
-            , #{email}
+            , <choose><when test="email != null and email != ''">#{email}</when><otherwise>'MIGRATED_UNKNOWN'</otherwise></choose>
             , #{ip_addr}
             <if test="sys_login_dt != null">, #{sys_login_dt}</if>
             <if test="sys_logout_dt != null">, #{sys_logout_dt}</if>
@@ -176,14 +117,12 @@
     <delete id="DELETE">
         DELETE FROM SYS_ACS_LOG
         <where>
-            
-             id = #{id}
-             AND user_id = #{user_id}
-             AND dev_type = #{dev_type}
-             AND os_nm = #{os_nm}
-            
-            <if test="email != null">AND email = #{email}</if>
-            <if test="sys_logout_dt != null">AND sys_logout_dt = #{sys_logout_dt}</if>
+            id = #{id}
+            AND user_id = #{user_id}
+            AND istr_type = #{dev_type}
+            AND os_nm = #{os_nm}
+            <if test="email != null">AND up_grp_id = #{email}</if>
+            <if test="sys_logout_dt != null">AND sys_lgt_dt = #{sys_logout_dt}</if>
             <if test="ip_addr != null">AND ip_addr = #{ip_addr}</if>
             <if test="brwsr_nm != null">AND brwsr_nm = #{brwsr_nm}</if>
         </where>
@@ -192,26 +131,26 @@
     <update id="UPDATE">
         UPDATE SYS_ACS_LOG
         <set>
-            <if test="email != null">email = #{email},</if>
-            <if test="sys_logout_dt != null">sys_logout_dt = #{sys_logout_dt},</if>
+            <if test="email != null">up_grp_id = #{email},</if>
+            <if test="sys_logout_dt != null">sys_lgt_dt = #{sys_logout_dt},</if>
             <if test="ip_addr != null">ip_addr = #{ip_addr},</if>
             <if test="brwsr_nm != null">brwsr_nm = #{brwsr_nm},</if>
-            <if test="sys_upd_dt != null">sys_upd_dt = #{sys_upd_dt},</if>
         </set>
         <where>
-             id = #{id}
+            id = #{id}
         </where>
     </update>
+
     <update id="UPDATE_LOGOUT_BY_USER">
         UPDATE SYS_ACS_LOG
-        SET sys_logout_dt = NOW()
+        SET sys_lgt_dt = NOW()
         WHERE id = (
             SELECT id FROM (
-                SELECT id 
-                FROM SYS_ACS_LOG 
-                WHERE user_id = #{user_id} 
-                  AND sys_logout_dt IS NULL 
-                ORDER BY sys_login_dt DESC 
+                SELECT id
+                FROM SYS_ACS_LOG
+                WHERE user_id = #{user_id}
+                  AND sys_lgt_dt IS NULL
+                ORDER BY sys_lgn_dt DESC
                 LIMIT 1
             ) AS current_session
         )

@@ -14,226 +14,112 @@
         </choose>
     </sql>
 
+    <sql id="eventLogColumns">
+        id,
+        user_id,
+        up_grp_id AS email,
+        role,
+        act_type,
+        trgt_tbl_nm AS tgt_tbl,
+        trgt_id AS tgt_id,
+        chg_prev_data AS bfr_data,
+        chg_aftr_data AS aft_data,
+        NULL AS ip_addr,
+        NULL AS sys_crt_dt
+    </sql>
+
+    <sql id="eventLogWhere">
+        <where>
+            <if test="id != null and id != ''">AND id = #{id}</if>
+            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
+            <if test="email != null and email != ''">AND up_grp_id = #{email}</if>
+            <if test="role != null and role != ''">AND role = #{role}</if>
+            <if test="act_type != null and act_type != ''">AND act_type = #{act_type}</if>
+            <if test="tgt_tbl != null and tgt_tbl != ''">AND trgt_tbl_nm = #{tgt_tbl}</if>
+            <if test="tgt_id != null and tgt_id != ''">AND trgt_id = #{tgt_id}</if>
+            <if test="bfr_data != null and bfr_data != ''">AND chg_prev_data = #{bfr_data}</if>
+            <if test="aft_data != null and aft_data != ''">AND chg_aftr_data = #{aft_data}</if>
+
+            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
+            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
+            <if test="_email != null and _email != ''">AND up_grp_id LIKE CONCAT('%', #{_email}, '%')</if>
+            <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
+            <if test="_act_type != null and _act_type != ''">AND act_type LIKE CONCAT('%', #{_act_type}, '%')</if>
+            <if test="_tgt_tbl != null and _tgt_tbl != ''">AND trgt_tbl_nm LIKE CONCAT('%', #{_tgt_tbl}, '%')</if>
+            <if test="_tgt_id != null and _tgt_id != ''">AND trgt_id LIKE CONCAT('%', #{_tgt_id}, '%')</if>
+            <if test="_bfr_data != null and _bfr_data != ''">AND chg_prev_data LIKE CONCAT('%', #{_bfr_data}, '%')</if>
+            <if test="_aft_data != null and _aft_data != ''">AND chg_aftr_data LIKE CONCAT('%', #{_aft_data}, '%')</if>
+        </where>
+    </sql>
+
     <select id="SELECT_PAGE" resultType="com.system.common.eventlog.SysEventLog">
         SELECT * FROM (
             SELECT
-                row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-                
-                id, 
-                user_id, 
-                email, 
-                role, 
-                act_type, 
-                tgt_tbl, 
-                tgt_id, 
-                bfr_data, 
-                aft_data, 
-                ip_addr, 
-                sys_crt_dt 
-            FROM SYS_EVT_LOG
-            <where>
-                
-                <if test="id != null and id != ''">AND id = #{id}</if>
-                <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-                <if test="email != null and email != ''">AND email = #{email}</if>
-                <if test="role != null and role != ''">AND role = #{role}</if>
-                <if test="act_type != null and act_type != ''">AND act_type = #{act_type}</if>
-                <if test="tgt_tbl != null and tgt_tbl != ''">AND tgt_tbl = #{tgt_tbl}</if>
-                <if test="tgt_id != null and tgt_id != ''">AND tgt_id = #{tgt_id}</if>
-                <if test="bfr_data != null and bfr_data != ''">AND bfr_data = #{bfr_data}</if>
-                <if test="aft_data != null and aft_data != ''">AND aft_data = #{aft_data}</if>
-                <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-                <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-                
-                <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-                <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-                <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-                <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
-                <if test="_act_type != null and _act_type != ''">AND act_type LIKE CONCAT('%', #{_act_type}, '%')</if>
-                <if test="_tgt_tbl != null and _tgt_tbl != ''">AND tgt_tbl LIKE CONCAT('%', #{_tgt_tbl}, '%')</if>
-                <if test="_tgt_id != null and _tgt_id != ''">AND tgt_id LIKE CONCAT('%', #{_tgt_id}, '%')</if>
-                <if test="_bfr_data != null and _bfr_data != ''">AND bfr_data LIKE CONCAT('%', #{_bfr_data}, '%')</if>
-                <if test="_aft_data != null and _aft_data != ''">AND aft_data LIKE CONCAT('%', #{_aft_data}, '%')</if>
-                <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-                <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-
-                <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-
-                <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                    AND sys_crt_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                    AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-                </if>
-            </where>
+                row_number() over (ORDER BY id DESC) AS no,
+                <include refid="eventLogColumns"/>
+            FROM SYS_ADT_LOG
+            <include refid="eventLogWhere"/>
         ) AS sub
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
-        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_EVT_LOG
-        <where>
-            
-            <if test="id != null and id != ''">AND id = #{id}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="role != null and role != ''">AND role = #{role}</if>
-            <if test="act_type != null and act_type != ''">AND act_type = #{act_type}</if>
-            <if test="tgt_tbl != null and tgt_tbl != ''">AND tgt_tbl = #{tgt_tbl}</if>
-            <if test="tgt_id != null and tgt_id != ''">AND tgt_id = #{tgt_id}</if>
-            <if test="bfr_data != null and bfr_data != ''">AND bfr_data = #{bfr_data}</if>
-            <if test="aft_data != null and aft_data != ''">AND aft_data = #{aft_data}</if>
-            <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
-            <if test="_act_type != null and _act_type != ''">AND act_type LIKE CONCAT('%', #{_act_type}, '%')</if>
-            <if test="_tgt_tbl != null and _tgt_tbl != ''">AND tgt_tbl LIKE CONCAT('%', #{_tgt_tbl}, '%')</if>
-            <if test="_tgt_id != null and _tgt_id != ''">AND tgt_id LIKE CONCAT('%', #{_tgt_id}, '%')</if>
-            <if test="_bfr_data != null and _bfr_data != ''">AND bfr_data LIKE CONCAT('%', #{_bfr_data}, '%')</if>
-            <if test="_aft_data != null and _aft_data != ''">AND aft_data LIKE CONCAT('%', #{_aft_data}, '%')</if>
-            <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="from_date != null and from_date != '' and to_date != null and to_date != ''">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="from_date != null and from_date != '' and (to_date == null or to_date == '')">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{from_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{from_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-
-            <if test="(from_date == null or from_date == '') and to_date != null and to_date != ''">
-                AND sys_crt_dt &gt;= STR_TO_DATE(#{to_date}, '%Y%m%d')
-                AND sys_crt_dt &lt; DATE_ADD(STR_TO_DATE(#{to_date}, '%Y%m%d'), INTERVAL 1 DAY)
-            </if>
-        </where>
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_ADT_LOG
+        <include refid="eventLogWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.system.common.eventlog.SysEventLog">
         SELECT
-            
-            id,
-            user_id,
-            email,
-            role,
-            act_type,
-            tgt_tbl,
-            tgt_id,
-            bfr_data,
-            aft_data,
-            ip_addr,
-            sys_crt_dt
-        FROM SYS_EVT_LOG
-        <where>
-            
-            <if test="id != null and id != ''">AND id = #{id}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="role != null and role != ''">AND role = #{role}</if>
-            <if test="act_type != null and act_type != ''">AND act_type = #{act_type}</if>
-            <if test="tgt_tbl != null and tgt_tbl != ''">AND tgt_tbl = #{tgt_tbl}</if>
-            <if test="tgt_id != null and tgt_id != ''">AND tgt_id = #{tgt_id}</if>
-            <if test="bfr_data != null and bfr_data != ''">AND bfr_data = #{bfr_data}</if>
-            <if test="aft_data != null and aft_data != ''">AND aft_data = #{aft_data}</if>
-            <if test="ip_addr != null and ip_addr != ''">AND ip_addr = #{ip_addr}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
-            <if test="_act_type != null and _act_type != ''">AND act_type LIKE CONCAT('%', #{_act_type}, '%')</if>
-            <if test="_tgt_tbl != null and _tgt_tbl != ''">AND tgt_tbl LIKE CONCAT('%', #{_tgt_tbl}, '%')</if>
-            <if test="_tgt_id != null and _tgt_id != ''">AND tgt_id LIKE CONCAT('%', #{_tgt_id}, '%')</if>
-            <if test="_bfr_data != null and _bfr_data != ''">AND bfr_data LIKE CONCAT('%', #{_bfr_data}, '%')</if>
-            <if test="_aft_data != null and _aft_data != ''">AND aft_data LIKE CONCAT('%', #{_aft_data}, '%')</if>
-            <if test="_ip_addr != null and _ip_addr != ''">AND ip_addr LIKE CONCAT('%', #{_ip_addr}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-        </where>
+            <include refid="eventLogColumns"/>
+        FROM SYS_ADT_LOG
+        <include refid="eventLogWhere"/>
     </select>
 
     <insert id="INSERT">
-        INSERT INTO SYS_EVT_LOG(
-            
-             id 
-            , user_id 
-            , email 
-            , role 
-            , act_type 
-            , tgt_tbl 
-            , ip_addr 
-            
-            <if test="tgt_id != null">, tgt_id</if>
-            <if test="bfr_data != null">, bfr_data</if>
-            <if test="aft_data != null">, aft_data</if>
-            , sys_crt_dt
+        INSERT INTO SYS_ADT_LOG(
+             id
+            , user_id
+            , up_grp_id
+            , role
+            , act_type
+            , trgt_tbl_nm
+            <if test="tgt_id != null">, trgt_id</if>
+            <if test="bfr_data != null">, chg_prev_data</if>
+            <if test="aft_data != null">, chg_aftr_data</if>
         )
         VALUES(
-            
              #{id}
             , #{user_id}
-            , #{email}
+            , <choose><when test="email != null and email != ''">#{email}</when><otherwise>'MIGRATED_UNKNOWN'</otherwise></choose>
             , #{role}
             , #{act_type}
             , #{tgt_tbl}
-            , #{ip_addr}
-            
             <if test="tgt_id != null">, #{tgt_id}</if>
             <if test="bfr_data != null">, #{bfr_data}</if>
             <if test="aft_data != null">, #{aft_data}</if>
-            , #{sys_crt_dt}
         )
     </insert>
 
     <delete id="DELETE">
-        DELETE FROM SYS_EVT_LOG
+        DELETE FROM SYS_ADT_LOG
         <where>
-            
-             id = #{id}
-             user_id = #{user_id}
-             act_type = #{act_type}
-            AND sys_crt_dt = #{sys_crt_dt}
-            
-            <if test="email != null">AND email = #{email}</if>
-            <if test="role != null">AND role = #{role}</if>
-            <if test="tgt_tbl != null">AND tgt_tbl = #{tgt_tbl}</if>
-            <if test="tgt_id != null">AND tgt_id = #{tgt_id}</if>
-            <if test="bfr_data != null">AND bfr_data = #{bfr_data}</if>
-            <if test="aft_data != null">AND aft_data = #{aft_data}</if>
-            <if test="ip_addr != null">AND ip_addr = #{ip_addr}</if>
+            id = #{id}
         </where>
     </delete>
 
     <update id="UPDATE">
-        UPDATE SYS_EVT_LOG
+        UPDATE SYS_ADT_LOG
         <set>
-            
-            <if test="email != null and email != '' ">,email = #{email}</if>
+            <if test="email != null and email != '' ">,up_grp_id = #{email}</if>
             <if test="role != null and role != '' ">,role = #{role}</if>
-            <if test="tgt_tbl != null and tgt_tbl != '' ">,tgt_tbl = #{tgt_tbl}</if>
-            <if test="tgt_id != null and tgt_id != '' ">,tgt_id = #{tgt_id}</if>
-            <if test="bfr_data != null and bfr_data != '' ">,bfr_data = #{bfr_data}</if>
-            <if test="aft_data != null and aft_data != '' ">,aft_data = #{aft_data}</if>
-            <if test="ip_addr != null and ip_addr != '' ">,ip_addr = #{ip_addr}</if>
+            <if test="tgt_tbl != null and tgt_tbl != '' ">,trgt_tbl_nm = #{tgt_tbl}</if>
+            <if test="tgt_id != null and tgt_id != '' ">,trgt_id = #{tgt_id}</if>
+            <if test="bfr_data != null and bfr_data != '' ">,chg_prev_data = #{bfr_data}</if>
+            <if test="aft_data != null and aft_data != '' ">,chg_aftr_data = #{aft_data}</if>
         </set>
         <where>
-            
-             id = #{id}
-             user_id = #{user_id}
-             act_type = #{act_type}
-            AND sys_crt_dt = #{sys_crt_dt}
+            id = #{id}
         </where>
     </update>
 </mapper>

@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysEventLogController extends AbstractCommonController<SysEventLog> {
 
     private final SysEventLogService sysEventLogService;
-    private final SysEventLogRepository sysEventLogRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysEventLog reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysEventLogController extends AbstractCommonController<SysEventLog>
 
     @PostMapping("/findAll")
     protected List<SysEventLog> findAll(@RequestBody SysEventLog request) throws Exception {
-        return sysEventLogRepository.findAll();
+        return sysEventLogService.findImpl(request);
     }
 
     @PostMapping("/find")

@@ -125,7 +125,7 @@
 
 <script type="text/javascript">
     var detailSessionData = JSON.parse(sessionStorage.getItem("DATA"));
-    var boardId = detailSessionData.board_id;
+    var boardId = detailSessionData.pst_id;
     var bbsId = detailSessionData.bbs_id;
     var replyEnabled = false; // 댓글 사용 여부
 
@@ -159,11 +159,11 @@
                 if (bbsInfo.bbs_type === 'GALLERY') {
                     $("#thmbnl-section-container").removeClass("gi-hidden");
                 }
-                if (bbsInfo.file_yn === '1') {
+                if (bbsInfo.file_atch_yn === '1') {
                     $("#file-section-container").removeClass("gi-hidden");
                 }
                 // 댓글 기능 활성화 체크
-                if (bbsInfo.reply_yn === '1') {
+                if (bbsInfo.cmnt_yn === '1') {
                     replyEnabled = true;
                     $("#reply-section-container").removeClass("gi-hidden");
                 }
@@ -224,7 +224,7 @@
     async function loadReplyList() {
         let url = "/cms/common/sysBbsReply/findByBoardId";
         try {
-            const response = await axios.post(url, { board_id: boardId });
+            const response = await axios.post(url, { pst_id: boardId });
             if (response.status === 200) {
                 let replyList = response.data || [];
                 renderReplyList(replyList);
@@ -251,14 +251,14 @@
         let groups = {};
         replyList.forEach(r => {
             r.children = [];
-            groups[r.reply_id] = r;
+            groups[r.cmnt_id] = r;
         });
 
         let roots = [];
         replyList.forEach(r => {
-            if (r.parent_reply_id && groups[r.parent_reply_id]) {
-                groups[r.parent_reply_id].children.push(r);
-            } else if (!r.parent_reply_id) {
+            if (r.prnt_cmnt_id && groups[r.prnt_cmnt_id]) {
+                groups[r.prnt_cmnt_id].children.push(r);
+            } else if (!r.prnt_cmnt_id) {
                 roots.push(r);
             }
         });
@@ -271,7 +271,7 @@
             // 답글 버튼 (대댓글이 아닐 경우에만 표시)
             if (!isChild) {
                 buttonsHtml += `
-                    <button class="gi-btn-icon reply-toggle-btn gi-reply-action-btn reply-toggle" style="padding:10px;" data-reply-id="${reply.reply_id}" title="${Message.Label.Array["SYS_BBS_BRD.REPLY_BTN"]}">
+                    <button class="gi-btn-icon reply-toggle-btn gi-reply-action-btn reply-toggle" style="padding:10px;" data-reply-id="${reply.cmnt_id}" title="${Message.Label.Array["SYS_BBS_BRD.REPLY_BTN"]}">
                         <i class="fa-solid fa-reply"></i>
                     </button>`;
             }
@@ -279,14 +279,14 @@
             // 삭제 버튼
             if (isMine) {
                 buttonsHtml += `
-                    <button class="gi-btn-icon reply-delete-btn gi-reply-action-btn reply-delete" style="padding:10px;" data-reply-id="${reply.reply_id}" title="${Message.Label.Array["DELETE_BTN"]}">
+                    <button class="gi-btn-icon reply-delete-btn gi-reply-action-btn reply-delete" style="padding:10px;" data-reply-id="${reply.cmnt_id}" title="${Message.Label.Array["DELETE_BTN"]}">
                         <i class="fa-solid fa-trash"></i>
                     </button>`;
             }
             buttonsHtml += '</div>';
 
             let cardHtml = `
-                <div class="gi-reply-card ${isChild ? 'gi-reply-child' : ''}" data-reply-id="${reply.reply_id}">
+                <div class="gi-reply-card ${isChild ? 'gi-reply-child' : ''}" data-reply-id="${reply.cmnt_id}">
                     <div class="gi-reply-header gi-flex gi-flex-justify-content-between gi-flex-align-items-center">
                         <div class="gi-flex gi-grid-gap-10px gi-flex-align-items-center">
                             <span class="gi-reply-writer">${reply.wrtr_nm || (Message.Label.Array["SYS_BBS_BRD.ANONYMOUS"])}</span>
@@ -294,11 +294,11 @@
                         </div>
                         ${buttonsHtml}
                     </div>
-                    <div class="gi-reply-content ${isChild ? 'is-child' : ''}">${escapeHtml(reply.content)}</div>
+                    <div class="gi-reply-content ${isChild ? 'is-child' : ''}">${escapeHtml(reply.cn)}</div>
                     
                     ${!isChild ? `
                     <!-- 대댓글 입력 폼 -->
-                    <div id="child-reply-form-${reply.reply_id}" class="gi-child-reply-form" style="display: none; margin-top: 15px;">
+                    <div id="child-reply-form-${reply.cmnt_id}" class="gi-child-reply-form" style="display: none; margin-top: 15px;">
                         <div class="gi-flex gi-flex-column gi-grid-gap-10px">
                             <div class="gi-child-reply-label gi-margin-bottom-5px">
                                 <i class="fa-solid fa-turn-up fa-rotate-90 gi-margin-right-5px"></i>
@@ -306,7 +306,7 @@
                             </div>
                             <textarea class="child-reply-input gi-textarea gi-child-reply-input gi-reply-container" placeholder="${Message.Label.Array["SYS_BBS_RPLY.PLACEHOLDER"]}"></textarea>
                              <div class="gi-flex gi-flex-justify-content-flex-end">
-                                <button class="gi-btn-blue child-reply-submit-btn" data-parent-id="${reply.reply_id}">${Message.Label.Array["SYS_BBS_BRD.REG_BTN"]}</button>
+                                <button class="gi-btn-blue child-reply-submit-btn" data-parent-id="${reply.cmnt_id}">${Message.Label.Array["SYS_BBS_BRD.REG_BTN"]}</button>
                              </div>
                         </div>
                     </div>
@@ -389,9 +389,9 @@
         let url = "/cms/common/sysBbsReply/register";
         let userInfo = new Session().getItem("userInfo");
         let param = {
-            board_id: boardId,
-            content: content,
-            parent_reply_id: parentId,
+            pst_id: boardId,
+            cn: content,
+            prnt_cmnt_id: parentId,
             wrtr_nm: (userInfo && userInfo.userName) ? userInfo.userName : (Message.Label.Array["SYS_BBS_BRD.ANONYMOUS"])
         };
 
@@ -410,7 +410,7 @@
     async function deleteReply(replyId) {
         let url = "/cms/common/sysBbsReply/remove";
         try {
-            const response = await axios.post(url, { reply_id: replyId });
+            const response = await axios.post(url, { cmnt_id: replyId });
             if (response.status === 200) {
                 formUtil.toast(Message.Label.Array["COMPLETE.DELETE"], "success");
                 loadReplyList();
@@ -435,17 +435,17 @@
 
     async function fetchBoardDetail() {
         let url = "/cms/common/sysBbsBoard/find";
-        const response = await axios.post(url, { board_id: boardId });
+        const response = await axios.post(url, { pst_id: boardId });
 
         if (response.status === 200 && response.data && response.data.length > 0) {
             let data = response.data[0];
-            $("#detail-board-title").text(data.title || Page.Message.Message.Label.Array["NO_TITLE"]);
+            $("#detail-board-title").text(data.ttl || Page.Message.Message.Label.Array["NO_TITLE"]);
             $("#detail-writer").text(data.wrtr_nm || Page.Message.Message.Label.Array["UNKNOWN"]);
             $("#detail-date").text(data.sys_crt_dt || "-");
-            $("#detail-hit").text(data.hit_cnt || 0);
+            $("#detail-hit").text(data.inq_cnt || 0);
 
-            if (data.content && data.content.trim() !== "") {
-                $("#detail-content").html(data.content).css("color", "#333");
+            if (data.cn && data.cn.trim() !== "") {
+                $("#detail-content").html(data.cn).css("color", "#333");
             } else {
                 $("#detail-content").html("<p style='color:#999; text-align:center; margin-top:100px;'>" + Message.Label.Array["FAIL.SELECT_NO_DATA"] + "</p>");
             }
@@ -456,8 +456,8 @@
             }
 
             // 썸네일 노드 업데이트
-            if (data.thmbnl) {
-                $("#detail-thmbnl-img").attr("src", '/fms/fileManager/downloadByUuid?fileUuid=' + data.thmbnl);
+            if (data.thmb_path) {
+                $("#detail-thmbnl-img").attr("src", '/fms/fileManager/downloadByUuid?fileUuid=' + data.thmb_path);
             }
         } else {
             formUtil.toast(Message.Label.Array["FAIL.SELECT_NO_DATA"], "error");
@@ -467,7 +467,7 @@
 
     function deleteBoard() {
         let url = "/cms/common/sysBbsBoard/remove";
-        axios.post(url, { board_id: boardId }).then(response => {
+        axios.post(url, { pst_id: boardId }).then(response => {
             if (response.status === 200) {
                 formUtil.toast(Message.Label.Array["COMPLETE.DELETE"], "success");
                 formUtil.apiLoadContent("cms", "/bbs/view", { bbs_id: bbsId });

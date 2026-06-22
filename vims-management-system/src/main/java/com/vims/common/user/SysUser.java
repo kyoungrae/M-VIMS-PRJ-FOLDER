@@ -3,7 +3,6 @@ package com.vims.common.user;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -27,21 +26,21 @@ public class SysUser extends Common {
      *  id : 시퀀스 아이디
      * </pre>
      */
-    private Integer id;
+    private Long id;
 
     /***
      * <pre>
-     *  email : 이메일
+     *  eml : 이메일
      * </pre>
      */
-    private String email;
+    private String eml;
 
     /***
      * <pre>
      *  password : 비밀번호
      * </pre>
      */
-    private String pwd;
+    private String pswd;
 
     /***
      * <pre>
@@ -59,10 +58,10 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  offc_cd : 소속코드
+     *  inst_cd : 소속코드
      * </pre>
      */
-    private String offc_cd;
+    private String inst_cd;
 
     /***
      * <pre>
@@ -94,17 +93,17 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  user_nm : 사용자이름
+     *  fnm : 사용자이름
      * </pre>
      */
-    private String user_nm;
+    private String fnm;
 
     /***
      * <pre>
-     *  tel : 전화번호
+     *  telno : 전화번호
      * </pre>
      */
-    private String tel;
+    private String telno;
 
     /***
      * <pre>
@@ -149,11 +148,11 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  offc_nm : 소속명
+     *  inst_nm : 소속명
      * </pre>
      */
     @Transient
-    private String offc_nm;
+    private String inst_nm;
 
     /***
      * <pre>
@@ -165,11 +164,11 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  email : 이메일
+     *  eml : 이메일
      * </pre>
      */
     @Transient
-    private String _email;
+    private String _eml;
 
     /***
      * <pre>
@@ -177,7 +176,7 @@ public class SysUser extends Common {
      * </pre>
      */
     @Transient
-    private String _pwd;
+    private String _pswd;
 
     /***
      * <pre>
@@ -197,11 +196,11 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  offc_cd : 소속코드
+     *  inst_cd : 소속코드
      * </pre>
      */
     @Transient
-    private String _offc_cd;
+    private String _inst_cd;
 
     /***
      * <pre>
@@ -237,19 +236,19 @@ public class SysUser extends Common {
 
     /***
      * <pre>
-     *  user_nm : 사용자이름
+     *  fnm : 사용자이름
      * </pre>
      */
     @Transient
-    private String _user_nm;
+    private String _fnm;
 
     /***
      * <pre>
-     *  tel : 전화번호
+     *  telno : 전화번호
      * </pre>
      */
     @Transient
-    private String _tel;
+    private String _telno;
 
     /***
      * <pre>

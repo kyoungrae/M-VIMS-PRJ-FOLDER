@@ -50,7 +50,7 @@
                             <div class="gi-input-container gi-flex-1">
                                 <label for="board_title" class="gi-input-label" data-focus-label="true"
                                     data-required="true">[Page.Message].Message.Label.Array["SYS_BBS_BRD.TITLE"]</label>
-                                <input data-field="title" id="board_title" name="title" class="gi-input"
+                                <input data-field="ttl" id="board_title" name="title" class="gi-input"
                                     data-required="true" autocomplete="off" maxlength="50" />
                             </div>
 
@@ -98,8 +98,8 @@
                         <div class="gi-editor-wrapper">
                             <div id="editor-container"></div>
                         </div>
-                        <input type="hidden" data-field="content" id="board_content" name="content" />
-                        <input type="hidden" data-field="thmbnl" id="board_thmbnl" name="thmbnl" />
+                        <input type="hidden" data-field="cn" id="board_content" name="content" />
+                        <input type="hidden" data-field="thmb_path" id="board_thmbnl" name="thmbnl" />
                     </div>
 
                     <!-- 섹션 3: 첨부 파일 -->
@@ -135,7 +135,7 @@
     var quill;
     var writeSessionData = JSON.parse(sessionStorage.getItem("DATA"));
     var targetBbsId = writeSessionData.bbs_id;
-    var boardId = writeSessionData.board_id; // 수정 모드일 때 존재
+    var boardId = writeSessionData.pst_id; // 수정 모드일 때 존재
     var mode = writeSessionData.mode || 'register';
 
     init();
@@ -216,7 +216,7 @@
             const response = await axios.post(url, { bbs_id: targetBbsId });
             if (response.status === 200 && response.data.length > 0) {
                 let bbsInfo = response.data[0];
-                if (bbsInfo.file_yn === '1') {
+                if (bbsInfo.file_atch_yn === '1') {
                     // 조건 충족 시 파일 첨부 영역 활성화
                     $("#file-section-container").removeClass("gi-hidden");
                     await fileUtil.activateFileCard("file-attachment-section");
@@ -406,24 +406,24 @@
 
     function fetchBoardData() {
         let url = "/cms/common/sysBbsBoard/find";
-        axios.post(url, { board_id: boardId }).then(response => {
+        axios.post(url, { pst_id: boardId }).then(response => {
             if (response.status === 200 && response.data.length > 0) {
                 let data = response.data[0];
-                $("#board_title").val(data.title);
+                $("#board_title").val(data.ttl);
                 $("#board_writer").val(data.wrtr_nm);
                 $("#board_file_uuid").val(data.file_uuid).trigger('change');
 
                 // 썸네일 복원
-                if (data.thmbnl) {
-                    $("#board_thmbnl").val(data.thmbnl);
+                if (data.thmb_path) {
+                    $("#board_thmbnl").val(data.thmb_path);
                     // 썸네일 이미지 정보를 가져오기 위해 FMS 호출 필요, 하지만 UUID만으로는 파일명/ID를 바로 알기 어려울 수 있음.
                     // 간단히 미리보기만 복원하려면 UUID로 다운로드 URL을 구성하거나, 추가 조회가 필요함.
                     // 여기서는 썸네일 UUID를 통해 파일 상세 정보를 조회하여 미리보기를 설정하는 로직을 추가.
-                    restoreThumbnail(data.thmbnl);
+                    restoreThumbnail(data.thmb_path);
                 }
 
                 commonTag.inputTagReset($(".gi-input"));
-                quill.root.innerHTML = data.content;
+                quill.root.innerHTML = data.cn;
             }
         });
     }
@@ -457,14 +457,14 @@
 
         let param = {
             bbs_id: targetBbsId,
-            title: $("#board_title").val(),
-            content: content,
+            ttl: $("#board_title").val(),
+            cn: content,
             wrtr_nm: $("#board_writer").val(),
             file_uuid: $("#board_file_uuid").val(),
-            thmbnl: $("#board_thmbnl").val()
+            thmb_path: $("#board_thmbnl").val()
         };
 
-        if (isUpdate) param.board_id = boardId;
+        if (isUpdate) param.pst_id = boardId;
 
         axios.post(url, param).then(response => {
             if (response.status === 200) {

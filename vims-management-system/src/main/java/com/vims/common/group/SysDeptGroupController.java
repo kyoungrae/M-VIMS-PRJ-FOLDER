@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysDeptGroupController extends AbstractCommonController<SysDeptGroup> {
 
     private final SysDeptGroupService sysDeptGroupService;
-    private final SysDeptGroupRepository sysDeptGroupRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysDeptGroup reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysDeptGroupController extends AbstractCommonController<SysDeptGrou
 
     @PostMapping("/findAll")
     protected List<SysDeptGroup> findAll(@RequestBody SysDeptGroup request) throws Exception {
-        return sysDeptGroupRepository.findAll();
+        return sysDeptGroupService.findImpl(request);
     }
 
     @PostMapping("/findNotExistsSysAccsGroupMenu")

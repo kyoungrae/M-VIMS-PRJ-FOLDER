@@ -40,7 +40,7 @@ public class AuthenticationService {
         LocalDateTime localDateTime = LocalDateTime.now();
         Timestamp timestamp = Timestamp.valueOf(localDateTime);
 
-        int token_seq = sequenceService.selectTokenSequence();
+        Long token_seq = sequenceService.selectTokenSequence();
         var user = AuthUser.builder()
                 .id(token_seq)
                 .user_id(request.getUser_id())
@@ -107,7 +107,7 @@ public class AuthenticationService {
                 jwtToken = jwtService.generateToken(user);
 
                 // 새로운 토큰을 데이터베이스에 저장
-                int token_seq = sequenceService.selectTokenSequence();
+                Long token_seq = sequenceService.selectTokenSequence();
                 var token = Token.builder()
                         .id(token_seq)
                         .token(jwtToken)

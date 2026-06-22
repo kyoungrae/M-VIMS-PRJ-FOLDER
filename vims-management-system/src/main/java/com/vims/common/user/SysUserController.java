@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysUserController extends AbstractCommonController<SysUser> {
 
     private final SysUserService sysUserService;
-    private final SysUserRepository sysUserRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysUser reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysUserController extends AbstractCommonController<SysUser> {
 
     @PostMapping("/findAll")
     protected List<SysUser> findAll(@RequestBody SysUser request) throws Exception {
-        return sysUserRepository.findAll();
+        return sysUserService.findImpl(request);
     }
 
     @PostMapping("/find")

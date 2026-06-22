@@ -19,13 +19,13 @@ import java.util.Date;
 public class SysBbsReply extends Common {
     @Transient
     @Builder.Default
-    private String keys = Arrays.toString(new String[] { "reply_id" });
+    private String keys = Arrays.toString(new String[] { "cmnt_id" });
 
     @Id
-    private String reply_id; // 댓글 ID (UUID)
-    private String board_id; // 게시물 ID (SYS_BBS_BRD FK)
-    private String parent_reply_id; // 부모 댓글 ID (대댓글용)
-    private String content; // 댓글 내용
+    private String cmnt_id; // 댓글 ID (UUID)
+    private String pst_id; // 게시물 ID (SYS_BBS_PST FK)
+    private String prnt_cmnt_id; // 부모 댓글 ID (대댓글용)
+    private String cn; // 댓글 내용
     private String wrtr_nm; // 작성자 이름
 
     private String sys_crt_usr_id;
@@ -35,7 +35,7 @@ public class SysBbsReply extends Common {
 
     // 검색용 필드
     @Transient
-    private String _content;
+    private String _cn;
     @Transient
     private String _wrtr_nm;
 }

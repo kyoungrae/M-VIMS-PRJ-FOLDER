@@ -18,7 +18,6 @@ import java.util.Map;
 public class SysFileDetailController extends AbstractCommonController<SysFileDetail> {
 
     private final SysFileDetailService sysFileDetailService;
-    private final SysFileDetailRepository sysFileDetailRepository;
 
     @PostMapping("/findPage")
     public Map<String, List<?>> findPage(@RequestBody SysFileDetail reqeust) throws Exception {
@@ -27,7 +26,7 @@ public class SysFileDetailController extends AbstractCommonController<SysFileDet
 
     @PostMapping("/findAll")
     public List<SysFileDetail> findAll(@RequestBody SysFileDetail request) throws Exception {
-        return sysFileDetailRepository.findAll();
+        return sysFileDetailService.findImpl(request);
     }
 
     @PostMapping("/find")

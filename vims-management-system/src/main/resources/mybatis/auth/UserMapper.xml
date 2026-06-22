@@ -4,36 +4,51 @@
 <mapper namespace="com.system.auth.authuser.AuthUserMapper">
     <select id="SELECT_USER_INFO" resultType="com.system.auth.authuser.AuthUser">
         SELECT
-           id, email, pwd, role, user_id, offc_cd, sys_crt_usr_id, sys_crt_dt, sys_upd_dt, sys_upd_usr_id, user_nm, tel, addr, addr_dtl, post_cd, uuid
+            id,
+            eml AS email,
+            pswd AS pwd,
+            role,
+            user_id,
+            inst_cd AS offc_cd,
+            sys_crt_usr_id,
+            sys_gen_dt AS sys_crt_dt,
+            sys_mdfcn_dt AS sys_upd_dt,
+            sys_mdfr_id AS sys_upd_usr_id,
+            fnm AS user_nm,
+            telno AS tel,
+            addr,
+            addr_dtl,
+            post_cd,
+            uuid
         FROM SYS_USER
-        where email = #{email}
+        WHERE eml = #{email}
     </select>
-    <select id="SELECT_NEXT_TOKEN_ID" resultType="int">
-        SELECT nextval('SYS_TOKEN_SEQ')
-    </select>
+
     <insert id="INSERT_USER_INFO" parameterType="com.system.auth.authuser.AuthUser">
         INSERT INTO SYS_USER (
             id,
-            pwd,
-            email,
-            sys_crt_dt,
-        <trim prefixOverrides=",">
-            <if test="user_nm != null">, user_nm</if>
-            <if test="tel != null">, tel</if>
+            user_id,
+            pswd,
+            eml,
+            sys_gen_dt
+        <trim prefix="," prefixOverrides=",">
+            <if test="user_nm != null">, fnm</if>
+            <if test="tel != null">, telno</if>
             <if test="addr != null">, addr</if>
             <if test="addr_dtl != null">, addr_dtl</if>
             <if test="post_cd != null">, post_cd</if>
             <if test="uuid != null">, uuid</if>
             <if test="role != null">, role</if>
-            <if test="offc_cd != null">, offc_cd</if>
+            <if test="offc_cd != null">, inst_cd</if>
             <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
         </trim>
         ) VALUES (
             #{id},
+            #{user_id},
             #{pwd},
             #{email},
-            NOW(),
-        <trim prefixOverrides=",">
+            NOW()
+        <trim prefix="," prefixOverrides=",">
             <if test="user_nm != null">, #{user_nm}</if>
             <if test="tel != null">, #{tel}</if>
             <if test="addr != null">, #{addr}</if>
@@ -46,6 +61,7 @@
         </trim>
         )
     </insert>
+
     <delete id="DELETE">
         DELETE FROM SYS_USER WHERE id = #{id}
     </delete>

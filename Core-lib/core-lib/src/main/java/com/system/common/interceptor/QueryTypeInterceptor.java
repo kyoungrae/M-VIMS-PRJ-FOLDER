@@ -10,8 +10,6 @@ import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Component;
 
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
                 org.apache.ibatis.session.RowBounds.class, org.apache.ibatis.session.ResultHandler.class })
 })
 public class QueryTypeInterceptor implements Interceptor {
-    private static final Logger logger = LoggerFactory.getLogger(QueryTypeInterceptor.class);
     private static final Map<String, InterCeptorRemoveDataValueTransformFieldNameList> REMOVE_TRANSFORM_FIELDS =
             Arrays.stream(InterCeptorRemoveDataValueTransformFieldNameList.values())
                     .collect(Collectors.toUnmodifiableMap(Enum::name, Function.identity()));

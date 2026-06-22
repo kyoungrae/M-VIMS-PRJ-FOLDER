@@ -159,7 +159,6 @@ public class FileProcessManager implements FileProcessManagerImpl {
                     throw new IOException("Failed to create directory");
                 }
             }
-            int index = 0;
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) {
                     System.out.println("file.getOriginalFilename():" + file.getOriginalFilename());
@@ -191,7 +190,6 @@ public class FileProcessManager implements FileProcessManagerImpl {
                     System.out.println(uploadFile);
 
                 }
-                index++;
             }
             System.out.println("All files uploaded successfully");
         } else {

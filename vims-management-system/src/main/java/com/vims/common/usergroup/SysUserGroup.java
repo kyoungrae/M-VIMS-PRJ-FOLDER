@@ -3,7 +3,6 @@ package com.vims.common.usergroup;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,24 +21,24 @@ import java.util.Arrays;
 @SuperBuilder
 public class SysUserGroup extends Common {
     @Transient
-	private String keys = Arrays.toString(new String[]{"grp_id","user_email"});
+	private String keys = Arrays.toString(new String[]{"grp_id","id"});
 
     /***<pre> id : id </pre> */
     @Id
-    private Integer id;
+    private Long id;
 
     /***<pre> grp_id : 그룹아이디 </pre> */
 	private String grp_id;
 
 
-    /***<pre> user_email : 사용자 email </pre> */
-	private String user_email;
+    /***<pre> eml : 사용자 email </pre> */
+	private String eml;
 
     /***<pre> user_id : 사용자 ID </pre> */
 	private String user_id;
 
-    /***<pre> offc_cd : 소속코드 </pre> */
-	private String offc_cd;
+    /***<pre> inst_cd : 소속코드 </pre> */
+	private String inst_cd;
 
     /***<pre> sys_crt_dt : 작성일자 </pre> */
 	private Date sys_crt_dt;
@@ -59,13 +58,13 @@ public class SysUserGroup extends Common {
     @Transient
 	private String grp_nm;
     
-    /***<pre> user_nm : 사용자이름 </pre> */
+    /***<pre> fnm : 사용자이름 </pre> */
     @Transient
-	private String user_nm;
+	private String fnm;
 
-    /***<pre> offc_nm : 소속 </pre> */
+    /***<pre> inst_nm : 소속 </pre> */
     @Transient
-    private String offc_nm;
+    private String inst_nm;
 
     /***<pre> _id : 아이디 </pre> */
     @Transient
@@ -75,17 +74,17 @@ public class SysUserGroup extends Common {
     @Transient
 	private String _grp_id;
 
-    /***<pre> user_email : 사용자 email </pre> */
+    /***<pre> eml : 사용자 email </pre> */
     @Transient
-	private String _user_email;
+	private String _eml;
 
     /***<pre> user_id : 사용자 ID </pre> */
     @Transient
 	private String _user_id;
 
-    /***<pre> offc_cd : 소속코드 </pre> */
+    /***<pre> inst_cd : 소속코드 </pre> */
     @Transient
-	private String _offc_cd;
+	private String _inst_cd;
 
     /***<pre> sys_crt_dt : 작성일자 </pre> */
     @Transient

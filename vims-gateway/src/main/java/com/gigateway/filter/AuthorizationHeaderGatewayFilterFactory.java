@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
-import java.util.Objects;
 
 @Component
 public class AuthorizationHeaderGatewayFilterFactory

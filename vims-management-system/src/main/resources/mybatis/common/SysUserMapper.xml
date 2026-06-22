@@ -14,183 +14,104 @@
         </choose>
     </sql>
 
-    <select id="SELECT_PAGE" resultType="com.vims.common.user.SysUser">
-        SELECT
-            row_number() over (ORDER BY sys_crt_dt DESC )AS no,
-            id, 
-            email, 
-            pwd, 
-            role, 
-            user_id, 
-            offc_cd,
-            (SELECT offc_nm FROM SYS_OFFC WHERE offc_cd = SYS_USER.offc_cd) AS offc_nm,
-            sys_crt_usr_id, 
-            sys_crt_dt, 
-            sys_upd_usr_id, 
-            sys_upd_dt, 
-            user_nm, 
-            tel, 
-            addr, 
-            addr_dtl, 
-            post_cd, 
-            uuid 
-        FROM SYS_USER
+    <sql id="userColumns">
+        id,
+        eml AS eml,
+        pswd AS pswd,
+        role,
+        user_id,
+        inst_cd AS inst_cd,
+        (SELECT inst_nm
+           FROM SYS_INST
+          WHERE CONVERT(inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci
+              = CONVERT(SYS_USER.inst_cd USING utf8mb4) COLLATE utf8mb4_unicode_ci) AS inst_nm,
+        sys_crt_usr_id,
+        sys_gen_dt AS sys_crt_dt,
+        sys_mdfr_id AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt,
+        fnm AS fnm,
+        telno AS telno,
+        addr,
+        addr_dtl,
+        post_cd,
+        uuid
+    </sql>
+
+    <sql id="userWhere">
         <where>
-            
             <if test="id != null">AND id = #{id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="pwd != null and pwd != ''">AND pwd = #{pwd}</if>
+            <if test="eml != null and eml != ''">AND eml = #{eml}</if>
+            <if test="pswd != null and pswd != ''">AND pswd = #{pswd}</if>
             <if test="role != null and role != ''">AND role = #{role}</if>
             <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
+            <if test="inst_cd != null and inst_cd != ''">AND inst_cd = #{inst_cd}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="user_nm != null and user_nm != ''">AND user_nm = #{user_nm}</if>
-            <if test="tel != null and tel != ''">AND tel = #{tel}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="fnm != null and fnm != ''">AND fnm = #{fnm}</if>
+            <if test="telno != null and telno != ''">AND telno = #{telno}</if>
             <if test="addr != null and addr != ''">AND addr = #{addr}</if>
             <if test="addr_dtl != null and addr_dtl != ''">AND addr_dtl = #{addr_dtl}</if>
             <if test="post_cd != null and post_cd != ''">AND post_cd = #{post_cd}</if>
             <if test="uuid != null and uuid != ''">AND uuid = #{uuid}</if>
-            
+
             <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_pwd != null and _pwd != ''">AND pwd LIKE CONCAT('%', #{_pwd}, '%')</if>
+            <if test="_eml != null and _eml != ''">AND eml LIKE CONCAT('%', #{_eml}, '%')</if>
+            <if test="_pswd != null and _pswd != ''">AND pswd LIKE CONCAT('%', #{_pswd}, '%')</if>
             <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
             <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
+            <if test="_inst_cd != null and _inst_cd != ''">AND inst_cd LIKE CONCAT('%', #{_inst_cd}, '%')</if>
             <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_user_nm != null and _user_nm != ''">AND user_nm LIKE CONCAT('%', #{_user_nm}, '%')</if>
-            <if test="_tel != null and _tel != ''">AND tel LIKE CONCAT('%', #{_tel}, '%')</if>
+            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_gen_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
+            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_mdfr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
+            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_mdfcn_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
+            <if test="_fnm != null and _fnm != ''">AND fnm LIKE CONCAT('%', #{_fnm}, '%')</if>
+            <if test="_telno != null and _telno != ''">AND telno LIKE CONCAT('%', #{_telno}, '%')</if>
             <if test="_addr != null and _addr != ''">AND addr LIKE CONCAT('%', #{_addr}, '%')</if>
             <if test="_addr_dtl != null and _addr_dtl != ''">AND addr_dtl LIKE CONCAT('%', #{_addr_dtl}, '%')</if>
             <if test="_post_cd != null and _post_cd != ''">AND post_cd LIKE CONCAT('%', #{_post_cd}, '%')</if>
             <if test="_uuid != null and _uuid != ''">AND uuid LIKE CONCAT('%', #{_uuid}, '%')</if>
         </where>
+    </sql>
+
+    <select id="SELECT_PAGE" resultType="com.vims.common.user.SysUser">
+        SELECT
+            row_number() over (ORDER BY sys_gen_dt DESC) AS no,
+            <include refid="userColumns"/>
+        FROM SYS_USER
+        <include refid="userWhere"/>
         <include refid="sortFilter"/>
         LIMIT #{row_range} OFFSET #{offset}
     </select>
 
     <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
         SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_USER
-        <where>
-            
-            <if test="id != null">AND id = #{id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="pwd != null and pwd != ''">AND pwd = #{pwd}</if>
-            <if test="role != null and role != ''">AND role = #{role}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="user_nm != null and user_nm != ''">AND user_nm = #{user_nm}</if>
-            <if test="tel != null and tel != ''">AND tel = #{tel}</if>
-            <if test="_addr != null and _addr != ''">AND addr = #{addr}</if>
-            <if test="addr_dtl != null and addr_dtl != ''">AND addr_dtl = #{addr_dtl}</if>
-            <if test="post_cd != null and post_cd != ''">AND post_cd = #{post_cd}</if>
-            <if test="uuid != null and uuid != ''">AND uuid = #{uuid}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_pwd != null and _pwd != ''">AND pwd LIKE CONCAT('%', #{_pwd}, '%')</if>
-            <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_user_nm != null and _user_nm != ''">AND user_nm LIKE CONCAT('%', #{_user_nm}, '%')</if>
-            <if test="_tel != null and _tel != ''">AND tel LIKE CONCAT('%', #{_tel}, '%')</if>
-            <if test="_addr != null and _addr != ''">AND addr LIKE CONCAT('%', #{_addr}, '%')</if>
-            <if test="_addr_dtl != null and _addr_dtl != ''">AND addr_dtl LIKE CONCAT('%', #{_addr_dtl}, '%')</if>
-            <if test="_post_cd != null and _post_cd != ''">AND post_cd LIKE CONCAT('%', #{_post_cd}, '%')</if>
-            <if test="_uuid != null and _uuid != ''">AND uuid LIKE CONCAT('%', #{_uuid}, '%')</if>
-        </where>
+        <include refid="userWhere"/>
     </select>
 
     <select id="SELECT" resultType="com.vims.common.user.SysUser">
         SELECT
-            
-            id,
-            email,
-            pwd,
-            role,
-            user_id,
-            offc_cd,
-            (SELECT offc_nm FROM SYS_OFFC WHERE offc_cd = SYS_USER.offc_cd) AS offc_nm,
-            sys_crt_usr_id,
-            sys_crt_dt,
-            sys_upd_usr_id,
-            sys_upd_dt,
-            user_nm,
-            tel,
-            addr,
-            addr_dtl,
-            post_cd,
-            uuid
+            <include refid="userColumns"/>
         FROM SYS_USER
-        <where>
-            
-            <if test="id != null">AND id = #{id}</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
-            <if test="pwd != null and pwd != ''">AND pwd = #{pwd}</if>
-            <if test="role != null and role != ''">AND role = #{role}</if>
-            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
-            <if test="offc_cd != null and offc_cd != ''">AND offc_cd = #{offc_cd}</if>
-            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="user_nm != null and user_nm != ''">AND user_nm = #{user_nm}</if>
-            <if test="tel != null and tel != ''">AND tel = #{tel}</if>
-            <if test="addr != null and addr != ''">AND addr = #{addr}</if>
-            <if test="addr_dtl != null and addr_dtl != ''">AND addr_dtl = #{addr_dtl}</if>
-            <if test="post_cd != null and post_cd != ''">AND post_cd = #{post_cd}</if>
-            <if test="uuid != null and uuid != ''">AND uuid = #{uuid}</if>
-            
-            <if test="_id != null and _id != ''">AND id LIKE CONCAT('%', #{_id}, '%')</if>
-            <if test="_email != null and _email != ''">AND email LIKE CONCAT('%', #{_email}, '%')</if>
-            <if test="_pwd != null and _pwd != ''">AND password LIKE CONCAT('%', #{_pwd}, '%')</if>
-            <if test="_role != null and _role != ''">AND role LIKE CONCAT('%', #{_role}, '%')</if>
-            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
-            <if test="_offc_cd != null and _offc_cd != ''">AND offc_cd LIKE CONCAT('%', #{_offc_cd}, '%')</if>
-            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
-            <if test="_sys_crt_dt != null and _sys_crt_dt != ''">AND sys_crt_dt LIKE CONCAT('%', #{_sys_crt_dt}, '%')</if>
-            <if test="_sys_upd_usr_id != null and _sys_upd_usr_id != ''">AND sys_upd_usr_id LIKE CONCAT('%', #{_sys_upd_usr_id}, '%')</if>
-            <if test="_sys_upd_dt != null and _sys_upd_dt != ''">AND sys_upd_dt LIKE CONCAT('%', #{_sys_upd_dt}, '%')</if>
-            <if test="_user_nm != null and _user_nm != ''">AND user_nm LIKE CONCAT('%', #{_user_nm}, '%')</if>
-            <if test="_tel != null and _tel != ''">AND tel LIKE CONCAT('%', #{_tel}, '%')</if>
-            <if test="_addr != null and _addr != ''">AND address LIKE CONCAT('%', #{_addr}, '%')</if>
-            <if test="_addr_dtl != null and _addr_dtl != ''">AND addr_dtl LIKE CONCAT('%', #{_addr_dtl}, '%')</if>
-            <if test="_post_cd != null and _post_cd != ''">AND post_cd LIKE CONCAT('%', #{_post_cd}, '%')</if>
-            <if test="_uuid != null and _uuid != ''">AND uuid LIKE CONCAT('%', #{_uuid}, '%')</if>
-        </where>
+        <include refid="userWhere"/>
     </select>
 
     <delete id="DELETE">
         DELETE FROM SYS_USER
         <where>
-            
             AND id = #{id}
-            
-            <if test="email != null">AND email = #{email}</if>
-            <if test="pwd != null">AND pwd = #{pwd}</if>
+            <if test="eml != null">AND eml = #{eml}</if>
+            <if test="pswd != null">AND pswd = #{pswd}</if>
             <if test="role != null">AND role = #{role}</if>
             <if test="user_id != null">AND user_id = #{user_id}</if>
-            <if test="offc_cd != null">AND offc_cd = #{offc_cd}</if>
+            <if test="inst_cd != null">AND inst_cd = #{inst_cd}</if>
             <if test="sys_crt_usr_id != null">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null">AND sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null">AND sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null">AND sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="user_nm != null">AND user_nm = #{user_nm}</if>
-            <if test="tel != null">AND tel = #{tel}</if>
+            <if test="sys_crt_dt != null">AND sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null">AND sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null">AND sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="fnm != null">AND fnm = #{fnm}</if>
+            <if test="telno != null">AND telno = #{telno}</if>
             <if test="addr != null">AND addr = #{addr}</if>
             <if test="addr_dtl != null">AND addr_dtl = #{addr_dtl}</if>
             <if test="post_cd != null">AND post_cd = #{post_cd}</if>
@@ -201,59 +122,69 @@
     <insert id="INSERT">
         INSERT INTO SYS_USER (
             id
-                <if test="email != null">, email</if>
-                <if test="pwd != null">, pwd</if>
+                <if test="eml != null">, eml</if>
+                <if test="pswd != null">, pswd</if>
                 <if test="role != null">, role</if>
                 <if test="user_id != null">, user_id</if>
-                <if test="offc_cd != null">, offc_cd</if>
+                <if test="inst_cd != null">, inst_cd</if>
                 <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
-                <if test="sys_crt_dt != null">, sys_crt_dt</if>
-                <if test="user_nm != null">, user_nm</if>
-                <if test="tel != null">, tel</if>
+                <if test="sys_crt_dt != null">, sys_gen_dt</if>
+                <if test="fnm != null">, fnm</if>
+                <if test="telno != null">, telno</if>
                 <if test="addr != null">, addr</if>
                 <if test="addr_dtl != null">, addr_dtl</if>
                 <if test="post_cd != null">, post_cd</if>
                 <if test="uuid != null">, uuid</if>
         ) VALUES (
             #{id}
-                <if test="email != null">, #{email}</if>
-                <if test="pwd != null">, #{pwd}</if>
+                <if test="eml != null">, #{eml}</if>
+                <if test="pswd != null">, #{pswd}</if>
                 <if test="role != null">, #{role}</if>
                 <if test="user_id != null">, #{user_id}</if>
-                <if test="offc_cd != null">, #{offc_cd}</if>
+                <if test="inst_cd != null">, #{inst_cd}</if>
                 <if test="sys_crt_usr_id != null">, #{sys_crt_usr_id}</if>
                 <if test="sys_crt_dt != null">, #{sys_crt_dt}</if>
-                <if test="user_nm != null">, #{user_nm}</if>
-                <if test="tel != null">, #{tel}</if>
+                <if test="fnm != null">, #{fnm}</if>
+                <if test="telno != null">, #{telno}</if>
                 <if test="addr != null">, #{addr}</if>
                 <if test="addr_dtl != null">, #{addr_dtl}</if>
                 <if test="post_cd != null">, #{post_cd}</if>
                 <if test="uuid != null">, #{uuid}</if>
         )
     </insert>
+
     <update id="UPDATE">
         UPDATE SYS_USER
         <set>
-            
-            <if test="email != null and email != '' ">,email = #{email}</if>
-            <if test="pwd != null and pwd != '' ">,pwd = #{pwd}</if>
+            <if test="eml != null and eml != '' ">,eml = #{eml}</if>
+            <if test="pswd != null and pswd != '' ">,pswd = #{pswd}</if>
             <if test="role != null and role != '' ">,role = #{role}</if>
             <if test="user_id != null and user_id != '' ">,user_id = #{user_id}</if>
-            <if test="offc_cd != null and offc_cd != '' ">,offc_cd = #{offc_cd}</if>
+            <if test="inst_cd != null and inst_cd != '' ">,inst_cd = #{inst_cd}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != '' ">,sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="sys_crt_dt != null ">,sys_crt_dt = #{sys_crt_dt}</if>
-            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">,sys_upd_usr_id = #{sys_upd_usr_id}</if>
-            <if test="sys_upd_dt != null ">,sys_upd_dt = #{sys_upd_dt}</if>
-            <if test="user_nm != null and user_nm != '' ">,user_nm = #{user_nm}</if>
-            <if test="tel != null and tel != '' ">,tel = #{tel}</if>
+            <if test="sys_crt_dt != null ">,sys_gen_dt = #{sys_crt_dt}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != '' ">,sys_mdfr_id = #{sys_upd_usr_id}</if>
+            <if test="sys_upd_dt != null ">,sys_mdfcn_dt = #{sys_upd_dt}</if>
+            <if test="fnm != null and fnm != '' ">,fnm = #{fnm}</if>
+            <if test="telno != null and telno != '' ">,telno = #{telno}</if>
             <if test="addr != null and addr != '' ">,addr = #{addr}</if>
             <if test="addr_dtl != null and addr_dtl != '' ">,addr_dtl = #{addr_dtl}</if>
             <if test="post_cd != null and post_cd != '' ">,post_cd = #{post_cd}</if>
             <if test="uuid != null and uuid != '' ">,uuid = #{uuid}</if>
         </set>
         <where>
-            
             AND id = #{id}
         </where>
     </update>
+
+    <delete id="DELETE_TOKEN" parameterType="com.system.auth.authuser.AuthUser">
+        DELETE FROM SYS_TOKEN
+        WHERE user_id = #{id}
+    </delete>
+
+    <select id="GET_USER_IMAGE_FILE_NM_BY_EMAIL" resultType="string">
+        SELECT uuid
+        FROM SYS_USER
+        WHERE eml = #{eml}
+    </select>
 </mapper>

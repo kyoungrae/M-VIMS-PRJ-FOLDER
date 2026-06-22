@@ -3,12 +3,10 @@ package com.vims.common.icon;
 import com.system.common.base.Common;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
 import java.util.Arrays;
 
 @EqualsAndHashCode(callSuper = true)

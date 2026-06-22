@@ -22,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class AuthUser extends Common implements UserDetails{
-    private Integer id;
+    private Long id;
     private String user_id;
     private String email;
     private String pwd;

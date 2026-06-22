@@ -19,17 +19,17 @@ import java.util.Date;
 public class SysBbsBoard extends Common {
     @Transient
     @Builder.Default
-    private String keys = Arrays.toString(new String[] { "board_id" });
+    private String keys = Arrays.toString(new String[] { "pst_id" });
 
     @Id
-    private String board_id; // 게시물 ID (UUID)
+    private String pst_id; // 게시물 ID (UUID)
     private String bbs_id; // 소속 게시판 ID
-    private String title; // 제목
-    private String content; // 내용
+    private String ttl; // 제목
+    private String cn; // 내용
     private String wrtr_nm; // 작성자 이름
-    private int hit_cnt; // 조회수
+    private int inq_cnt; // 조회수
     private String file_uuid; // 파일 UUID
-    private String thmbnl; // 썸네일 UUID or Path
+    private String thmb_path; // 썸네일 UUID or Path
 
     private String sys_crt_usr_id;
     private Date sys_crt_dt;
@@ -42,7 +42,7 @@ public class SysBbsBoard extends Common {
 
     // 검색용 필드
     @Transient
-    private String _title;
+    private String _ttl;
     @Transient
-    private String _content;
+    private String _cn;
 }

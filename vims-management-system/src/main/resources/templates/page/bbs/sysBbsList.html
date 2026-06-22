@@ -99,7 +99,7 @@
           <div class="gi-span-container gi-flex-1">
             <span class="gi-span-label"
               data-focus-label="true">[Page.Message].Message.Label.Array["SYS_BBS.BBS_MANAGER"]</span>
-            <span data-field="bbs_manager" class="gi-span" data-focus-span-text-align="default"></span>
+            <span data-field="bbs_mngr" class="gi-span" data-focus-span-text-align="default"></span>
           </div>
         </div>
 
@@ -107,7 +107,7 @@
           <div class="gi-span-container gi-flex-1">
             <span class="gi-span-label"
               data-focus-label="true">[Page.Message].Message.Label.Array["SYS_BBS.FILE_YN"]</span>
-            <span data-field="file_yn" class="gi-span" data-focus-span-text-align="default"></span>
+            <span data-field="file_atch_yn" class="gi-span" data-focus-span-text-align="default"></span>
           </div>
         </div>
 
@@ -115,7 +115,7 @@
           <div class="gi-span-container gi-flex-1">
             <span class="gi-span-label"
               data-focus-label="true">[Page.Message].Message.Label.Array["SYS_BBS.REPLY_YN"]</span>
-            <span data-field="reply_yn" class="gi-span" data-focus-span-text-align="default"></span>
+            <span data-field="cmnt_yn" class="gi-span" data-focus-span-text-align="default"></span>
           </div>
         </div>
 
@@ -167,7 +167,7 @@
               <div class="gi-flex gi-grid-gap-5px">
                 <label for="register_p_menu_cd" class="gi-input-label" data-focus-label="true"
                   data-required="true">[Page.Message].Message.Label.Array["SYS_BBS.P_MENU_CD"]</label>
-                <input data-disabled data-field="p_menu_cd" id="register_p_menu_cd" name="p_menu_cd"
+                <input data-disabled data-field="up_menu_cd" id="register_p_menu_cd" name="up_menu_cd"
                   class="gi-input gi-flex-1" data-required="true" autocomplete="off" />
               </div>
             </div>
@@ -181,7 +181,7 @@
             <div class="gi-input-container gi-flex-1">
               <label for="register_bbs_manager" class="gi-input-label" data-focus-label="true"
                 data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.BBS_MANAGER"]</label>
-              <input data-disabled data-field="bbs_manager" id="register_bbs_manager" name="bbs_manager"
+              <input data-disabled data-field="bbs_mngr" id="register_bbs_manager" name="bbs_mngr"
                 class="gi-input" data-required="false" autocomplete="off" />
             </div>
             <div class="gi-flex gi-grid-gap-5px">
@@ -193,14 +193,14 @@
           <div class="gi-flex gi-grid-gap-16px">
             <div class="gi-flex-1 gi-flex gi-flex-align-items-center gi-grid-gap-20px gi-padding-top-10px">
               <div class="gi-flex gi-flex-align-items-center gi-grid-gap-10px">
-                <input data-field="file_yn" type="toggle" id="register_file_yn" name="file_yn" class="gi-input"
+                <input data-field="file_atch_yn" type="toggle" id="register_file_yn" name="file_atch_yn" class="gi-input"
                   data-required="false" autocomplete="off" />
                 <label for="register_file_yn" class="label-checkbox"
                   data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.FILE_YN"]</label>
               </div>
 
               <div class="gi-flex gi-flex-align-items-center gi-grid-gap-10px">
-                <input data-field="reply_yn" type="toggle" id="register_reply_yn" name="reply_yn" class="gi-input"
+                <input data-field="cmnt_yn" type="toggle" id="register_reply_yn" name="cmnt_yn" class="gi-input"
                   data-required="false" autocomplete="off" />
                 <label for="register_reply_yn" class="label-checkbox"
                   data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.REPLY_YN"]</label>
@@ -269,7 +269,7 @@
               <div class="gi-flex gi-grid-gap-5px">
                 <label for="update_p_menu_cd" class="gi-input-label" data-focus-label="true"
                   data-required="true">[Page.Message].Message.Label.Array["SYS_MENU.TOP_MENU_CD"]</label>
-                <input data-disabled data-field="p_menu_cd" id="update_p_menu_cd" name="p_menu_cd"
+                <input data-disabled data-field="up_menu_cd" id="update_p_menu_cd" name="up_menu_cd"
                   class="gi-input gi-flex-1" data-required="true" readonly autocomplete="off" />
               </div>
             </div>
@@ -283,7 +283,7 @@
             <div class="gi-input-container gi-flex-1">
               <label for="update_bbs_manager" class="gi-input-label" data-focus-label="true"
                 data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.BBS_MANAGER"]</label>
-              <input data-disabled data-field="bbs_manager" id="update_bbs_manager" name="update_bbs_manager"
+              <input data-disabled data-field="bbs_mngr" id="update_bbs_manager" name="update_bbs_manager"
                 class="gi-input" data-required="false" autocomplete="off" />
             </div>
             <div class="gi-flex gi-grid-gap-5px">
@@ -294,11 +294,11 @@
 
           <div class="gi-flex gi-grid-gap-16px">
             <div class="gi-flex gi-flex-align-items-center gi-grid-gap-10px gi-flex-1 gi-padding-top-10px">
-              <input data-field="file_yn" id="update_file_yn" type="toggle" name="update_file_yn" class="gi-input"
+              <input data-field="file_atch_yn" id="update_file_yn" type="toggle" name="update_file_yn" class="gi-input"
                 data-required="false" autocomplete="off" />
               <label for="update_file_yn" class="label-checkbox" data-focus-label="true"
                 data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.FILE_YN"]</label>
-              <input data-field="reply_yn" id="update_reply_yn" type="toggle" name="update_reply_yn" class="gi-input"
+              <input data-field="cmnt_yn" id="update_reply_yn" type="toggle" name="update_reply_yn" class="gi-input"
                 data-required="false" autocomplete="off" />
               <label for="update_reply_yn" class="label-checkbox" data-focus-label="true"
                 data-required="false">[Page.Message].Message.Label.Array["SYS_BBS.REPLY_YN"]</label>
@@ -561,10 +561,10 @@
             { HEADER: Message.Label.Array["SYS_BBS.BBS_MST_ID"], ID: 'bbs_mst_id', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
             { HEADER: Message.Label.Array["SYS_BBS.BBS_ID"], ID: 'bbs_id', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
             { HEADER: Message.Label.Array["SYS_BBS.BBS_NM"], ID: 'bbs_nm', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-            { HEADER: Message.Label.Array["SYS_BBS.BBS_MANAGER"], ID: 'bbs_manager', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-            { HEADER: Message.Label.Array["SYS_BBS.FILE_YN"], ID: 'file_yn', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-            { HEADER: Message.Label.Array["SYS_BBS.REPLY_YN"], ID: 'reply_yn', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-            { HEADER: Message.Label.Array["SYS_BBS.P_MENU_CD"], ID: 'p_menu_cd', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+            { HEADER: Message.Label.Array["SYS_BBS.BBS_MANAGER"], ID: 'bbs_mngr', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+            { HEADER: Message.Label.Array["SYS_BBS.FILE_YN"], ID: 'file_atch_yn', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+            { HEADER: Message.Label.Array["SYS_BBS.REPLY_YN"], ID: 'cmnt_yn', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+            { HEADER: Message.Label.Array["SYS_BBS.P_MENU_CD"], ID: 'up_menu_cd', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
             { HEADER: Message.Label.Array["SYS_BBS.BBS_TYPE"], ID: 'bbs_type', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
             { HEADER: Message.Label.Array["SYS_BBS.SYS_CRT_USR_ID"], ID: 'sys_crt_usr_id', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
             { HEADER: Message.Label.Array["SYS_BBS.SYS_CRT_DT"], ID: 'sys_crt_dt', WIDTH: '40', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
@@ -656,10 +656,10 @@
         bbs_mst_id: currentBbsMstId, // Force use current context ID
         bbs_type: data.bbs_type,
         bbs_nm: data.bbs_nm,
-        bbs_manager: data.bbs_manager,
-        file_yn: data.file_yn,
-        reply_yn: data.reply_yn,
-        p_menu_cd: data.p_menu_cd
+        bbs_mngr: data.bbs_mngr,
+        file_atch_yn: data.file_atch_yn,
+        cmnt_yn: data.cmnt_yn,
+        up_menu_cd: data.up_menu_cd
       };
       axios.post(url, param).then(response => {
         let status = response.status;
@@ -694,10 +694,10 @@
         bbs_id: data.bbs_id,
         bbs_type: data.bbs_type,
         bbs_nm: data.bbs_nm,
-        bbs_manager: data.bbs_manager,
-        file_yn: data.file_yn,
-        reply_yn: data.reply_yn,
-        p_menu_cd: data.p_menu_cd
+        bbs_mngr: data.bbs_mngr,
+        file_atch_yn: data.file_atch_yn,
+        cmnt_yn: data.cmnt_yn,
+        up_menu_cd: data.up_menu_cd
       };
       axios.post(url, param).then(response => {
         let status = response.status;
@@ -723,9 +723,9 @@
       bbs_mst_id: data.bbs_mst_id,
       bbs_id: data.bbs_id,
       bbs_nm: data.bbs_nm,
-      bbs_manager: data.bbs_manager,
-      file_yn: data.file_yn,
-      reply_yn: data.reply_yn
+      bbs_mngr: data.bbs_mngr,
+      file_atch_yn: data.file_atch_yn,
+      cmnt_yn: data.cmnt_yn
     };
     axios.post(url, param).then(response => {
       let status = response.status;
