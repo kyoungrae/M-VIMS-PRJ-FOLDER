@@ -266,23 +266,8 @@ html {
     z-index: 3;
 }
 
-.gi-side-nav-menu-item.child.gi-side-nav-active-path:not(.gi-side-nav-active-current)::before {
-    height: 20px;
-}
-
 .gi-side-nav-menu-level:last-child>.gi-side-nav-menu-item.child.gi-side-nav-active-current:last-child::before {
     height: 50%;
-}
-
-.gi-side-nav-menu-item.child.gi-side-nav-active-path:not(.gi-side-nav-active-current)>ul.gi-side-nav-menu-level::before {
-    content: "";
-    position: absolute;
-    top: -20px;
-    left: 0;
-    width: var(--gi-side-nav-line-size, 2px);
-    height: 20px;
-    background-color: var(--gi-side-nav-active-color, #6f5cf6);
-    z-index: 1;
 }
 
 
