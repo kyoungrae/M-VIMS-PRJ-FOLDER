@@ -263,8 +263,8 @@ html {
     background: linear-gradient(
         to bottom,
         var(--gi-side-nav-active-color, #6f5cf6) 0,
-        var(--gi-side-nav-active-color, #6f5cf6) 20px,
-        var(--gi-side-nav-line-color, #4a4a4c) 20px,
+        var(--gi-side-nav-active-color, #6f5cf6) calc(var(--gi-side-nav-row-joint-y, 20px) + var(--gi-side-nav-line-size, 2px)),
+        var(--gi-side-nav-line-color, #4a4a4c) calc(var(--gi-side-nav-row-joint-y, 20px) + var(--gi-side-nav-line-size, 2px)),
         var(--gi-side-nav-line-color, #4a4a4c) 100%
     );
 }
@@ -273,14 +273,15 @@ html {
     background: linear-gradient(
         to bottom,
         var(--gi-side-nav-active-color, #6f5cf6) 0,
-        var(--gi-side-nav-active-color, #6f5cf6) 50%,
-        var(--gi-side-nav-line-color, #4a4a4c) 50%,
+        var(--gi-side-nav-active-color, #6f5cf6) calc(50% + var(--gi-side-nav-line-half-size, 1px)),
+        var(--gi-side-nav-line-color, #4a4a4c) calc(50% + var(--gi-side-nav-line-half-size, 1px)),
         var(--gi-side-nav-line-color, #4a4a4c) 100%
     );
 }
 
 .gi-side-nav-menu-item.child.gi-side-nav-active-current::after {
-    top: calc(50% - 1px);
+    top: 50%;
+    transform: translateY(-50%);
     width: calc(var(--gi-side-nav-page-offset, 10px) + var(--gi-side-nav-line-size, 2px));
     z-index: 3;
 }
@@ -362,8 +363,10 @@ html {
 :root {
     --gi-side-nav-width: 14%;
     --gi-side-nav-line-size: 2px;
+    --gi-side-nav-line-half-size: 1px;
     --gi-side-nav-level-indent: 20px;
     --gi-side-nav-page-offset: 10px;
+    --gi-side-nav-row-joint-y: 20px;
     --gi-side-nav-line-color: #4a4a4c;
     --gi-side-nav-active-color: #6f5cf6;
 }
