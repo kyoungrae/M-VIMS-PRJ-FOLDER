@@ -251,13 +251,32 @@ html {
     height: 20px;
 }
 
-.gi-side-nav-menu-item.child.gi-side-nav-active-path::before,
 .gi-side-nav-menu-item.child.gi-side-nav-active-path::after {
-    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+    background: var(--gi-side-nav-active-color, #6f5cf6);
 }
 
 .gi-side-nav-menu-item.child.gi-side-nav-active-branch::before {
-    background-color: var(--gi-side-nav-active-color, #6f5cf6);
+    background: var(--gi-side-nav-active-color, #6f5cf6);
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-path:not(.gi-side-nav-active-current)::before {
+    background: linear-gradient(
+        to bottom,
+        var(--gi-side-nav-active-color, #6f5cf6) 0,
+        var(--gi-side-nav-active-color, #6f5cf6) 20px,
+        var(--gi-side-nav-line-color, #4a4a4c) 20px,
+        var(--gi-side-nav-line-color, #4a4a4c) 100%
+    );
+}
+
+.gi-side-nav-menu-item.child.gi-side-nav-active-current::before {
+    background: linear-gradient(
+        to bottom,
+        var(--gi-side-nav-active-color, #6f5cf6) 0,
+        var(--gi-side-nav-active-color, #6f5cf6) 50%,
+        var(--gi-side-nav-line-color, #4a4a4c) 50%,
+        var(--gi-side-nav-line-color, #4a4a4c) 100%
+    );
 }
 
 .gi-side-nav-menu-item.child.gi-side-nav-active-current::after {
@@ -268,6 +287,7 @@ html {
 
 .gi-side-nav-menu-level:last-child>.gi-side-nav-menu-item.child.gi-side-nav-active-current:last-child::before {
     height: 50%;
+    background: var(--gi-side-nav-active-color, #6f5cf6);
 }
 
 
