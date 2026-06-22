@@ -1,0 +1,375 @@
+<article class="gi-control-dashboard gi-row-100 gi-col-100">
+    <header class="gi-control-dashboard-header">
+        <div class="gi-control-title-group">
+            <h1>통합 관제 센터</h1>
+            <div class="gi-control-tabs" role="tablist" aria-label="업무 구분">
+                <button type="button" class="gi-control-tab active" data-home-tab="register" role="tab"
+                    aria-selected="true">
+                    <i class="fa-regular fa-clipboard"></i>
+                    <span>등록 업무</span>
+                </button>
+                <button type="button" class="gi-control-tab" data-home-tab="inspection" role="tab"
+                    aria-selected="false">
+                    <i class="fa-solid fa-car-side"></i>
+                    <span>검사 업무</span>
+                </button>
+            </div>
+        </div>
+        <div class="gi-control-toolbar">
+            <label class="gi-control-select">
+                <i class="fa-regular fa-building"></i>
+                <select aria-label="지점 선택">
+                    <option>전체 지점 (8)</option>
+                    <option>울란바토르 1센터</option>
+                    <option>울란바토르 2센터</option>
+                    <option>다르항 지점</option>
+                </select>
+            </label>
+            <time datetime="2026-06-22T14:30">2026-06-22 14:30</time>
+            <button type="button" class="gi-control-more" aria-label="추가 메뉴">
+                <i class="fa-solid fa-ellipsis"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="gi-control-tab-panel active" data-home-panel="register" role="tabpanel">
+        <div class="gi-control-metric-grid">
+            <article class="gi-control-metric-card">
+                <span>오늘 등록 처리</span>
+                <strong>386<small>건</small></strong>
+                <em class="positive">완료 312 · 진행 74</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>처리 대기</span>
+                <strong>74<small>건</small></strong>
+                <em class="warning">접수 대기 41</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>평균 처리시간</span>
+                <strong>9<small>분</small></strong>
+                <em class="positive">어제 대비 -1분</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>보완 / 반려</span>
+                <strong class="danger">18<small>건</small></strong>
+                <em>서류 미비 12</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>발급 완료</span>
+                <strong>298<small>건</small></strong>
+                <em>번호판 등록중</em>
+            </article>
+        </div>
+
+        <div class="gi-control-content-grid">
+            <section class="gi-control-panel">
+                <div class="gi-control-section-title">
+                    <h2>등록 유형별 처리</h2>
+                </div>
+                <div class="gi-control-progress-list">
+                    <div class="gi-control-progress-item" style="--progress-value: 37%;">
+                        <div>
+                            <span>신규 등록</span>
+                            <strong>142건 · 37%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 31%;">
+                        <div>
+                            <span>이전 등록</span>
+                            <strong>118건 · 31%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 22%;">
+                        <div>
+                            <span>변경 등록</span>
+                            <strong>84건 · 22%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 10%;">
+                        <div>
+                            <span>말소 등록</span>
+                            <strong>42건 · 10%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gi-control-panel">
+                <div class="gi-control-section-title">
+                    <h2>처리 단계별 현황</h2>
+                    <span>실시간</span>
+                </div>
+                <ol class="gi-control-step-list">
+                    <li>
+                        <strong>41</strong>
+                        <span>접수</span>
+                    </li>
+                    <li>
+                        <strong>23</strong>
+                        <span>서류심사</span>
+                    </li>
+                    <li>
+                        <strong>10</strong>
+                        <span>승인</span>
+                    </li>
+                    <li>
+                        <strong>298</strong>
+                        <span>발급완료</span>
+                    </li>
+                </ol>
+                <div class="gi-control-action-row">
+                    <button type="button">
+                        <i class="fa-regular fa-square-plus"></i>
+                        <span>신규 접수</span>
+                    </button>
+                    <button type="button">
+                        <i class="fa-regular fa-clipboard"></i>
+                        <span>서류 심사</span>
+                    </button>
+                    <button type="button">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>발급 관리</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <section class="gi-control-panel gi-control-table-panel">
+            <div class="gi-control-section-title">
+                <h2>지점별 등록 현황</h2>
+                <button type="button">
+                    <span>지점 관리</span>
+                    <i class="fa-solid fa-angle-right"></i>
+                </button>
+            </div>
+            <div class="gi-control-table-scroll">
+                <table class="gi-control-table">
+                    <thead>
+                        <tr>
+                            <th>지점</th>
+                            <th>접수</th>
+                            <th>처리완료</th>
+                            <th>대기</th>
+                            <th>보완</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>울란바토르 1센터</td>
+                            <td>112</td>
+                            <td>88</td>
+                            <td>24</td>
+                            <td>6</td>
+                            <td><span class="gi-control-badge warning">주의</span></td>
+                        </tr>
+                        <tr>
+                            <td>울란바토르 2센터</td>
+                            <td>86</td>
+                            <td>79</td>
+                            <td>7</td>
+                            <td>3</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                        <tr>
+                            <td>다르항 지점</td>
+                            <td>64</td>
+                            <td>61</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                        <tr>
+                            <td>에르데넷 지점</td>
+                            <td>58</td>
+                            <td>44</td>
+                            <td>14</td>
+                            <td>7</td>
+                            <td><span class="gi-control-badge danger">지연</span></td>
+                        </tr>
+                        <tr>
+                            <td>초이발산 지점</td>
+                            <td>46</td>
+                            <td>40</td>
+                            <td>6</td>
+                            <td>0</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+
+    <section class="gi-control-tab-panel" data-home-panel="inspection" role="tabpanel">
+        <div class="gi-control-metric-grid">
+            <article class="gi-control-metric-card">
+                <span>오늘 총 검사</span>
+                <strong>1,042<small>건</small></strong>
+                <em class="positive">목표 대비 78%</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>전체 합격률</span>
+                <strong class="success">84.3<small>%</small></strong>
+                <em>불합격 164건</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>평균 처리시간</span>
+                <strong>17<small>분</small></strong>
+                <em class="warning">어제 대비 +2분</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>가동 검사라인</span>
+                <strong>31<small>/34</small></strong>
+                <em class="danger">점검중 3</em>
+            </article>
+            <article class="gi-control-metric-card">
+                <span>대기 차량</span>
+                <strong>147<small>대</small></strong>
+                <em class="warning">혼잡 지점 2곳</em>
+            </article>
+        </div>
+
+        <div class="gi-control-content-grid">
+            <section class="gi-control-panel">
+                <div class="gi-control-section-title">
+                    <h2>시간대별 검사량</h2>
+                    <span>09 - 18시</span>
+                </div>
+                <div class="gi-control-bar-chart" aria-label="시간대별 검사량">
+                    <div style="--bar-value: 48%;"><span></span><em>09</em></div>
+                    <div style="--bar-value: 66%;"><span></span><em>10</em></div>
+                    <div style="--bar-value: 82%;"><span></span><em>11</em></div>
+                    <div style="--bar-value: 52%;"><span></span><em>12</em></div>
+                    <div class="active" style="--bar-value: 96%;"><span></span><em>13</em></div>
+                    <div style="--bar-value: 84%;"><span></span><em>14</em></div>
+                    <div style="--bar-value: 60%;"><span></span><em>15</em></div>
+                    <div style="--bar-value: 42%;"><span></span><em>16</em></div>
+                    <div style="--bar-value: 34%;"><span></span><em>17</em></div>
+                </div>
+            </section>
+
+            <section class="gi-control-panel">
+                <div class="gi-control-section-title">
+                    <h2>불합격 사유 TOP</h2>
+                </div>
+                <div class="gi-control-progress-list">
+                    <div class="gi-control-progress-item" style="--progress-value: 38%;">
+                        <div>
+                            <span>배출가스</span>
+                            <strong>38%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 27%;">
+                        <div>
+                            <span>제동력</span>
+                            <strong>27%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 19%;">
+                        <div>
+                            <span>전조등</span>
+                            <strong>19%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                    <div class="gi-control-progress-item" style="--progress-value: 16%;">
+                        <div>
+                            <span>타이어/하체</span>
+                            <strong>16%</strong>
+                        </div>
+                        <i></i>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="gi-control-panel gi-control-table-panel">
+            <div class="gi-control-section-title">
+                <h2>지점별 운영 현황</h2>
+                <button type="button">
+                    <span>지점 관리</span>
+                    <i class="fa-solid fa-angle-right"></i>
+                </button>
+            </div>
+            <div class="gi-control-table-scroll">
+                <table class="gi-control-table">
+                    <thead>
+                        <tr>
+                            <th>지점</th>
+                            <th>가동 라인</th>
+                            <th>오늘 검사</th>
+                            <th>합격률</th>
+                            <th>대기</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>울란바토르 1센터</td>
+                            <td>6/6</td>
+                            <td>241</td>
+                            <td>86%</td>
+                            <td>52</td>
+                            <td><span class="gi-control-badge warning">혼잡</span></td>
+                        </tr>
+                        <tr>
+                            <td>울란바토르 2센터</td>
+                            <td>5/5</td>
+                            <td>198</td>
+                            <td>83%</td>
+                            <td>21</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                        <tr>
+                            <td>다르항 지점</td>
+                            <td>4/4</td>
+                            <td>156</td>
+                            <td>88%</td>
+                            <td>14</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                        <tr>
+                            <td>에르데넷 지점</td>
+                            <td>3/4</td>
+                            <td>132</td>
+                            <td>81%</td>
+                            <td>38</td>
+                            <td><span class="gi-control-badge danger">점검</span></td>
+                        </tr>
+                        <tr>
+                            <td>초이발산 지점</td>
+                            <td>3/3</td>
+                            <td>115</td>
+                            <td>85%</td>
+                            <td>9</td>
+                            <td><span class="gi-control-badge success">정상</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</article>
+
+<script>
+    (function () {
+        let $dashboard = $(".gi-control-dashboard");
+        $dashboard.find("[data-home-tab]").off("click.giHomeTab").on("click.giHomeTab", function () {
+            let $tab = $(this);
+            let tabName = $tab.data("home-tab");
+
+            $dashboard.find("[data-home-tab]").removeClass("active").attr("aria-selected", "false");
+            $tab.addClass("active").attr("aria-selected", "true");
+
+            $dashboard.find("[data-home-panel]").removeClass("active");
+            $dashboard.find("[data-home-panel='" + tabName + "']").addClass("active");
+        });
+    })();
+</script>

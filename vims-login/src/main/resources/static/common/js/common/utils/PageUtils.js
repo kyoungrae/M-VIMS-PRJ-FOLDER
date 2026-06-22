@@ -2,7 +2,7 @@
  * @title : 현재 화면 정보 저장 (브라우저 새로고침 복원용)
  */
 FormUtility.prototype.saveCurrentPage = function (reqUrl, prefixUrl) {
-    if (!reqUrl || reqUrl === "/index/index" || reqUrl === "/") {
+    if (!reqUrl || reqUrl === "/") {
         return;
     }
     const pageInfo = { url: reqUrl };
@@ -32,7 +32,12 @@ FormUtility.prototype.restoreCurrentPageContent = function () {
     }
 
     const url = currentPageItem.url;
-    if (url === "/index/index" || url === "/") {
+    if (url === "/") {
+        return;
+    }
+
+    if (url === "/index/index") {
+        this.loadContent(url, "");
         return;
     }
 
@@ -84,9 +89,6 @@ FormUtility.prototype.activatedMenu = function (reqUrl) {
         }
         sessionStorage.setItem("activatedMenu", JSON.stringify(activatedMenuInfo));
 
-        // [중요] 전체 리셋 제거: 기존에 활성화된 페이지 아이템만 클래스 제거
-        $("#side_nav_menu .active.page").removeClass("active page");
-
         if (formUtil.checkEmptyValue(reqUrl) && reqUrl !== "/index/index" && reqUrl !== "/common/myinfo") {
             let $activatedMenu;
 
@@ -115,11 +117,11 @@ FormUtility.prototype.activatedMenu = function (reqUrl) {
                     let $topLi = $(this);
                     if (!$targetLiPath.is($topLi)) {
                         $topLi.find("a.gi-side-nav-title.active").removeClass("active").addClass("collapsed");
-                        $topLi.find("ul.gi-side-nav-menu-level:visible").stop(true).slideUp(250);
+                        $topLi.find("ul.gi-side-nav-menu-level:visible").stop(true, true).slideUp(250);
                     }
                 });
 
-                // 3. 페이지 하이라이트 정리 및 타겟 활성화
+                // 3. 타겟이 아닌 페이지 하이라이트만 정리하고 타겟은 유지
                 $("#side_nav_menu .active.page").not($activatedMenu).removeClass("active page");
                 $activatedMenu.addClass("active page");
 
@@ -134,7 +136,7 @@ FormUtility.prototype.activatedMenu = function (reqUrl) {
                     }
 
                     if ($targetSubmenu.length > 0 && !$targetSubmenu.is(":visible")) {
-                        $targetSubmenu.stop(true).slideDown(250);
+                        $targetSubmenu.stop(true, true).slideDown(250);
                     } else if ($targetSubmenu.length > 0) {
                         $targetSubmenu.show();
                     }

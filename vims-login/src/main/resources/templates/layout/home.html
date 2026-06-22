@@ -69,7 +69,7 @@
                 </span>
             </div>
             <div class="gi-row-100 gi-side-nav-logo-area">
-                <a href="" id="gi-logo2" class="gi-side-nav-logo"></a>
+                <a href="#" id="gi-logo2" class="gi-side-nav-logo"></a>
             </div>
             <div class="gi-row-90">
                 <ul class="gi-ul gi-flex gi-flex-justify-content-space-evenly" id="menu">
@@ -223,6 +223,14 @@
         });
     }
     function layoutClickEvent() {
+        $("#gi-logo2").off("click.giHomeDashboard").on("click.giHomeDashboard", function (e) {
+            e.preventDefault();
+            common_session.setItem("recentPage", { url: "/index/index" });
+            common_session.setItem("activatedMenu", { url: "/index/index" });
+            allCloseMenuTitle();
+            formUtil.loadContent("/index/index", "");
+        });
+
         /**
          * NOTE: 프로필 사이드네비 OPEN
          * */
