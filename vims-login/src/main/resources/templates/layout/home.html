@@ -503,7 +503,7 @@
                     $("#side_nav_menu > li").not($currentTopLi).each(function () {
                         let $otherTopLi = $(this);
                         $otherTopLi.find("a.gi-side-nav-title.active").removeClass("active").addClass("collapsed");
-                        $otherTopLi.find("ul.gi-side-nav-menu-level:visible").stop(true).slideUp(250);
+                        $otherTopLi.find("ul.gi-side-nav-menu-level:visible").stop(true, true).slideUp(250);
                     });
 
                     // 2. 현재 브랜치 내의 다른 페이지 하이라이트만 정리 (카테고리는 유지)
@@ -522,14 +522,14 @@
                     formUtil.apiLoadContent(prgmUrl, url, payload);
                 } else {
                     // 카테고리(서브메뉴) 펼침 동작 - 다른 같은 레벨의 서브메뉴만 부드럽게 닫기
-                    $this.closest("ul").children("li").find("ul.gi-side-nav-menu-level:visible").not($currentSubMenu).stop(true).slideUp(250);
+                    $this.closest("ul").children("li").find("ul.gi-side-nav-menu-level:visible").not($currentSubMenu).stop(true, true).slideUp(250);
                     $this.closest("ul").children("li").find("a.gi-side-nav-title.active")
                         .not($this)
                         .not(".sideNavPageLoad.page")
                         .removeClass("active")
                         .addClass("collapsed");
 
-                    $currentSubMenu.stop(true).slideDown(250);
+                    $currentSubMenu.stop(true, true).slideDown(250);
                     $this.removeClass("collapsed").addClass("active");
                     restoreActivePageBranch($this.parent("li"));
                 }
@@ -597,27 +597,36 @@
     }
     function syncSideNavActivePath() {
         let $sideNavMenu = $("#side_nav_menu");
-        $sideNavMenu.find(".gi-side-nav-active-path, .gi-side-nav-active-branch, .gi-side-nav-active-current")
-            .removeClass("gi-side-nav-active-path gi-side-nav-active-branch gi-side-nav-active-current");
 
         let $activePage = $sideNavMenu.find(".gi-side-nav-title.active.page").last();
         if ($activePage.length === 0) {
-            $activePage = $sideNavMenu.find(".gi-side-nav-title.page").last().addClass("active");
+            $activePage = $sideNavMenu.find(".gi-side-nav-title.page").last();
+            if ($activePage.length > 0) {
+                $activePage.addClass("active");
+            }
         }
         let $activeLi = $activePage.closest("li.gi-side-nav-menu-item.child");
-        if ($activeLi.length === 0) return;
-
-        function markPreviousActiveBranches($pathLi) {
-            $pathLi.prevAll("li.gi-side-nav-menu-item.child").addClass("gi-side-nav-active-branch");
+        if ($activeLi.length === 0) {
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-path", $());
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-branch", $());
+            syncSideNavClass($sideNavMenu, "gi-side-nav-active-current", $());
+            return;
         }
 
-        $activeLi.addClass("gi-side-nav-active-path gi-side-nav-active-current");
-        markPreviousActiveBranches($activeLi);
-        $activeLi.parents("li.gi-side-nav-menu-item.child").each(function () {
-            let $pathLi = $(this);
-            $pathLi.addClass("gi-side-nav-active-path");
-            markPreviousActiveBranches($pathLi);
+        let $pathItems = $activeLi.add($activeLi.parents("li.gi-side-nav-menu-item.child"));
+        let $branchItems = $();
+
+        $pathItems.each(function () {
+            $branchItems = $branchItems.add($(this).prevAll("li.gi-side-nav-menu-item.child"));
         });
+
+        syncSideNavClass($sideNavMenu, "gi-side-nav-active-path", $pathItems);
+        syncSideNavClass($sideNavMenu, "gi-side-nav-active-branch", $branchItems);
+        syncSideNavClass($sideNavMenu, "gi-side-nav-active-current", $activeLi);
+    }
+    function syncSideNavClass($root, className, $targets) {
+        $root.find("." + className).not($targets).removeClass(className);
+        $targets.not("." + className).addClass(className);
     }
     function existsNavSelected() {
         let recentPageItem = common_session.getItem("recentPage");

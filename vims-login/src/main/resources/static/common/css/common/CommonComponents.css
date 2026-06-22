@@ -230,7 +230,6 @@ html {
     width: var(--gi-side-nav-line-size, 2px);
     height: calc(100% + 5px);
     background-color: var(--gi-side-nav-line-color, #4a4a4c);
-    transition: background-color 0.3s ease;
     z-index: 1;
 }
 
@@ -243,7 +242,6 @@ html {
     width: calc(var(--gi-side-nav-page-offset, 10px) + 1px);
     height: var(--gi-side-nav-line-size, 2px);
     background-color: var(--gi-side-nav-line-color, #4a4a4c);
-    transition: background-color 0.3s ease;
     z-index: 0;
 }
 
