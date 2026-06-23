@@ -172,14 +172,14 @@ body::after {
     display: flex !important;
     align-items: flex-end !important;
     justify-content: flex-end !important;
-    padding: 60px !important;
+    padding: 80px !important;
 }
 
 .gi-login-nav2::before {
-    content: 'MVIMS';
-    font-size: 5rem;
+    content: 'M-VIMS';
+    font-size: 3rem;
     font-weight: 950;
-    color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.2);
     letter-spacing: 25px;
     pointer-events: none;
 }

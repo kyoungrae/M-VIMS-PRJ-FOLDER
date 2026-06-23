@@ -4,6 +4,35 @@
         font-size: 0.8rem;
         color: #888888;
     }
+
+    /* 인증번호 전송 시 작은 로딩 오버레이 (중복 클릭 방지 겸용) */
+    #smallLoadingOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.12);
+    }
+
+    #smallLoadingOverlay .small-loading-spinner {
+        width: 44px;
+        height: 44px;
+        border: 4px solid #e5e5e5;
+        border-top-color: #0071e3;
+        border-radius: 50%;
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        animation: smallLoadingSpin 0.8s linear infinite;
+    }
+
+    @keyframes smallLoadingSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 <html lang="en">
 
@@ -157,21 +186,21 @@
                 <form id="loginPageAuthenticationForm" class="gi-row-100">
                     <div class="gi-article-content gi-margin-bottom-30px" style="padding:15px !important;">
                         <div class="gi-flex gi-flex-column gi-grid-gap-16px">
-                            <!-- 이메일 입력 + 인증코드 전송 -->
-                            <div class="gi-flex gi-grid-gap-10px gi-flex-align-items-center">
-                                <div class="gi-input-container gi-flex-1">
+                            <!-- 이메일 입력 + 인증코드 전송 (버튼은 입력칸 아래 배치: 다국어 텍스트 길이 대응) -->
+                            <div class="gi-flex gi-flex-column gi-grid-gap-10px">
+                                <div class="gi-input-container">
                                     <label for="authenticationTarget" class="gi-input-label" data-focus-label="false"
                                         data-required="true">[Page.Message].Message.Label.Array["EMAIL"]</label>
                                     <input data-field="authenticationTarget" id="authenticationTarget"
                                         name="authenticationTarget" class="gi-input" data-required="true"
                                         autocomplete="off" />
                                 </div>
-                                <button id="send-number-btn" class="gi-btn-blue" type="button"
+                                <button id="send-number-btn" class="gi-btn-blue gi-col-100" type="button"
                                     style="white-space:nowrap;">[Page.Message].Message.Label.Array["LOGIN.SEND_VERIFICATION_CODE"]</button>
                             </div>
-                            <!-- 인증코드 입력 + 인증 확인 -->
-                            <div class="gi-flex gi-grid-gap-10px gi-flex-align-items-center">
-                                <div class="gi-input-container gi-flex-1">
+                            <!-- 인증코드 입력 + 인증 확인 (인증코드 전송 성공 후 노출) -->
+                            <div id="code-input-area" class="gi-flex gi-flex-column gi-grid-gap-10px gi-hidden">
+                                <div class="gi-input-container">
                                     <label for="authenticationNumber" class="gi-input-label" data-focus-label="false"
                                         data-required="true">[Page.Message].Message.Label.Array["LOGIN.VERIFICATION_CODE"]</label>
                                     <input data-field="authenticationNumber" id="authenticationNumber"
@@ -180,7 +209,7 @@
                                     <span class="authentication-timer"
                                         style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:tomato;font-size:12px;"></span>
                                 </div>
-                                <button id="number-check-btn" class="gi-btn" type="button"
+                                <button id="number-check-btn" class="gi-btn gi-col-100" type="button"
                                     style="white-space:nowrap;">[Page.Message].Message.Label.Array["LOGIN.CONFIRM_VERIFICATION_CODE"]</button>
                             </div>
                             <div class="authentication-check-message gi-hidden"
@@ -216,6 +245,7 @@
     let commonTag = new CommonTag();
     let authenticationNumber = null;
     let authenticationTimer = null;
+    let isSendingCode = false; // 인증번호 전송 요청 진행중 여부 (중복 클릭 방지)
     init();
     function init() {
         new loadToScript();
@@ -250,6 +280,14 @@
         $("#checkLogin").click(function () {
             if (formUtil.validationCheck("loginForm", "CHECK.")) {
                 login();
+            }
+        });
+        // 로그인 폼(이메일/비밀번호)에서 Enter 키 입력 시 로그인 버튼 클릭
+        // (재설정 슬라이드 패널 입력칸에는 영향 없도록 #loginForm 으로 범위 한정)
+        $("#loginForm").on("keydown", "input", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                $("#checkLogin").click();
             }
         });
         // NOTE: 슬라이드 패널 내용은 init 에서 DOM 이 재생성(이동)되므로
@@ -450,8 +488,20 @@
         return number.padStart(6, "0");
     }
 
+    // 작은 로딩 오버레이 표시/제거 (전송 중 중복 클릭 차단 겸용)
+    function showSmallLoading() {
+        if ($("#smallLoadingOverlay").length) return;
+        $("body").append('<div id="smallLoadingOverlay"><div class="small-loading-spinner"></div></div>');
+    }
+    function hideSmallLoading() {
+        $("#smallLoadingOverlay").remove();
+    }
+
     // 인증코드 전송: 서버에서 코드 생성 후 SMTP 발신 계정으로 메일 발송
     function sendAuthenticationEmail() {
+        // 진행중이면 중복 요청 차단
+        if (isSendingCode) return false;
+
         let email = $("#authenticationTarget").val();
         let timer = $(".authentication-timer");
 
@@ -460,12 +510,15 @@
             return false;
         }
 
+        isSendingCode = true;
+        showSmallLoading();
         $(".authentication-check-message").addClass("gi-hidden").removeClass("success").text("");
 
         let url = "/api/v1/auth/password/code/request";
         axios.post(url, { email: email }).then(response => {
             if (response.status === 200) {
-                // 인증코드 입력 활성화 + 3분 타이머 시작
+                // 인증코드 입력 영역 노출 + 3분 타이머 시작
+                $("#code-input-area").removeClass("gi-hidden");
                 timer.removeClass("hidden");
                 startCountdownTimer(180, timer, expiredMessage);
                 commonTag.tagDisabled(true, ['authenticationTarget', 'send-number-btn']);
@@ -474,6 +527,9 @@
         }).catch(error => {
             const errorData = error.response?.data;
             formUtil.toast(errorData || Message.Label.Array["LOGIN.FAIL_SEND_VERIFICATION_CODE"], "error");
+        }).finally(() => {
+            hideSmallLoading();
+            isSendingCode = false;
         });
     }
 
@@ -555,6 +611,9 @@
         // 입력된 인증정보 초기화
         $("#authenticationTarget").val("");
         $("#authenticationNumber").val("");
+
+        // 인증코드 입력 영역 재숨김 (재전송 전까지 비노출)
+        $("#code-input-area").addClass("gi-hidden");
 
         // 비밀번호 초기화 폼 버튼 비활성화
         if (!initializeBtn.hasClass("gi-hidden")) initializeBtn.addClass("gi-hidden");
