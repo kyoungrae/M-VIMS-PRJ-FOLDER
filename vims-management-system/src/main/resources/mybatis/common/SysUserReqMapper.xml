@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vims.common.userreq.SysUserReqMapper">
+
+    <sql id="sortFilter">
+        ORDER BY
+        <choose>
+            <when test="sort_id != null and sort_order != null">
+                ${sort_id} ${sort_order}
+            </when>
+            <otherwise>
+                sys_gen_dt DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="reqColumns">
+        req_id,
+        user_id,
+        eml,
+        fnm,
+        telno,
+        role,
+        inst_cd,
+        (SELECT cd_nm FROM SYS_CD
+          WHERE grp_id = 'USER_REQ_STAT' AND cd_id = SYS_USER_REQ.stat_cd) AS stat_nm,
+        addr,
+        addr_dtl,
+        post_cd,
+        req_rsn,
+        stat_cd,
+        prc_usr_id,
+        prc_dt,
+        prc_rsn,
+        crt_user_seq,
+        sys_crt_usr_id,
+        sys_gen_dt   AS sys_crt_dt,
+        sys_mdfr_id  AS sys_upd_usr_id,
+        sys_mdfcn_dt AS sys_upd_dt
+    </sql>
+
+    <sql id="reqWhere">
+        <where>
+            <if test="req_id != null">AND req_id = #{req_id}</if>
+            <if test="user_id != null and user_id != ''">AND user_id = #{user_id}</if>
+            <if test="eml != null and eml != ''">AND eml = #{eml}</if>
+            <if test="stat_cd != null and stat_cd != ''">AND stat_cd = #{stat_cd}</if>
+            <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+
+            <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
+            <if test="_eml != null and _eml != ''">AND eml LIKE CONCAT('%', #{_eml}, '%')</if>
+            <if test="_fnm != null and _fnm != ''">AND fnm LIKE CONCAT('%', #{_fnm}, '%')</if>
+            <if test="_stat_cd != null and _stat_cd != ''">AND stat_cd LIKE CONCAT('%', #{_stat_cd}, '%')</if>
+            <if test="_sys_crt_usr_id != null and _sys_crt_usr_id != ''">AND sys_crt_usr_id LIKE CONCAT('%', #{_sys_crt_usr_id}, '%')</if>
+        </where>
+    </sql>
+
+    <select id="SELECT_PAGE" resultType="com.vims.common.userreq.SysUserReq">
+        SELECT
+            row_number() over (ORDER BY sys_gen_dt DESC) AS no,
+            <include refid="reqColumns"/>
+        FROM SYS_USER_REQ
+        <include refid="reqWhere"/>
+        <include refid="sortFilter"/>
+        LIMIT #{row_range} OFFSET #{offset}
+    </select>
+
+    <select id="SELECT_PAGING_TOTAL_NUMBER" resultType="int">
+        SELECT CEIL(COUNT(*) / #{row_range}) FROM SYS_USER_REQ
+        <include refid="reqWhere"/>
+    </select>
+
+    <select id="SELECT" resultType="com.vims.common.userreq.SysUserReq">
+        SELECT
+            <include refid="reqColumns"/>
+        FROM SYS_USER_REQ
+        <include refid="reqWhere"/>
+    </select>
+
+    <insert id="INSERT">
+        INSERT INTO SYS_USER_REQ (
+            req_id
+                <if test="user_id != null">, user_id</if>
+                <if test="eml != null">, eml</if>
+                <if test="fnm != null">, fnm</if>
+                <if test="telno != null">, telno</if>
+                <if test="role != null">, role</if>
+                <if test="inst_cd != null">, inst_cd</if>
+                <if test="addr != null">, addr</if>
+                <if test="addr_dtl != null">, addr_dtl</if>
+                <if test="post_cd != null">, post_cd</if>
+                <if test="req_rsn != null">, req_rsn</if>
+                <if test="stat_cd != null">, stat_cd</if>
+                <if test="sys_crt_usr_id != null">, sys_crt_usr_id</if>
+                , sys_gen_dt
+        ) VALUES (
+            #{req_id}
+                <if test="user_id != null">, #{user_id}</if>
+                <if test="eml != null">, #{eml}</if>
+                <if test="fnm != null">, #{fnm}</if>
+                <if test="telno != null">, #{telno}</if>
+                <if test="role != null">, #{role}</if>
+                <if test="inst_cd != null">, #{inst_cd}</if>
+                <if test="addr != null">, #{addr}</if>
+                <if test="addr_dtl != null">, #{addr_dtl}</if>
+                <if test="post_cd != null">, #{post_cd}</if>
+                <if test="req_rsn != null">, #{req_rsn}</if>
+                <if test="stat_cd != null">, #{stat_cd}</if>
+                <if test="sys_crt_usr_id != null">, #{sys_crt_usr_id}</if>
+                , NOW()
+        )
+    </insert>
+
+    <update id="UPDATE">
+        UPDATE SYS_USER_REQ
+        <set>
+            <if test="user_id != null and user_id != ''">, user_id = #{user_id}</if>
+            <if test="eml != null and eml != ''">, eml = #{eml}</if>
+            <if test="fnm != null and fnm != ''">, fnm = #{fnm}</if>
+            <if test="telno != null and telno != ''">, telno = #{telno}</if>
+            <if test="role != null and role != ''">, role = #{role}</if>
+            <if test="inst_cd != null and inst_cd != ''">, inst_cd = #{inst_cd}</if>
+            <if test="addr != null">, addr = #{addr}</if>
+            <if test="addr_dtl != null">, addr_dtl = #{addr_dtl}</if>
+            <if test="post_cd != null">, post_cd = #{post_cd}</if>
+            <if test="req_rsn != null">, req_rsn = #{req_rsn}</if>
+            <if test="stat_cd != null and stat_cd != ''">, stat_cd = #{stat_cd}</if>
+            <if test="prc_usr_id != null">, prc_usr_id = #{prc_usr_id}</if>
+            <if test="prc_dt != null">, prc_dt = #{prc_dt}</if>
+            <if test="prc_rsn != null">, prc_rsn = #{prc_rsn}</if>
+            <if test="crt_user_seq != null">, crt_user_seq = #{crt_user_seq}</if>
+            <if test="sys_upd_usr_id != null and sys_upd_usr_id != ''">, sys_mdfr_id = #{sys_upd_usr_id}</if>
+            , sys_mdfcn_dt = NOW()
+        </set>
+        <where>
+            AND req_id = #{req_id}
+        </where>
+    </update>
+
+    <delete id="DELETE">
+        DELETE FROM SYS_USER_REQ
+        <where>
+            AND req_id = #{req_id}
+        </where>
+    </delete>
+
+</mapper>
