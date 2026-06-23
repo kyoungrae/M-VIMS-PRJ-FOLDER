@@ -7,6 +7,16 @@
             <p class="gi-subtitle-main">사용자 정보를 관리하고 권한을 설정할 수 있습니다.</p>
         </header>
 
+        <!-- 탭: 사용자 목록 / 사용자 등록 신청 (공통 모던 언더라인 탭) -->
+        <div class="gi-padding-left-right-20px gi-margin-bottom-20px">
+            <ul id="user-tabs" class="gi-tabs-underline">
+                <li class="gi-tab gi-tab-active gi-flex gi-flex-justify-content-center gi-flex-align-items-center">사용자 목록</li>
+                <li class="gi-tab gi-flex gi-flex-justify-content-center gi-flex-align-items-center">사용자 등록 신청</li>
+            </ul>
+        </div>
+
+        <!-- 탭 패널 1: 사용자 목록 -->
+        <div id="tab-panel-user">
         <article>
             <!-- 검색기능 영역 -->
             <div id="search-area" class="gi-padding-left-right-20px gi-margin-bottom-30px">
@@ -53,7 +63,64 @@
             </div>
             <!--/     추가버튼 영역      -->
         </article>
+        </div><!-- /tab-panel-user -->
+
+        <!-- 탭 패널 2: 사용자 등록 신청 -->
+        <div id="tab-panel-req" class="gi-hidden">
+            <article>
+                <!-- 신청 검색 영역 -->
+                <div class="gi-padding-left-right-20px gi-margin-bottom-30px">
+                    <div class="gi-flex gi-flex-align-items-center gi-grid-gap-20px">
+                        <div class="gi-input-container" style="width: 200px;">
+                            <label for="req_search_stat_cd" class="gi-input-label" data-focus-label="true">상태</label>
+                            <input gi-selectbox data-selectbox-field="USER_REQ_STAT" class="gi-input"
+                                id="req_search_stat_cd" name="req_search_stat_cd" autocomplete="off" />
+                        </div>
+                        <div class="gi-input-container gi-flex-1">
+                            <label for="req_search_kw" class="gi-input-label" data-focus-label="true">아이디 / 이름</label>
+                            <input class="gi-input" type="text" id="req_search_kw" name="req_search_kw"
+                                autocomplete="off" />
+                        </div>
+                        <div class="gi-flex gi-grid-gap-10px">
+                            <button id="req-search-btn" class="gi-btn-blue" type="button">조회</button>
+                            <button id="req-reset-btn" class="gi-btn" type="button">초기화</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 신청 그리드 -->
+                <div class="gi-row-100 gi-padding-left-right-20px">
+                    <div id="reqUser_gi-Grid" class="gi-Grid"></div>
+                </div>
+            </article>
+        </div><!-- /tab-panel-req -->
     </section>
+</article>
+
+<!-- 신청 처리(승인/반려/취소) 팝업 -->
+<article id="userReqProcess_gi-popup" class="gi-popup" data-popup-open="false">
+    <div class="gi-popup-body" style="width: 460px;">
+        <div class="gi-popup-header"><span>신청 처리</span></div>
+        <div class="gi-popup-contents">
+            <div class="gi-flex gi-flex-column gi-grid-gap-8px gi-padding-20px"
+                style="background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;font-size:14px;">
+                <div><b>아이디</b> : <span id="prc-user_id"></span></div>
+                <div><b>이메일</b> : <span id="prc-eml"></span></div>
+                <div><b>이름</b> : <span id="prc-fnm"></span></div>
+                <div><b>상태</b> : <span id="prc-stat_nm"></span></div>
+                <div><b>신청자</b> : <span id="prc-crtr"></span></div>
+            </div>
+            <div class="gi-input-container gi-margin-top-12px">
+                <label for="prc_rsn" class="gi-input-label" data-focus-label="true">처리 사유 (반려/취소 시 입력)</label>
+                <input id="prc_rsn" name="prc_rsn" class="gi-input" autocomplete="off" />
+            </div>
+        </div>
+        <div class="gi-popup-footer">
+            <button id="prc-approve-btn" class="gi-btn-blue" type="button">승인</button>
+            <button id="prc-reject-btn" class="gi-btn-red" type="button">반려</button>
+            <button id="prc-cancel-btn" class="gi-btn" type="button">취소</button>
+            <button class="gi-popup-close-btn" type="button">닫기</button>
+        </div>
+    </div>
 </article>
 <!--상세 팝업 영역-->
 <article id="detail_sysUser_popup" class="gi-popup" data-popup-open="false">
@@ -335,6 +402,9 @@
 
         //데이터 조회
         findBySysUserList();
+
+        //탭(사용자 목록 / 사용자 등록 신청) 초기화
+        initUserTabs();
 
         setTimeout(function () {
             //클릭 이벤트
@@ -630,6 +700,109 @@
             .catch(error => {
                 formUtil.toast(error.response.data, "error");
             })
+    }
+
+    /* ===================== 사용자 등록 신청 탭 ===================== */
+    var reqGridLoaded = false;
+    var selectedReq = null;
+
+    function initUserTabs() {
+        formUtil.giTab("user-tabs", onUserTabChange);
+
+        $("#req-search-btn").off("click").on("click", findReqList);
+        $("#req-reset-btn").off("click").on("click", function () {
+            $("#req_search_stat_cd").val("");
+            $("#req_search_kw").val("");
+            findReqList();
+        });
+        $("#prc-approve-btn").off("click").on("click", function () { processRequest("approve"); });
+        $("#prc-reject-btn").off("click").on("click", function () { processRequest("reject"); });
+        $("#prc-cancel-btn").off("click").on("click", function () { processRequest("cancel"); });
+    }
+
+    function onUserTabChange(ret) {
+        let isReq = ret.tab_value == 1;
+        $("#tab-panel-user").toggleClass("gi-hidden", isReq);
+        $("#tab-panel-req").toggleClass("gi-hidden", !isReq);
+        // 신청 탭 최초 진입 시 그리드 로드
+        if (isReq && !reqGridLoaded) {
+            reqGridLoaded = true;
+            findReqList();
+        }
+    }
+
+    function findReqList(page, range, sortId, sortOrder) {
+        if (!formUtil.checkEmptyValue(page)) page = 1;
+        if (!formUtil.checkEmptyValue(range)) range = 10;
+        let param = { page_no: page, row_range: range, offset: (page - 1) * range, not_draft: "Y" };
+        let stat = $("#req_search_stat_cd").val();
+        let kw = $("#req_search_kw").val();
+        if (formUtil.checkEmptyValue(stat)) param.stat_cd = stat;
+        if (formUtil.checkEmptyValue(kw)) param._user_id = kw;
+        if (formUtil.checkEmptyValue(sortId)) param.sort_id = sortId;
+        if (formUtil.checkEmptyValue(sortOrder)) param.sort_order = sortOrder;
+
+        axios.post("/cms/common/sysUserReq/findPage", param).then(response => {
+            if (response.status !== 200) return;
+            let data = response.data.DATA;
+            let paging = response.data.TOTAL_PAGING[0];
+            let header = {
+                title: "사용자 등록 신청 목록",
+                list: [
+                    { HEADER: 'No', ID: 'no', WIDTH: '7', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '아이디', ID: 'user_id', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '이메일', ID: 'eml', WIDTH: '30', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '이름', ID: 'fnm', WIDTH: '15', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '상태', ID: 'stat_cd', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', SYS_CD_GRP_ID: 'USER_REQ_STAT', HIDDEN: false },
+                    { HEADER: '신청자', ID: 'sys_crt_usr_id', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '신청일시', ID: 'sys_crt_dt', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '처리', ID: 'process_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: 'req_id', ID: 'req_id', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                    { HEADER: 'stat_nm', ID: 'stat_nm', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
+                ]
+            };
+            let grid = formUtil.giGrid(header, paging, param.page_no, "reqUser_gi-Grid");
+            grid.DataSet(data);
+            grid.pagingSet(findReqList);
+            grid.sortDataSet(findReqList);
+            grid.updateBtnClick(openProcessPopup, "process_btn");
+        }).catch(error => {
+            formUtil.toast(error.response?.data || error, "error");
+        });
+    }
+
+    function openProcessPopup(row) {
+        selectedReq = row;
+        $("#prc-user_id").text(row.user_id || "");
+        $("#prc-eml").text(row.eml || "");
+        $("#prc-fnm").text(row.fnm || "");
+        $("#prc-stat_nm").text(row.stat_nm || "");
+        $("#prc-crtr").text(row.sys_crt_usr_id || "");
+        $("#prc_rsn").val("");
+        let isPending = row.stat_cd === "REQ";
+        ["#prc-approve-btn", "#prc-reject-btn", "#prc-cancel-btn"].forEach(function (sel) {
+            $(sel).prop("disabled", !isPending).css("opacity", isPending ? "" : "0.5");
+        });
+        $("#userReqProcess_gi-popup").attr("data-popup-open", "true");
+    }
+
+    function processRequest(type) {
+        if (!selectedReq) return;
+        let param = { req_id: selectedReq.req_id, prc_rsn: $("#prc_rsn").val() };
+        if (type === "reject" && !formUtil.checkEmptyValue(param.prc_rsn)) {
+            formUtil.showMessage("반려 사유를 입력해주세요.");
+            return false;
+        }
+        axios.post("/cms/common/sysUserReq/" + type, param).then(response => {
+            if (response.status === 200) {
+                let msg = type === "approve" ? "승인되었습니다." : (type === "reject" ? "반려되었습니다." : "취소되었습니다.");
+                formUtil.toast(msg, "success");
+                popup.close("userReqProcess_gi-popup");
+                findReqList();
+            }
+        }).catch(error => {
+            formUtil.alertPopup(error.response?.data || error);
+        });
     }
 
 </script>

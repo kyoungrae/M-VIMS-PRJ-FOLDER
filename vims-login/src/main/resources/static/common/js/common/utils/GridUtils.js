@@ -518,7 +518,7 @@ FormUtility.prototype.giGrid = function (layout, paging, page, gridId) {
                     grid_list += '</ul>';
                 }
             } else {
-                grid_list = '<div class="gi-row-100 gi-col-100 gi-flex gi-flex-align-items-center gi-flex-justify-content-center bounce-in-top"><div class="grid-no-data"><img src="../common/img/doc.png"><span class="gi-text-align-center">No Data</span></div></div>';
+                grid_list = '<div class="gi-row-100 gi-col-100 gi-flex gi-flex-align-items-center gi-flex-justify-content-center gi-nodata-in"><div class="grid-no-data"><img src="../common/img/no-data.svg" alt="No Data" style="width:180px;height:auto;"><span class="gi-text-align-center">No Data</span></div></div>';
                 $("#" + gridId + " .gi-grid-paging-content").html('');
             }
 
@@ -1795,7 +1795,7 @@ FormUtility.prototype.giGridHierarchy = function (layout, paging, page, gridId) 
                     grid_list += '</ul>';
                 }
             } else {
-                grid_list = '<div class="gi-row-100 gi-col-100 gi-flex gi-flex-align-items-center gi-flex-justify-content-center bounce-in-top"><div class="grid-no-data"><img src="../common/img/doc.png"><span class="gi-text-align-center">No Data</span></div></div>';
+                grid_list = '<div class="gi-row-100 gi-col-100 gi-flex gi-flex-align-items-center gi-flex-justify-content-center gi-nodata-in"><div class="grid-no-data"><img src="../common/img/no-data.svg" alt="No Data" style="width:180px;height:auto;"><span class="gi-text-align-center">No Data</span></div></div>';
                 $("#" + gridId + " .gi-grid-paging-content").html('');
             }
 

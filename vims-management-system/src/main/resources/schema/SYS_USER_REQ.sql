@@ -58,6 +58,7 @@ VALUES ('USER_REQ_STAT', '사용자 등록 신청 상태', '1', NOW(), 'system')
 ON DUPLICATE KEY UPDATE grp_nm = VALUES(grp_nm), use_yn = VALUES(use_yn);
 
 INSERT INTO SYS_CD (cd_id, grp_id, cd_nm, cd_no, use_yn, sys_gen_dt, sys_crt_usr_id) VALUES
+    ('DRAFT',  'USER_REQ_STAT', '작성중', 0, '1', NOW(), 'system'),
     ('REQ',    'USER_REQ_STAT', '신청', 1, '1', NOW(), 'system'),
     ('APPR',   'USER_REQ_STAT', '승인', 2, '1', NOW(), 'system'),
     ('REJ',    'USER_REQ_STAT', '반려', 3, '1', NOW(), 'system'),

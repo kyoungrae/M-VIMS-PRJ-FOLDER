@@ -104,6 +104,12 @@ public class SysMenuService extends AbstractCommonService<SysMenu> {
     @Override
     protected int registerImpl(SysMenu request) throws Exception {
         try {
+            // 메뉴 고유번호(menu_unq_no = menu_seq)는 복합 PK 의 일부이므로,
+            // 등록 시 값이 없으면 현재 최대값 + 1 로 자동 채번한다.
+            if (request.getMenu_seq() == null || request.getMenu_seq().trim().isEmpty()) {
+                Integer maxNo = sysMenuMapper.SELECT_MAX_MENU_UNQ_NO();
+                request.setMenu_seq(String.valueOf((maxNo == null ? 0 : maxNo) + 1));
+            }
             return sysMenuMapper.INSERT(request);
         } catch (DuplicateKeyException dke) {
             throw new CustomException(getMessage("EXCEPTION.PK.EXIST"));

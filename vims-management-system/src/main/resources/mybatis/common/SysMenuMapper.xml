@@ -203,6 +203,12 @@
         WHERE use_yn = '1'
         ORDER BY menu_lvl, menu_seq
     </select>
+
+    <!-- 메뉴 고유번호(menu_unq_no) 채번용: 현재 최대값 조회 -->
+    <select id="SELECT_MAX_MENU_UNQ_NO" resultType="int">
+        SELECT COALESCE(MAX(menu_unq_no), 0) FROM SYS_MENU
+    </select>
+
     <insert id="INSERT">
         INSERT INTO SYS_MENU(
              menu_cd

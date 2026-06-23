@@ -52,28 +52,45 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         return sysUserReqMapper.SELECT(request);
     }
 
-    /* ===================== 신청 등록 ===================== */
+    /* ===================== 신청서 작성(임시저장) ===================== */
     @Transactional(rollbackFor = Exception.class)
     @Override
     protected int registerImpl(SysUserReq request) throws Exception {
         if (isEmpty(request.getUser_id()) || isEmpty(request.getEml())) {
             throw new CustomException("아이디와 이메일은 필수입니다.");
         }
-        // 진행중(REQ) 상태의 동일 아이디/이메일 신청 중복 방지
-        if (existsPendingRequest(request.getUser_id(), request.getEml())) {
-            throw new CustomException("이미 진행중인 동일 아이디 또는 이메일의 신청이 있습니다.");
-        }
         request.setReq_id(sequenceService.selectTokenSequence());
-        request.setStat_cd("REQ");
+        request.setStat_cd("DRAFT"); // 작성중(임시저장) — '최종 신청 하기' 시 REQ 로 전환
         request.setSys_crt_usr_id(currentUser());
         return sysUserReqMapper.INSERT(request);
     }
 
+    /* ===================== 신청서 수정 (작성중만 가능) ===================== */
     @Transactional(rollbackFor = Exception.class)
     @Override
     protected int updateImpl(SysUserReq request) throws Exception {
+        loadDraft(request.getReq_id());
+        request.setStat_cd(null); // 수정으로 상태가 바뀌지 않도록
         request.setSys_upd_usr_id(currentUser());
         return sysUserReqMapper.UPDATE(request);
+    }
+
+    /* ===================== 최종 신청 (DRAFT -> REQ) ===================== */
+    @Transactional(rollbackFor = Exception.class)
+    public int submit(Long reqId) throws Exception {
+        SysUserReq req = loadDraft(reqId);
+        if (existsSysUser(req.getEml(), req.getUser_id())) {
+            throw new CustomException("이미 가입된 아이디 또는 이메일입니다.");
+        }
+        if (existsPendingRequest(req.getUser_id(), req.getEml())) {
+            throw new CustomException("이미 신청된 동일 아이디 또는 이메일이 있습니다.");
+        }
+        SysUserReq upd = SysUserReq.builder()
+                .req_id(reqId)
+                .stat_cd("REQ")
+                .sys_upd_usr_id(currentUser())
+                .build();
+        return sysUserReqMapper.UPDATE(upd);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -154,6 +171,21 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
     }
 
     /* ===================== 내부 유틸 ===================== */
+    private SysUserReq loadDraft(Long reqId) {
+        if (reqId == null) {
+            throw new CustomException("신청 정보를 찾을 수 없습니다.");
+        }
+        List<SysUserReq> list = sysUserReqMapper.SELECT(SysUserReq.builder().req_id(reqId).build());
+        if (list == null || list.isEmpty()) {
+            throw new CustomException("신청 정보를 찾을 수 없습니다.");
+        }
+        SysUserReq req = list.get(0);
+        if (!"DRAFT".equals(req.getStat_cd())) {
+            throw new CustomException("이미 신청되어 수정할 수 없습니다.");
+        }
+        return req;
+    }
+
     private SysUserReq loadPending(Long reqId) {
         if (reqId == null) {
             throw new CustomException("신청 정보를 찾을 수 없습니다.");

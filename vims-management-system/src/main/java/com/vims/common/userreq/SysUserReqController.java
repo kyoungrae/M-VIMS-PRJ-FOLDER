@@ -35,6 +35,13 @@ public class SysUserReqController {
         return sysUserReqService.register(request);
     }
 
+    /** 신청서 임시저장(작성중) 후 생성된 req_id 반환 */
+    @PostMapping("/registerDraft")
+    public Long registerDraft(@RequestBody SysUserReq request) throws Exception {
+        sysUserReqService.register(request); // registerImpl 에서 req_id 채번/세팅
+        return request.getReq_id();
+    }
+
     @PostMapping("/update")
     public int update(@RequestBody SysUserReq request) throws Exception {
         return sysUserReqService.update(request);
@@ -43,6 +50,12 @@ public class SysUserReqController {
     @PostMapping("/remove")
     public int remove(@RequestBody SysUserReq request) throws Exception {
         return sysUserReqService.remove(request);
+    }
+
+    /** 최종 신청 (작성중 DRAFT -> 신청 REQ) */
+    @PostMapping("/submit")
+    public int submit(@RequestBody SysUserReq request) throws Exception {
+        return sysUserReqService.submit(request.getReq_id());
     }
 
     /** 승인: 신청정보로 SYS_USER 생성 후 APPR 처리 */

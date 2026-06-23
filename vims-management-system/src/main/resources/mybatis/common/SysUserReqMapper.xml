@@ -30,6 +30,7 @@
         post_cd,
         req_rsn,
         stat_cd,
+        stat_cd AS stat_raw,
         prc_usr_id,
         prc_dt,
         prc_rsn,
@@ -47,6 +48,7 @@
             <if test="eml != null and eml != ''">AND eml = #{eml}</if>
             <if test="stat_cd != null and stat_cd != ''">AND stat_cd = #{stat_cd}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
+            <if test="not_draft != null and not_draft != ''">AND stat_cd != 'DRAFT'</if>
 
             <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
             <if test="_eml != null and _eml != ''">AND eml LIKE CONCAT('%', #{_eml}, '%')</if>

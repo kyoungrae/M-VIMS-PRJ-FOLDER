@@ -9,13 +9,8 @@
                 class="gi-flex gi-flex-align-items-center gi-grid-gap-16px gi-margin-bottom-16px">
                 <div class="gi-input-container" style="width: 180px;">
                     <label for="search_stat_cd" class="gi-input-label" data-focus-label="true">상태</label>
-                    <select class="gi-input" id="search_stat_cd" name="search_stat_cd" autocomplete="off">
-                        <option value="">전체</option>
-                        <option value="REQ">신청</option>
-                        <option value="APPR">승인</option>
-                        <option value="REJ">반려</option>
-                        <option value="CANCEL">취소</option>
-                    </select>
+                    <input gi-selectbox data-selectbox-field="USER_REQ_STAT" class="gi-input" id="search_stat_cd"
+                        name="search_stat_cd" autocomplete="off" />
                 </div>
                 <div class="gi-input-container gi-flex-1">
                     <label for="search_kw" class="gi-input-label" data-focus-label="true">아이디 / 이름</label>
@@ -30,18 +25,19 @@
             <div id="gi-Grid" class="gi-Grid" style="height: 560px;"></div>
 
             <div class="gi-flex gi-flex-justify-content-flex-end gi-margin-top-12px">
-                <button id="req-register-btn" class="gi-btn-blue" type="button">사용자 등록 신청</button>
+                <button id="req-register-btn" class="gi-btn-blue" type="button"
+                    style="min-width: 150px; padding: 0 24px; white-space: nowrap;">사용자 등록 신청</button>
             </div>
         </article>
     </section>
 </article>
 
 <!-- 사용자 등록 신청 팝업 -->
-<article id="userReqRegister_gi-popup" class="gi-popup" data-popup-open="false">
+<article id="userReqEdit_gi-popup" class="gi-popup" data-popup-open="false">
     <div class="gi-popup-body" style="width: 460px;">
-        <div class="gi-popup-header"><span>사용자 등록 신청</span></div>
+        <div class="gi-popup-header"><span id="userReq-popup-title">신청서 작성</span></div>
         <div class="gi-popup-contents">
-            <form id="sysUserReqRegisterForm">
+            <form id="sysUserReqForm">
                 <div class="gi-flex gi-flex-column gi-grid-gap-16px">
                     <div class="gi-input-container">
                         <label for="req_user_id" class="gi-input-label" data-focus-label="true"
@@ -77,34 +73,7 @@
             </form>
         </div>
         <div class="gi-popup-footer">
-            <button id="req-register-submit-btn" class="gi-popup-register-btn" type="button">신청</button>
-            <button class="gi-popup-close-btn" type="button">닫기</button>
-        </div>
-    </div>
-</article>
-
-<!-- 신청 처리(승인/반려/취소) 팝업 -->
-<article id="userReqProcess_gi-popup" class="gi-popup" data-popup-open="false">
-    <div class="gi-popup-body" style="width: 460px;">
-        <div class="gi-popup-header"><span>신청 처리</span></div>
-        <div class="gi-popup-contents">
-            <div class="gi-flex gi-flex-column gi-grid-gap-8px gi-padding-20px"
-                style="background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;font-size:14px;">
-                <div><b>아이디</b> : <span id="prc-user_id"></span></div>
-                <div><b>이메일</b> : <span id="prc-eml"></span></div>
-                <div><b>이름</b> : <span id="prc-fnm"></span></div>
-                <div><b>상태</b> : <span id="prc-stat_nm"></span></div>
-                <div><b>신청자</b> : <span id="prc-crtr"></span></div>
-            </div>
-            <div class="gi-input-container gi-margin-top-12px">
-                <label for="prc_rsn" class="gi-input-label" data-focus-label="true">처리 사유 (반려/취소 시 입력)</label>
-                <input id="prc_rsn" name="prc_rsn" class="gi-input" autocomplete="off" />
-            </div>
-        </div>
-        <div class="gi-popup-footer">
-            <button id="prc-approve-btn" class="gi-btn-blue" type="button">승인</button>
-            <button id="prc-reject-btn" class="gi-btn-red" type="button">반려</button>
-            <button id="prc-cancel-btn" class="gi-btn" type="button">취소</button>
+            <button id="req-save-btn" class="gi-btn-blue" type="button">저장</button>
             <button class="gi-popup-close-btn" type="button">닫기</button>
         </div>
     </div>
@@ -112,9 +81,8 @@
 
 <script type="text/javascript">
     var PRGMID = "sysUserReqList";
-    var REGISTER_POPUPID = "userReqRegister_gi-popup";
-    var PROCESS_POPUPID = "userReqProcess_gi-popup";
-    var selectedReq = null;
+    var EDIT_POPUPID = "userReqEdit_gi-popup";
+    var currentReqId = null; // null = 신규 작성, 값 있으면 수정
 
     init();
 
@@ -131,43 +99,29 @@
             $("#search_kw").val("");
             findList();
         });
-        $("#req-register-btn").off("click").on("click", function () {
-            commonTag.inputTagReset($("#sysUserReqRegisterForm .gi-input"));
-            $("#" + REGISTER_POPUPID).attr("data-popup-open", "true");
-        });
-        $("#req-register-submit-btn").off("click").on("click", registerRequest);
-
-        $("#prc-approve-btn").off("click").on("click", function () { processRequest("approve"); });
-        $("#prc-reject-btn").off("click").on("click", function () { processRequest("reject"); });
-        $("#prc-cancel-btn").off("click").on("click", function () { processRequest("cancel"); });
+        $("#req-register-btn").off("click").on("click", openCreatePopup);
+        $("#req-save-btn").off("click").on("click", saveDraft);
     }
 
     function buildSearchParam(page, range, sortId, sortOrder) {
         if (!formUtil.checkEmptyValue(page)) page = 1;
         if (!formUtil.checkEmptyValue(range)) range = 10;
-        let param = {
-            page_no: page,
-            row_range: range,
-            offset: (page - 1) * range
-        };
+        let param = { page_no: page, row_range: range, offset: (page - 1) * range };
         let stat = $("#search_stat_cd").val();
         let kw = $("#search_kw").val();
         if (formUtil.checkEmptyValue(stat)) param.stat_cd = stat;
-        if (formUtil.checkEmptyValue(kw)) param._user_id = kw; // 아이디/이름 검색(간단히 아이디 LIKE)
+        if (formUtil.checkEmptyValue(kw)) param._user_id = kw;
         if (formUtil.checkEmptyValue(sortId)) param.sort_id = sortId;
         if (formUtil.checkEmptyValue(sortOrder)) param.sort_order = sortOrder;
         return param;
     }
 
     function findList(page, range, sortId, sortOrder) {
-        let url = "/cms/common/sysUserReq/findPage";
         let param = buildSearchParam(page, range, sortId, sortOrder);
-
-        axios.post(url, param).then(response => {
+        axios.post("/cms/common/sysUserReq/findPage", param).then(response => {
             if (response.status !== 200) return;
             let data = response.data.DATA;
             let paging = response.data.TOTAL_PAGING[0];
-
             let header = {
                 title: "사용자 등록 신청 목록",
                 list: [
@@ -175,75 +129,87 @@
                     { HEADER: '아이디', ID: 'user_id', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이메일', ID: 'eml', WIDTH: '30', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이름', ID: 'fnm', WIDTH: '15', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '상태', ID: 'stat_nm', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '신청자', ID: 'sys_crt_usr_id', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '신청일시', ID: 'sys_crt_dt', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '처리', ID: 'process_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: '상태', ID: 'stat_cd', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', SYS_CD_GRP_ID: 'USER_REQ_STAT', HIDDEN: false },
+                    { HEADER: '신청일시', ID: 'sys_crt_dt', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: 'stat_raw', ID: 'stat_raw', WIDTH: '1', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                    { HEADER: '수정', ID: 'edit_btn', WIDTH: '10', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: 'REQ' }, { stat_raw: 'APPR' }, { stat_raw: 'REJ' }, { stat_raw: 'CANCEL' }], HIDDEN: false },
+                    { HEADER: '최종 신청', ID: 'submit_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: 'REQ' }, { stat_raw: 'APPR' }, { stat_raw: 'REJ' }, { stat_raw: 'CANCEL' }], HIDDEN: false },
                     { HEADER: 'req_id', ID: 'req_id', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-                    { HEADER: 'stat_cd', ID: 'stat_cd', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
+                    { HEADER: 'telno', ID: 'telno', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                    { HEADER: 'role', ID: 'role', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
+                    { HEADER: 'req_rsn', ID: 'req_rsn', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
                 ]
             };
-
             let grid = formUtil.giGrid(header, paging, param.page_no, "gi-Grid");
             grid.DataSet(data);
             grid.pagingSet(findList);
             grid.sortDataSet(findList);
-            grid.updateBtnClick(openProcessPopup, "process_btn");
+            grid.updateBtnClick(openEditPopup, "edit_btn");
+            grid.updateBtnClick(onFinalSubmitBtn, "submit_btn");
         }).catch(error => {
             formUtil.toast(error.response?.data || error, "error");
         });
     }
 
-    function openProcessPopup(row) {
-        selectedReq = row;
-        $("#prc-user_id").text(row.user_id || "");
-        $("#prc-eml").text(row.eml || "");
-        $("#prc-fnm").text(row.fnm || "");
-        $("#prc-stat_nm").text(row.stat_nm || "");
-        $("#prc-crtr").text(row.sys_crt_usr_id || "");
-        $("#prc_rsn").val("");
-
-        // 이미 처리된 신청은 처리 버튼 비활성화
-        let isPending = row.stat_cd === "REQ";
-        ["#prc-approve-btn", "#prc-reject-btn", "#prc-cancel-btn"].forEach(function (sel) {
-            $(sel).prop("disabled", !isPending).css("opacity", isPending ? "" : "0.5");
-        });
-
-        $("#" + PROCESS_POPUPID).attr("data-popup-open", "true");
+    // 신규 작성
+    function openCreatePopup() {
+        currentReqId = null;
+        $("#userReq-popup-title").text("신청서 작성");
+        commonTag.inputTagReset($("#sysUserReqForm .gi-input"));
+        $("#sysUserReqForm .gi-input").prop("disabled", false);
+        $("#req-save-btn").show();
+        $("#" + EDIT_POPUPID).attr("data-popup-open", "true");
     }
 
-    function registerRequest() {
-        let data = dataBinding.getData("sysUserReqRegisterForm");
+    // '수정' 버튼(작성중 행에만 노출) 클릭 → 수정 팝업
+    // NOTE: updateBtnClick 의 row 는 원본 코드값으로 구성됨
+    function openEditPopup(row) {
+        currentReqId = row.req_id;
+        $("#userReq-popup-title").text("신청서 수정");
+        $("#sysUserReqForm .gi-input").prop("disabled", false);
+        $("#req-save-btn").show();
+        dataBinding.setDataForm("sysUserReqForm", row);
+        $("#" + EDIT_POPUPID).attr("data-popup-open", "true");
+    }
+
+    function collectFormData() {
+        let data = dataBinding.getData("sysUserReqForm");
         if (!formUtil.checkEmptyValue(data.user_id) || !formUtil.checkEmptyValue(data.eml)) {
             formUtil.showMessage("아이디와 이메일은 필수입니다.");
-            return false;
+            return null;
         }
-        axios.post("/cms/common/sysUserReq/register", data).then(response => {
-            if (response.status === 200) {
-                formUtil.toast("신청이 등록되었습니다.", "success");
-                popup.close(REGISTER_POPUPID);
-                findList();
-            }
-        }).catch(error => {
-            formUtil.alertPopup(error.response?.data || error);
-        });
+        return data;
     }
 
-    function processRequest(type) {
-        if (!selectedReq) return;
-        let url = "/cms/common/sysUserReq/" + type;
-        let param = { req_id: selectedReq.req_id, prc_rsn: $("#prc_rsn").val() };
-
-        if (type === "reject" && !formUtil.checkEmptyValue(param.prc_rsn)) {
-            formUtil.showMessage("반려 사유를 입력해주세요.");
-            return false;
+    // 저장(임시저장): 신규=등록(DRAFT) / 기존=수정
+    async function saveDraft() {
+        let data = collectFormData();
+        if (!data) return false;
+        try {
+            if (!currentReqId) {
+                let res = await axios.post("/cms/common/sysUserReq/registerDraft", data);
+                currentReqId = res.data;
+            } else {
+                data.req_id = currentReqId;
+                await axios.post("/cms/common/sysUserReq/update", data);
+            }
+            formUtil.toast("저장되었습니다.", "success");
+            popup.close(EDIT_POPUPID);
+            findList();
+        } catch (error) {
+            formUtil.alertPopup(error.response?.data || error);
         }
+    }
 
-        axios.post(url, param).then(response => {
+    // '최종 신청' 버튼(작성중 행에만 노출) 클릭 → 즉시 최종 신청(DRAFT -> REQ), 별도 확인 팝업 없음
+    function onFinalSubmitBtn(row) {
+        if (row.stat_cd !== "DRAFT") {
+            formUtil.toast("작성중인 신청만 최종 신청할 수 있습니다.", "info");
+            return;
+        }
+        axios.post("/cms/common/sysUserReq/submit", { req_id: row.req_id }).then(response => {
             if (response.status === 200) {
-                let msg = type === "approve" ? "승인되었습니다." : (type === "reject" ? "반려되었습니다." : "취소되었습니다.");
-                formUtil.toast(msg, "success");
-                popup.close(PROCESS_POPUPID);
+                formUtil.toast("최종 신청되었습니다.", "success");
                 findList();
             }
         }).catch(error => {

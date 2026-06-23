@@ -1217,6 +1217,50 @@ label[for="fileElem"]:hover {
     transition: 0.3s cubic-bezier(1, 1, 1, 1)
 }
 
+/* ============================================================================
+   공통 모던 언더라인 탭 (샘플페이지 탭과 동일한 외형)
+   - 컨테이너에 .gi-tabs-underline, 탭에는 기존 .gi-tab / .gi-tab-active 사용
+   - giTab(formUtil.giTab) JS 동작은 그대로
+   ============================================================================ */
+.gi-tabs-underline {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.gi-tabs-underline>.gi-tab {
+    width: auto;
+    min-width: 132px;
+    height: auto;
+    padding: 11px 24px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    box-shadow: none;
+    margin-bottom: -1px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.gi-tabs-underline>.gi-tab:hover {
+    color: #1d1d1f;
+    background: #f8fafc;
+}
+
+.gi-tabs-underline>.gi-tab.gi-tab-active {
+    background: transparent;
+    color: #0071e3;
+    box-shadow: none;
+    border-bottom: 2px solid #0071e3;
+    font-weight: 600;
+}
+
 .noticePopup {
     display: none;
     position: fixed;

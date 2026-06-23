@@ -57,6 +57,8 @@ public class SysUserReq extends Common {
     @Transient
     private String stat_nm;        // 상태명(공통코드)
     @Transient
+    private String stat_raw;       // 원본 상태코드(그리드 조건부 버튼 노출용)
+    @Transient
     private String inst_nm;        // 소속명
 
     // 검색용 (LIKE)
@@ -70,4 +72,7 @@ public class SysUserReq extends Common {
     private String _stat_cd;
     @Transient
     private String _sys_crt_usr_id;
+    // 관리자 목록에서 작성중(DRAFT) 제외 조회용 플래그
+    @Transient
+    private String not_draft;
 }
