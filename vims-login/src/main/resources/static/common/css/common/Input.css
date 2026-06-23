@@ -523,3 +523,36 @@ input:checked+.gi-toggle-slider-grid-cell:before {
     color: var(--main-background-header-color);
     user-select: none;
 }
+
+/* ===== 토글이 들어간 입력 컨테이너 레이아웃 =====
+   라벨은 좌측 세로 중앙, 토글 스위치는 우측 세로 중앙으로 배치하여
+   플로팅 라벨과 토글이 겹쳐 보이던 UI 깨짐을 방지한다. */
+.gi-toggle-input-container {
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 라벨: 작은 플로팅 위치 대신 세로 중앙·기본 크기로 표시 */
+.gi-toggle-input-container > .gi-input-label,
+.gi-toggle-input-container > .gi-input-label[data-focus-label="true"],
+.gi-toggle-input-container > .gi-input-label[data-focus-label="false"] {
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--main-background-header-color);
+}
+
+/* 토글 스위치: 컨테이너 우측 세로 중앙에 고정 */
+.gi-toggle-input-container > .gi-toggle-switch {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    left: auto;
+    bottom: auto;
+    transform: translateY(-50%);
+    margin: 0;
+}

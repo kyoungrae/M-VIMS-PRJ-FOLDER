@@ -372,7 +372,8 @@ class GiToggle {
         // input의 부모(container)를 찾아서 그 안에 배치하거나 input 바로 뒤에 배치
         let $container = $input.closest('.gi-input-container');
         if ($container.length > 0) {
-            // container 내부 스타일 조정
+            // container 내부 스타일 조정 (토글 전용 레이아웃 클래스 부여)
+            $container.addClass('gi-toggle-input-container');
             $container.css({
                 'background-color': 'transparent',
                 'border': 'none',

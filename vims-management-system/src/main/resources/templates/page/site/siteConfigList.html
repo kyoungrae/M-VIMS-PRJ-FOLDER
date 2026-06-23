@@ -442,6 +442,10 @@
         if (!formUtil.checkEmptyValue(page)) page = 1;
         //default range(row)
         if (!formUtil.checkEmptyValue(range)) range = 10;
+        //NOTE: 정렬·페이징 콜백은 그룹ID를 인자로 전달하지 않으므로,
+        //      값이 없으면 현재 선택된 그룹ID(configGroupId)로 보정한다.
+        //      (보정하지 않으면 정렬 시 그리드 데이터가 빈값으로 리셋됨)
+        if (!formUtil.checkEmptyValue(p_configGroupId)) p_configGroupId = configGroupId;
         let url = "/cms/common/sysSiteConfig/findPage";
         let param = {
             page_no: page,
