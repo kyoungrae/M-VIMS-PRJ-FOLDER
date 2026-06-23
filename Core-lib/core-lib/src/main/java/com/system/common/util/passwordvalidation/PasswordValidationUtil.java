@@ -6,6 +6,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class PasswordValidationUtil {
@@ -72,6 +73,61 @@ public class PasswordValidationUtil {
         }
 
         return errors;
+    }
+
+    /**
+     * 설정 맵(cfg_key -> cfg_val)으로부터 PasswordPolicy 를 생성한다.
+     * site config(PWD_POLICY) 또는 공통코드 등 키-값 형태의 정책 소스를 공용으로 변환하기 위한 메서드.
+     * 정책 키 추가/변경 시 이 한 곳만 수정하면 된다.
+     *
+     * @param config 정책 키-값 맵 (예: MIN_LENGTH=8, REQUIRE_NUMBER=1 ...)
+     * @return 변환된 PasswordPolicy (config 가 비어있으면 기본값 정책)
+     */
+    public PasswordPolicy buildPolicy(Map<String, String> config) {
+        PasswordPolicy policy = new PasswordPolicy();
+        if (config == null || config.isEmpty()) {
+            return policy;
+        }
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            applyPolicyValue(policy, entry.getKey(), entry.getValue());
+        }
+        return policy;
+    }
+
+    /**
+     * 단일 정책 키-값을 PasswordPolicy 에 반영한다.
+     */
+    private void applyPolicyValue(PasswordPolicy policy, String key, String value) {
+        if (key == null || value == null) {
+            return;
+        }
+        switch (key) {
+            case "MAX_LENGTH":
+                policy.setMaxLength(Integer.parseInt(value.trim()));
+                break;
+            case "MIN_LENGTH":
+                policy.setMinLength(Integer.parseInt(value.trim()));
+                break;
+            case "REQUIRE_UPPERCASE":
+                policy.setRequireUppercase(isPolicyEnabled(value));
+                break;
+            case "REQUIRE_LOWERCASE":
+                policy.setRequireLowercase(isPolicyEnabled(value));
+                break;
+            case "REQUIRE_NUMBER":
+                policy.setRequireNumber(isPolicyEnabled(value));
+                break;
+            case "REQUIRE_SPECIAL_CHARACTER":
+                policy.setRequireSpecialCharacter(isPolicyEnabled(value));
+                break;
+            default:
+                // 알 수 없는 설정 키는 무시
+                break;
+        }
+    }
+
+    private boolean isPolicyEnabled(String value) {
+        return "1".equals(value) || "true".equalsIgnoreCase(value);
     }
 
     /**

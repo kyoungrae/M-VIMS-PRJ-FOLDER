@@ -30,7 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -214,48 +216,17 @@ public class SysUserService extends AbstractCommonService<SysUser> {
                 .build();
         List<SysSiteConfig> configList = sysSiteConfigService.findImpl(sysSiteConfig);
 
-        PasswordPolicy policy = new PasswordPolicy();
-        // 기본값 설정 (DB에 설정이 없을 경우 대비)
-        // policy.setMinLength(8);
-        // policy.setMaxLength(20);
-        // policy.setRequireUppercase(false);
-        // policy.setRequireLowercase(false);
-        // policy.setRequireNumber(true);
-        // policy.setRequireSpecialCharacter(true);
-
-        if (configList == null || configList.isEmpty()) {
-            return policy;
-        }
-
-        for (SysSiteConfig config : configList) {
-            String key = config.getCfg_key();
-            String value = config.getCfg_val();
-
-            switch (key) {
-                case "MAX_LENGTH":
-                    policy.setMaxLength(Integer.parseInt(value));
-                    break;
-                case "MIN_LENGTH":
-                    policy.setMinLength(Integer.parseInt(value));
-                    break;
-                case "REQUIRE_UPPERCASE":
-                    policy.setRequireUppercase("1".equals(value) || "true".equalsIgnoreCase(value));
-                    break;
-                case "REQUIRE_LOWERCASE":
-                    policy.setRequireLowercase("1".equals(value) || "true".equalsIgnoreCase(value));
-                    break;
-                case "REQUIRE_NUMBER":
-                    policy.setRequireNumber("1".equals(value) || "true".equalsIgnoreCase(value));
-                    break;
-                case "REQUIRE_SPECIAL_CHARACTER":
-                    policy.setRequireSpecialCharacter("1".equals(value) || "true".equalsIgnoreCase(value));
-                    break;
-                default:
-                    // 알 수 없는 설정 키는 무시 (로그 남기는 것도 고려 가능)
-                    break;
+        // 정책 키-값을 맵으로 변환 후, 정책 파싱은 Core-lib PasswordValidationUtil.buildPolicy 로 위임
+        // (정책 파싱 로직을 한 곳에서 관리하여 유지보수성 향상)
+        Map<String, String> configMap = new HashMap<>();
+        if (configList != null) {
+            for (SysSiteConfig config : configList) {
+                if (config.getCfg_key() != null) {
+                    configMap.put(config.getCfg_key(), config.getCfg_val());
+                }
             }
         }
-        return policy;
+        return new PasswordValidationUtil().buildPolicy(configMap);
     }
 
     /**

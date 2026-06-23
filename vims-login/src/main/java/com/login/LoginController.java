@@ -37,6 +37,13 @@ public class LoginController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
+    // 비밀번호 찾기 전용 재설정 페이지 (비인증 접근 가능: /api/v1/auth/** 화이트리스트)
+    // 실제 재설정은 재설정 토큰 검증으로만 허용된다.
+    @GetMapping("/api/v1/auth/password/reset-page")
+    public String passwordResetPage() {
+        return "login/passwordReset";
+    }
+
     @GetMapping("")
     public String loginPage(HttpServletRequest request) {
         if (request.getCookies() == null) {

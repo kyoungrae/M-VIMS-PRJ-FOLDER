@@ -147,5 +147,11 @@ Message.Label.Array["LOGIN.MAIL_CONTENT_HEADER"] = "[giens] 이메일 인증코�
 Message.Label.Array["LOGIN.MAIL_CONTENT_BODY1"] = "비밀번호 초기화를 위한 인증 코드를 발송하였습니다.";
 Message.Label.Array["LOGIN.MAIL_CONTENT_BODY2"] = "아래의 인증 코드를 인증번호에 입력해주시기 바랍니다.";
 Message.Label.Array["LOGIN.COMPLETE_REGISTER"] = "등록완료";
+Message.Label.Array["LOGIN.INPUT_VERIFICATION_CODE"] = "인증번호를 입력해주세요.";
+Message.Label.Array["LOGIN.NEW_PWD"] = "새 비밀번호";
+Message.Label.Array["LOGIN.NEW_PWD_CONFIRM"] = "새 비밀번호 확인";
+Message.Label.Array["LOGIN.RESET_PWD_PAGE_GUIDE"] = "비밀번호 재설정을 진행해 주세요.";
+Message.Label.Array["LOGIN.RESET_PWD_INVALID_ACCESS"] = "잘못된 접근입니다. 비밀번호 찾기를 다시 진행해 주세요.";
+Message.Label.Array["CHECK.INPUT.EMAIL"] = "이메일(을)를 입력해주세요";
 
 

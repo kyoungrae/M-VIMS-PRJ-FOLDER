@@ -154,33 +154,37 @@
         <div class="gi-popup-contents">
             <!--      팝업내용 삽입 영역      -->
             <div class="gi-row-100 gi-col-100 gi-flex gi-flex-center">
-                <form id="loginPagePasswordInitializeForm" class="gi-row-100">
-                    <div class="gi-article-content gi-margin-bottom-30px">
-                        <div class="gi-flex gi-flex-column gi-grid-gap-20px">
-                            <div class="gi-flex gi-grid-gap-20px">
+                <form id="loginPageAuthenticationForm" class="gi-row-100">
+                    <div class="gi-article-content gi-margin-bottom-30px" style="padding:15px !important;">
+                        <div class="gi-flex gi-flex-column gi-grid-gap-16px">
+                            <!-- 이메일 입력 + 인증코드 전송 -->
+                            <div class="gi-flex gi-grid-gap-10px gi-flex-align-items-center">
                                 <div class="gi-input-container gi-flex-1">
-                                    <label for="" class="gi-input-label" data-focus-label="true"
-                                        data-required="true">[]</label>
-                                    <input data-field="" id="" name="" class="gi-input"
-                                        data-focus-span-text-align="center" data-required="true" autocomplete="off" />
+                                    <label for="authenticationTarget" class="gi-input-label" data-focus-label="false"
+                                        data-required="true">[Page.Message].Message.Label.Array["EMAIL"]</label>
+                                    <input data-field="authenticationTarget" id="authenticationTarget"
+                                        name="authenticationTarget" class="gi-input" data-required="true"
+                                        autocomplete="off" />
                                 </div>
+                                <button id="send-number-btn" class="gi-btn-blue" type="button"
+                                    style="white-space:nowrap;">[Page.Message].Message.Label.Array["LOGIN.SEND_VERIFICATION_CODE"]</button>
                             </div>
-                            <div class="gi-flex gi-grid-gap-20px">
+                            <!-- 인증코드 입력 + 인증 확인 -->
+                            <div class="gi-flex gi-grid-gap-10px gi-flex-align-items-center">
                                 <div class="gi-input-container gi-flex-1">
-                                    <label for="" class="gi-input-label" data-focus-label="true"
-                                        data-required="true">[]</label>
-                                    <input data-field="" id="" name="" class="gi-input"
-                                        data-focus-span-text-align="center" data-required="true" autocomplete="off" />
+                                    <label for="authenticationNumber" class="gi-input-label" data-focus-label="false"
+                                        data-required="true">[Page.Message].Message.Label.Array["LOGIN.VERIFICATION_CODE"]</label>
+                                    <input data-field="authenticationNumber" id="authenticationNumber"
+                                        name="authenticationNumber" class="gi-input" maxlength="6" data-required="true"
+                                        autocomplete="off" />
+                                    <span class="authentication-timer"
+                                        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:tomato;font-size:12px;"></span>
                                 </div>
+                                <button id="number-check-btn" class="gi-btn" type="button"
+                                    style="white-space:nowrap;">[Page.Message].Message.Label.Array["LOGIN.CONFIRM_VERIFICATION_CODE"]</button>
                             </div>
-                            <div class="gi-flex gi-grid-gap-20px">
-                                <div class="gi-input-container gi-flex-1">
-                                    <label for="" class="gi-input-label" data-focus-label="true"
-                                        data-required="true">[]</label>
-                                    <input data-field="" id="" name="" class="gi-input"
-                                        data-focus-span-text-align="center" data-required="true" autocomplete="off" />
-                                </div>
-                            </div>
+                            <div class="authentication-check-message gi-hidden"
+                                style="color:tomato;font-size:12px;"></div>
                         </div>
                     </div>
                 </form>
@@ -248,8 +252,13 @@
                 login();
             }
         });
-        $("#send-number-btn").on("click", function () {
+        // NOTE: 슬라이드 패널 내용은 init 에서 DOM 이 재생성(이동)되므로
+        //       이벤트 위임(document)으로 바인딩해야 핸들러가 유지된다.
+        $(document).on("click", "#send-number-btn", function () {
             sendAuthenticationEmail();
+        });
+        $(document).on("click", "#number-check-btn", function () {
+            verifyAuthenticationCode();
         });
         $("#find-pw-btn").on("click", function (e) {
             // Prevent any default popup handlers
@@ -441,35 +450,55 @@
         return number.padStart(6, "0");
     }
 
+    // 인증코드 전송: 서버에서 코드 생성 후 SMTP 발신 계정으로 메일 발송
     function sendAuthenticationEmail() {
-        let url = "/common/mail/sendMail";
-        let targetEmail = [$("#authenticationTarget").val()];
+        let email = $("#authenticationTarget").val();
         let timer = $(".authentication-timer");
 
-        $(".authentication-check-message").text("");
-        authenticationNumber = generateRandomNumber();
-        let content = authenticationMailTemplate();
-        let authenticationInfo = {
-            title: Message.Label.Array["LOGIN.MAIL_TITLE_VERIFICATION"],
-            content: content,
-            email_list: targetEmail
+        if (!formUtil.checkEmptyValue(email)) {
+            formUtil.showMessage(Message.Label.Array["CHECK.INPUT.EMAIL"]);
+            return false;
         }
-        let disabledTag = ['authenticationTarget', 'send-number-btn'];
 
-        timer.removeClass("hidden");
-        startCountdownTimer(180, timer, expiredMessage);
+        $(".authentication-check-message").addClass("gi-hidden").removeClass("success").text("");
 
-        commonTag.tagDisabled(true, disabledTag);
-
-        axios.post(url, authenticationInfo).then(response => {
-            let status = response.status;
-            console.log(status);
-            if (status === 200) {
-            } else {
-                // custom alert 적용 필요
-                formUtil.showMessage(Message.Label.Array["LOGIN.FAIL_SEND_VERIFICATION_CODE"]);
-                commonTag.tagDisabled(true, disabledTag);
+        let url = "/api/v1/auth/password/code/request";
+        axios.post(url, { email: email }).then(response => {
+            if (response.status === 200) {
+                // 인증코드 입력 활성화 + 3분 타이머 시작
+                timer.removeClass("hidden");
+                startCountdownTimer(180, timer, expiredMessage);
+                commonTag.tagDisabled(true, ['authenticationTarget', 'send-number-btn']);
+                formUtil.toast(Message.Label.Array["LOGIN.SEND_VERIFICATION_CODE"],"info");
             }
+        }).catch(error => {
+            const errorData = error.response?.data;
+            formUtil.toast(errorData || Message.Label.Array["LOGIN.FAIL_SEND_VERIFICATION_CODE"], "error");
+        });
+    }
+
+    // 인증코드 검증: 서버 검증 성공 시 재설정 토큰 저장 후 전용 재설정 페이지로 이동
+    function verifyAuthenticationCode() {
+        let email = $("#authenticationTarget").val();
+        let code = $("#authenticationNumber").val();
+        let message = $(".authentication-check-message");
+
+        if (!formUtil.checkEmptyValue(code)) {
+            message.removeClass("gi-hidden success").text(Message.Label.Array["LOGIN.INPUT_VERIFICATION_CODE"]);
+            return false;
+        }
+
+        let url = "/api/v1/auth/password/code/verify";
+        axios.post(url, { email: email, code: code }).then(response => {
+            if (response.status === 200) {
+                let resetToken = response.data.resetToken;
+                clearInterval(authenticationTimer);
+                sessionStorage.setItem("pwdResetToken", resetToken);
+                window.location.href = "/api/v1/auth/password/reset-page";
+            }
+        }).catch(error => {
+            const errorData = error.response?.data;
+            message.removeClass("gi-hidden success").text(errorData || Message.Label.Array["LOGIN.EXP_VERIFICATION_CODE"]);
         });
     }
 

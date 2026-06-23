@@ -54,6 +54,32 @@ spring:
     messages:
         basename : exceptionMessage
         encoding : UTF-8
+    # 비밀번호 찾기 인증코드 메일 발송용 SMTP 설정 (운영 시 환경변수 주입 권장)
+    # Gmail을 쓴다면 일반 비밀번호는 막혀 있습니다. 2단계 인증을 켠 뒤 **앱 비밀번호(16자리)**를 발급해 MAIL_PASSWORD에 넣고, MAIL_USERNAME은 전체 이메일 주소로 지정하세요.
+    # 사내 메일 서버라면 그 서버의 호스트/포트/계정을 넣으세요. SSL(465) 방식이면 starttls 대신 ssl.enable: true + 포트 465로 바꿔야 합니다.
+    mail:
+        host: ${MAIL_HOST:smtp.gmail.com}
+        port: ${MAIL_PORT:587}
+        username: ${MAIL_USERNAME:go66go66@giens.co.kr}
+        password: ${MAIL_PASSWORD:pxqdjcpekvmpvoiy}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+                    connectiontimeout: 5000
+                    timeout: 5000
+                    writetimeout: 5000
+
+# 비밀번호 찾기(재설정) 기능 설정
+app:
+    password-reset:
+        code-ttl-seconds: 180        # 인증코드 유효시간(3분)
+        token-ttl-seconds: 300       # 재설정 토큰 유효시간(5분)
+        max-verify-attempts: 5       # 인증코드 검증 최대 시도 횟수
+        resend-interval-seconds: 30  # 인증코드 재발송 최소 간격
 
 mybatis:
     config-location: classpath:/mybatis-config.xml
