@@ -56,6 +56,62 @@
     <script src="/assets/quill/image-resize.min.js"></script>
     <!-- SheetJS (Excel Download) -->
     <script src="/assets/excel/xlsx.full.min.js"></script>
+    <style>
+        /* 페이지 줌 인/아웃 컨트롤 (사이드네비 프로필/언어 영역에 배치) */
+        .gi-zoom-control {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            /* 전체 화면(뷰포트) 우측 상단 고정. 현재보다 20% 작게(scale 0.8) */
+            transform: scale(0.8);
+            transform-origin: top right;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: fit-content;
+            padding: 4px 8px;
+            background: #ffffff;
+            border: 1px solid #e2e2e2;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            user-select: none;
+        }
+
+        .gi-zoom-btn {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid #d0d0d0;
+            background: #f7f7f8;
+            color: #333333;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gi-zoom-btn:hover {
+            background: #ececef;
+            border-color: #b5b5b5;
+        }
+
+        .gi-zoom-btn:active {
+            transform: scale(0.92);
+        }
+
+        .gi-zoom-value {
+            min-width: 44px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333333;
+        }
+    </style>
 </head>
 
 <body>
@@ -137,6 +193,17 @@
         <section id="gi-road-content" class="gi-main-content gi-col-100 gi-row-100 gi-flex gi-side-nav-toggle expand"
             data-animation="false" data-side-nav-toggle-area></section>
     </main>
+
+    <!-- 페이지 줌 인/아웃 컨트롤 (전체 화면 우측 상단 고정: position:fixed) -->
+    <div class="gi-zoom-control" id="zoomControl">
+        <button type="button" class="gi-zoom-btn" id="zoomOutBtn" title="축소">
+            <i class="fa-solid fa-minus"></i>
+        </button>
+        <span class="gi-zoom-value" id="zoomValue">100%</span>
+        <button type="button" class="gi-zoom-btn" id="zoomInBtn" title="확대">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
 </body>
 
 </html>
@@ -171,6 +238,45 @@
         findByMenuList();
         findUserName();
         initLanguageSelector();
+        initPageZoom();
+    }
+
+    /**
+     * NOTE: 페이지 줌 인/아웃
+     *  - − / + 버튼으로 10% 단위 조절 (50% ~ 200%)
+     *  - 설정값은 localStorage("pageZoom")에 저장하여 재방문 시 복원
+     */
+    function initPageZoom() {
+        const MIN_ZOOM = 50;
+        const MAX_ZOOM = 200;
+        const ZOOM_STEP = 10;
+        let zoom = parseInt(localStorage.getItem("pageZoom"), 10);
+        if (isNaN(zoom)) zoom = 100;
+
+        function applyZoom() {
+            zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+            const factor = zoom / 100;
+            // zoom 이 레이아웃까지 축소시켜 뷰포트에 빈 공간이 생기므로,
+            // body 를 1/factor 배로 키워 zoom 적용 후 화면을 꽉 채우도록 보정한다.
+            document.body.style.zoom = factor;
+            document.body.style.width = "calc(100vw / " + factor + ")";
+            document.body.style.height = "calc(100vh / " + factor + ")";
+            // .gi-main2 는 height:100vh 고정이라 부모(body) 100% 로 따라가도록 보정
+            $(".gi-main2").css("height", "100%");
+            $("#zoomValue").text(zoom + "%");
+            localStorage.setItem("pageZoom", zoom);
+        }
+
+        $("#zoomInBtn").off("click.giZoom").on("click.giZoom", function () {
+            zoom += ZOOM_STEP;
+            applyZoom();
+        });
+        $("#zoomOutBtn").off("click.giZoom").on("click.giZoom", function () {
+            zoom -= ZOOM_STEP;
+            applyZoom();
+        });
+
+        applyZoom();
     }
 
     /**

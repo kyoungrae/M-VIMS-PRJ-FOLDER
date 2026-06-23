@@ -332,8 +332,9 @@
 
 .gi-gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
+    /* 5열 고정: 10개가 2줄에 들어오도록 카드 크기 축소 (minmax(0,1fr)로 넘침 방지) */
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
 }
 
 .gi-gallery-card,
@@ -797,24 +798,25 @@
 .gi-gallery-list-header,
 .gi-gallery-list-item {
     display: grid;
-    grid-template-columns: 150px minmax(0, 1fr) 240px 112px;
+    grid-template-columns: 90px minmax(0, 1fr) 180px 96px;
     align-items: center;
-    gap: 26px;
+    gap: 16px;
 }
 
 .gi-gallery-list-header {
-    min-height: 48px;
-    padding: 0 22px;
+    min-height: 34px;
+    padding: 0 18px;
     border-bottom: 1px solid #e5eaf2;
     color: #8792a6;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0;
 }
 
+/* 목록형: 10개가 스크롤 없이 한 화면에 들어오도록 항목 높이 컴팩트화 */
 .gi-gallery-list-item {
-    min-height: 106px;
-    padding: 14px 22px;
+    min-height: 58px;
+    padding: 8px 18px;
     border: 0;
     border-bottom: 1px solid #e8edf4;
     border-radius: 0;
@@ -830,9 +832,9 @@
 }
 
 .gi-gallery-list .gi-gallery-preview {
-    width: 136px;
-    height: 82px;
-    border-radius: 12px;
+    width: 72px;
+    height: 44px;
+    border-radius: 8px;
 }
 
 .gi-gallery-list-body {
@@ -848,8 +850,20 @@
 
 .gi-gallery-list-author {
     min-width: 0;
-    padding-left: 24px;
+    padding-left: 16px;
     border-left: 1px solid #e8edf4;
+}
+
+/* 목록형 본문 텍스트도 컴팩트화 (카드형에는 영향 없음) */
+.gi-gallery-list-body h2 {
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.gi-gallery-list-body p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.3;
 }
 
 .gi-gallery-pagination {
@@ -1010,4 +1024,65 @@
     .gi-gallery-list .gi-gallery-meta {
         grid-column: 1;
     }
+}
+
+/* ========================================================================
+   게시판 상세/등록/수정 페이지: 스크롤 없이 한 화면에 맞춤
+   - 페이지 자체 스크롤 제거, 여백 컴팩트화
+   - 본문(에디터/상세내용)만 남은 높이만큼 차지하고 내부 스크롤
+   - 두 페이지로 범위를 한정하여 다른 폼(.gi-form-*)에는 영향 없음
+   ======================================================================== */
+#sysBbsBoardDetailPage,
+#sysBbsBoardWritePage {
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* 헤더 여백 축소 */
+#sysBbsBoardDetailPage > .gi-padding-left-right-20px > header,
+#sysBbsBoardWritePage > .gi-padding-left-right-20px > header {
+    margin-bottom: 12px !important;
+}
+
+#sysBbsBoardDetailPage .gi-subtitle-main,
+#sysBbsBoardWritePage .gi-subtitle-main {
+    margin-top: 2px;
+}
+
+/* 카드 패딩 / 섹션 간격 / 섹션 타이틀 여백 축소 */
+#sysBbsBoardDetailPage .gi-form-card,
+#sysBbsBoardWritePage .gi-form-card {
+    padding: 18px 24px;
+    border-radius: 16px;
+}
+
+#sysBbsBoardDetailPage .gi-grid-gap-30px,
+#sysBbsBoardWritePage .gi-grid-gap-30px {
+    gap: 14px !important;
+}
+
+#sysBbsBoardDetailPage .gi-form-section-title,
+#sysBbsBoardWritePage .gi-form-section-title {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+#sysBbsBoardDetailPage .gi-form-actions,
+#sysBbsBoardWritePage .gi-form-actions {
+    margin-top: 16px;
+    padding-top: 14px;
+}
+
+/* 본문(에디터) 영역: 남은 높이만큼만 차지하고 내부 스크롤 */
+#sysBbsBoardWritePage .ql-editor {
+    min-height: 0 !important;
+    max-height: calc(100vh - 420px);
+    overflow-y: auto;
+}
+
+#sysBbsBoardDetailPage #detail-content {
+    min-height: 0 !important;
+    max-height: calc(100vh - 360px);
+    overflow-y: auto;
 }
