@@ -110,9 +110,19 @@ if [ -z "$REMOTE_HOST" ] || [ -z "$REMOTE_USER" ]; then
     exit 1
 fi
 
-SSH_OPTS=(-p "$REMOTE_SSH_PORT" -o ConnectTimeout=10)
-SCP_OPTS=(-P "$REMOTE_SSH_PORT" -o ConnectTimeout=10)
+# SSH 연결 다중화(ControlMaster): 최초 1회만 인증하고 이후 scp/ssh 가 연결을 재사용
+# → 모듈마다 비밀번호를 반복 입력하지 않아도 됨 (SSH 키 미사용 환경에서 특히 유용)
+SSH_CTL="$HOME/.ssh/cm-vims-%r@%h:%p"
+SSH_MUX_OPTS=(-o ControlMaster=auto -o "ControlPath=$SSH_CTL" -o ControlPersist=120)
+SSH_OPTS=(-p "$REMOTE_SSH_PORT" -o ConnectTimeout=10 "${SSH_MUX_OPTS[@]}")
+SCP_OPTS=(-P "$REMOTE_SSH_PORT" -o ConnectTimeout=10 "${SSH_MUX_OPTS[@]}")
 REMOTE="$REMOTE_USER@$REMOTE_HOST"
+
+# 종료 시 다중화 마스터 연결 정리
+cleanup_mux() {
+    ssh -O exit -o "ControlPath=$SSH_CTL" -p "$REMOTE_SSH_PORT" "$REMOTE" 2>/dev/null || true
+}
+trap cleanup_mux EXIT
 
 echo "=============================================="
 echo " VIMS 운영 배포 시작"
@@ -207,7 +217,7 @@ deploy_module() {
     if ssh "${SSH_OPTS[@]}" "$REMOTE" \
         ENGINE="$ENGINE" CONTAINER="$CONTAINER" STAGED="$STAGED" \
         APP_DIR="$CONTAINER_APP_DIR" JAR="$CONTAINER_JAR_NAME" \
-        HOSTPORT="$HOSTPORT" RESTART="$DO_RESTART" TIMEOUT="$HEALTH_TIMEOUT" \
+        HOSTPORT="$HOSTPORT" INPORT="$INPORT" RESTART="$DO_RESTART" TIMEOUT="$HEALTH_TIMEOUT" \
         'bash -s' <<'REMOTE_SCRIPT'
 set -uo pipefail
 
@@ -241,26 +251,38 @@ sleep 2
 
 # 신규 기동 (백그라운드)
 $ENGINE exec -d "$CONTAINER" sh -c "cd $APP_DIR && nohup java -jar $JAR > $APP_DIR/app.log 2>&1 &"
-echo "    ⏳ 기동 대기 및 헬스체크 (최대 ${TIMEOUT}초, 포트 $HOSTPORT)..."
+echo "    ⏳ 기동 대기 및 헬스체크 (최대 ${TIMEOUT}초, 컨테이너 내부 포트 $INPORT)..."
 
-# 헬스체크: 호스트 포트 TCP 연결 확인
+# 헬스체크: "컨테이너 내부"에서 앱이 실제로 포트를 LISTEN 하는지 확인한다.
+#   - 호스트 포트(예: 9081)는 podman 이 컨테이너 기동만으로도 항상 listen 하므로
+#     java 기동 여부를 보장하지 못한다. 따라서 내부 포트(예: 8081)로 직접 확인.
+#   - eclipse-temurin:17-jdk(ubuntu 기반)에는 bash 가 있어 /dev/tcp 사용 가능.
 ok=false
 waited=0
 while [ "$waited" -lt "$TIMEOUT" ]; do
-    if timeout 2 bash -c "</dev/tcp/127.0.0.1/$HOSTPORT" 2>/dev/null; then
+    # java 프로세스가 떠 있고, 내부 앱 포트가 LISTEN 중인지 확인
+    if $ENGINE exec "$CONTAINER" bash -c "pgrep -f 'java -jar $JAR' >/dev/null 2>&1 && (exec 3<>/dev/tcp/127.0.0.1/$INPORT) 2>/dev/null"; then
         ok=true
         break
+    fi
+    # java 프로세스 자체가 사라졌으면(즉시 죽음) 더 기다릴 필요 없음
+    if ! $ENGINE exec "$CONTAINER" sh -c "pgrep -f 'java -jar $JAR' >/dev/null 2>&1"; then
+        if [ "$waited" -ge 6 ]; then
+            echo "    ❌ java 프로세스가 기동 직후 종료됨 — app.log 마지막 40줄:"
+            $ENGINE exec "$CONTAINER" sh -c "tail -n 40 $APP_DIR/app.log" 2>/dev/null || true
+            exit 21
+        fi
     fi
     sleep 3
     waited=$((waited + 3))
 done
 
 if [ "$ok" = true ]; then
-    echo "    ✅ 헬스체크 성공 (포트 $HOSTPORT 응답)"
+    echo "    ✅ 헬스체크 성공 (컨테이너 내부 포트 $INPORT LISTEN, java 프로세스 정상)"
     exit 0
 else
-    echo "    ❌ 헬스체크 실패 (${TIMEOUT}초 내 포트 $HOSTPORT 미응답) — app.log 마지막 30줄:"
-    $ENGINE exec "$CONTAINER" sh -c "tail -n 30 $APP_DIR/app.log" 2>/dev/null || true
+    echo "    ❌ 헬스체크 실패 (${TIMEOUT}초 내 내부 포트 $INPORT 미응답) — app.log 마지막 40줄:"
+    $ENGINE exec "$CONTAINER" sh -c "tail -n 40 $APP_DIR/app.log" 2>/dev/null || true
     exit 20
 fi
 REMOTE_SCRIPT
