@@ -57,7 +57,7 @@ MODULES=(
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. 옵션 파싱
 # ─────────────────────────────────────────────────────────────────────────────
-DO_BUILD=false
+DO_BUILD=true          # 기본: 최신 소스로 재빌드 후 배포 (옛 JAR 실수 배포 방지)
 DO_RESTART=true
 SELECTED=()
 
@@ -66,26 +66,29 @@ print_help() {
 사용법: ./deploy-to-prod.sh [옵션] [모듈명 ...]
 
 옵션:
-  --build              배포 전에 deploy-core-lib.sh 로 전체 빌드 수행
+  --no-build           재빌드 생략 (deploy-output 의 기존 JAR 그대로 배포)
+  --build              명시적 재빌드 (기본값이므로 보통 불필요)
   --source <소스>      JAR 소스 지정: deploy-output(기본) | target
   --no-restart         JAR 복사만 하고 컨테이너 내부 java 재기동은 생략
   -h, --help           도움말 출력
+
+※ 기본 동작: 최신 소스로 재빌드(deploy-core-lib.sh) 후 운영 배포 + 재기동
 
 모듈명(대소문자 무시, 표시명/디렉터리/컨테이너명 중 아무거나):
   login, management, fms, webapp, gateway
   (생략 시 전체 모듈 배포)
 
 예시:
-  ./deploy-to-prod.sh
-  ./deploy-to-prod.sh login gateway
-  ./deploy-to-prod.sh --build
-  ./deploy-to-prod.sh --source target webapp
+  ./deploy-to-prod.sh                  # 최신 소스로 전체 재빌드 + 배포 (권장)
+  ./deploy-to-prod.sh login gateway    # 특정 모듈만 (역시 재빌드 포함)
+  ./deploy-to-prod.sh --no-build       # 빌드 없이 기존 JAR 재배포(긴급 롤아웃 등)
 EOF
 }
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --build)      DO_BUILD=true; shift ;;
+        --no-build)   DO_BUILD=false; shift ;;
         --no-restart) DO_RESTART=false; shift ;;
         --source)     JAR_SOURCE="${2:-}"; shift 2 ;;
         --source=*)   JAR_SOURCE="${1#*=}"; shift ;;
@@ -201,10 +204,28 @@ deploy_module() {
         RESULT_LINES+=("SKIP|$NAME|JAR 없음 ($JAR_SOURCE)")
         return
     fi
+
+    # 7-1-1. 신선도(staleness) 점검
+    #   deploy-output(배포대상)이 target(최신 빌드)보다 오래되면 옛 소스가 배포될 위험.
+    #   target 만 다시 빌드(package-all.sh)하면 deploy-output 은 갱신되지 않으므로 경고한다.
+    if [ "$JAR_SOURCE" = "deploy-output" ]; then
+        local TGT_JAR="$SCRIPT_DIR/$DIR/target/$TJAR"
+        if [ -f "$TGT_JAR" ] && [ "$TGT_JAR" -nt "$JAR_PATH" ]; then
+            echo "  ⚠️  경고: 배포 대상(deploy-output)이 최신 빌드(target)보다 오래되었습니다."
+            echo "       deploy-output: $(date -r "$JAR_PATH" '+%H:%M:%S' 2>/dev/null)"
+            echo "       target       : $(date -r "$TGT_JAR" '+%H:%M:%S' 2>/dev/null)"
+            echo "       → 최신 소스 반영을 위해 '--build' 로 재빌드 후 배포하세요. (현재는 옛 JAR 배포)"
+        fi
+    fi
+
     echo "  📦 JAR: $JAR_PATH ($(du -h "$JAR_PATH" | cut -f1))"
 
-    # 7-2. scp 전송
-    local STAGED="$REMOTE_STAGING_DIR/$CONTAINER.jar"
+    # 컨테이너 내부에서 사용할 JAR 파일명 = 원본 파일명 (ps 출력에서 모듈/버전 식별 용이)
+    local JAR_NAME
+    JAR_NAME="$(basename "$JAR_PATH")"
+
+    # 7-2. scp 전송 (원본 파일명 그대로 스테이징)
+    local STAGED="$REMOTE_STAGING_DIR/$JAR_NAME"
     echo "  ⬆️  전송 중 → $REMOTE:$STAGED"
     if ! scp "${SCP_OPTS[@]}" "$JAR_PATH" "$REMOTE:$STAGED"; then
         echo "  ❌ scp 전송 실패"
@@ -216,7 +237,7 @@ deploy_module() {
     echo "  🚀 컨테이너 주입/재기동 중..."
     if ssh "${SSH_OPTS[@]}" "$REMOTE" \
         ENGINE="$ENGINE" CONTAINER="$CONTAINER" STAGED="$STAGED" \
-        APP_DIR="$CONTAINER_APP_DIR" JAR="$CONTAINER_JAR_NAME" \
+        APP_DIR="$CONTAINER_APP_DIR" JAR="$JAR_NAME" \
         HOSTPORT="$HOSTPORT" INPORT="$INPORT" RESTART="$DO_RESTART" TIMEOUT="$HEALTH_TIMEOUT" \
         'bash -s' <<'REMOTE_SCRIPT'
 set -uo pipefail
@@ -230,10 +251,7 @@ fi
 # 앱 디렉터리 보장
 $ENGINE exec "$CONTAINER" sh -c "mkdir -p $APP_DIR" || { echo "    ❌ $APP_DIR 생성 실패"; exit 11; }
 
-# 기존 JAR 백업
-$ENGINE exec "$CONTAINER" sh -c "[ -f $APP_DIR/$JAR ] && cp $APP_DIR/$JAR $APP_DIR/$JAR.bak || true"
-
-# 신규 JAR 복사
+# 신규 JAR 복사 (원본 파일명 그대로 /app 아래에)
 if ! $ENGINE cp "$STAGED" "$CONTAINER:$APP_DIR/$JAR"; then
     echo "    ❌ $ENGINE cp 실패"
     exit 12
@@ -245,11 +263,32 @@ if [ "$RESTART" != "true" ]; then
     exit 0
 fi
 
-# 기존 java 프로세스 종료
-$ENGINE exec "$CONTAINER" sh -c "pkill -f 'java -jar $JAR' 2>/dev/null || pkill -f 'java -jar $APP_DIR/$JAR' 2>/dev/null || true"
-sleep 2
+# ─── 기존 java 프로세스 "전부" 종료 ───
+# 과거에 java -jar /app.jar (루트 경로) 등으로 떠 있던 프로세스를 경로와 무관하게 모두 종료한다.
+# (경로/파일명이 달라 종료에 실패하면 포트 충돌로 새 jar 가 기동 직후 죽는 문제가 생겼었음)
+BEFORE="$($ENGINE exec "$CONTAINER" sh -c "pgrep -f 'java -jar' 2>/dev/null | tr '\n' ' '" 2>/dev/null || true)"
+if [ -n "$BEFORE" ]; then
+    echo "    🛑 기존 java 프로세스 종료: PID $BEFORE"
+fi
+# 1차: SIGTERM (graceful)
+$ENGINE exec "$CONTAINER" sh -c "pkill -TERM -f 'java -jar' 2>/dev/null || true"
+# 종료 대기 (최대 15초)
+killed=false
+for _ in $(seq 1 15); do
+    if ! $ENGINE exec "$CONTAINER" sh -c "pgrep -f 'java -jar' >/dev/null 2>&1"; then
+        killed=true
+        break
+    fi
+    sleep 1
+done
+# 2차: SIGKILL (graceful 실패 시 강제)
+if [ "$killed" != true ]; then
+    echo "    ⚠️  graceful 종료 실패 → SIGKILL"
+    $ENGINE exec "$CONTAINER" sh -c "pkill -KILL -f 'java -jar' 2>/dev/null || true"
+    sleep 2
+fi
 
-# 신규 기동 (백그라운드)
+# 신규 기동 (백그라운드) — 원본 파일명으로 실행하여 ps 에서 모듈/버전 식별 가능
 $ENGINE exec -d "$CONTAINER" sh -c "cd $APP_DIR && nohup java -jar $JAR > $APP_DIR/app.log 2>&1 &"
 echo "    ⏳ 기동 대기 및 헬스체크 (최대 ${TIMEOUT}초, 컨테이너 내부 포트 $INPORT)..."
 
