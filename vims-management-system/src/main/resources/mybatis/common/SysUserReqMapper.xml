@@ -24,7 +24,7 @@
         role,
         inst_cd,
         (SELECT cd_nm FROM SYS_CD
-          WHERE grp_id = 'USER_REQ_STAT' AND cd_id = SYS_USER_REQ.stat_cd) AS stat_nm,
+          WHERE grp_id = 'SYS_USER_REG_STATUS' AND cd_id = SYS_USER_REQ.stat_cd) AS stat_nm,
         addr,
         addr_dtl,
         post_cd,
@@ -48,7 +48,7 @@
             <if test="eml != null and eml != ''">AND eml = #{eml}</if>
             <if test="stat_cd != null and stat_cd != ''">AND stat_cd = #{stat_cd}</if>
             <if test="sys_crt_usr_id != null and sys_crt_usr_id != ''">AND sys_crt_usr_id = #{sys_crt_usr_id}</if>
-            <if test="not_draft != null and not_draft != ''">AND stat_cd != 'DRAFT'</if>
+            <if test="not_draft != null and not_draft != ''">AND stat_cd != '0'</if>
 
             <if test="_user_id != null and _user_id != ''">AND user_id LIKE CONCAT('%', #{_user_id}, '%')</if>
             <if test="_eml != null and _eml != ''">AND eml LIKE CONCAT('%', #{_eml}, '%')</if>

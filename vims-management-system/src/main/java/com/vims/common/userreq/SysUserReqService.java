@@ -16,12 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Date;
 import java.util.List;
 
+import static com.vims.common.userreq.SysUserReqStatus.*;
+
 /**
  * 사용자 등록 신청 서비스
- * - 신청(register) : 직원이 새 직원 계정 생성을 신청 (stat_cd=REQ)
- * - 승인(approve)  : 신청정보로 SYS_USER 생성 + 신청 APPR 처리
- * - 반려(reject)   : 신청 REJ 처리 (사유 기록)
- * - 취소(cancel)   : 신청 CANCEL 처리
+ * - 신청(register) : stat_cd=0 (대기)
+ * - 최종신청(submit): stat_cd=1 (신청 완료)
+ * - 승인(approve)  : stat_cd=2
+ * - 반려(reject)   : stat_cd=3
  */
 @Service
 @RequiredArgsConstructor
@@ -60,7 +62,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
             throw new CustomException("아이디와 이메일은 필수입니다.");
         }
         request.setReq_id(sequenceService.selectTokenSequence());
-        request.setStat_cd("DRAFT"); // 작성중(임시저장) — '최종 신청 하기' 시 REQ 로 전환
+        request.setStat_cd(WAIT);
         request.setSys_crt_usr_id(currentUser());
         return sysUserReqMapper.INSERT(request);
     }
@@ -75,7 +77,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         return sysUserReqMapper.UPDATE(request);
     }
 
-    /* ===================== 최종 신청 (DRAFT -> REQ) ===================== */
+    /* ===================== 최종 신청 (0 -> 1) ===================== */
     @Transactional(rollbackFor = Exception.class)
     public int submit(Long reqId) throws Exception {
         SysUserReq req = loadDraft(reqId);
@@ -87,7 +89,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         }
         SysUserReq upd = SysUserReq.builder()
                 .req_id(reqId)
-                .stat_cd("REQ")
+                .stat_cd(SUBMITTED)
                 .sys_upd_usr_id(currentUser())
                 .build();
         return sysUserReqMapper.UPDATE(upd);
@@ -131,7 +133,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         // 2) 신청 APPR 처리
         SysUserReq upd = SysUserReq.builder()
                 .req_id(reqId)
-                .stat_cd("APPR")
+                .stat_cd(APPROVED)
                 .prc_usr_id(currentUser())
                 .prc_dt(new Date())
                 .crt_user_seq(userSeq)
@@ -146,7 +148,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         loadPending(reqId);
         SysUserReq upd = SysUserReq.builder()
                 .req_id(reqId)
-                .stat_cd("REJ")
+                .stat_cd(REJECTED)
                 .prc_usr_id(currentUser())
                 .prc_dt(new Date())
                 .prc_rsn(prcRsn)
@@ -161,7 +163,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
         loadPending(reqId);
         SysUserReq upd = SysUserReq.builder()
                 .req_id(reqId)
-                .stat_cd("CANCEL")
+                .stat_cd(WAIT)
                 .prc_usr_id(currentUser())
                 .prc_dt(new Date())
                 .prc_rsn(prcRsn)
@@ -180,7 +182,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
             throw new CustomException("신청 정보를 찾을 수 없습니다.");
         }
         SysUserReq req = list.get(0);
-        if (!"DRAFT".equals(req.getStat_cd())) {
+        if (!WAIT.equals(req.getStat_cd())) {
             throw new CustomException("이미 신청되어 수정할 수 없습니다.");
         }
         return req;
@@ -195,7 +197,7 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
             throw new CustomException("신청 정보를 찾을 수 없습니다.");
         }
         SysUserReq req = list.get(0);
-        if (!"REQ".equals(req.getStat_cd())) {
+        if (!SUBMITTED.equals(req.getStat_cd())) {
             throw new CustomException("이미 처리된 신청입니다.");
         }
         return req;
@@ -203,10 +205,10 @@ public class SysUserReqService extends AbstractCommonService<SysUserReq> {
 
     private boolean existsPendingRequest(String userId, String eml) {
         List<SysUserReq> byId = sysUserReqMapper.SELECT(
-                SysUserReq.builder().user_id(userId).stat_cd("REQ").build());
+                SysUserReq.builder().user_id(userId).stat_cd(SUBMITTED).build());
         if (byId != null && !byId.isEmpty()) return true;
         List<SysUserReq> byEml = sysUserReqMapper.SELECT(
-                SysUserReq.builder().eml(eml).stat_cd("REQ").build());
+                SysUserReq.builder().eml(eml).stat_cd(SUBMITTED).build());
         return byEml != null && !byEml.isEmpty();
     }
 

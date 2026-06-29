@@ -73,7 +73,7 @@
                     <div class="gi-flex gi-flex-align-items-center gi-grid-gap-20px">
                         <div class="gi-input-container" style="width: 200px;">
                             <label for="req_search_stat_cd" class="gi-input-label" data-focus-label="true">상태</label>
-                            <input gi-selectbox data-selectbox-field="USER_REQ_STAT" class="gi-input"
+                            <input gi-selectbox data-selectbox-field="SYS_USER_REG_STATUS" class="gi-input"
                                 id="req_search_stat_cd" name="req_search_stat_cd" autocomplete="off" />
                         </div>
                         <div class="gi-input-container gi-flex-1">
@@ -753,12 +753,12 @@
                     { HEADER: '아이디', ID: 'user_id', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이메일', ID: 'eml', WIDTH: '30', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이름', ID: 'fnm', WIDTH: '15', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '상태', ID: 'stat_cd', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', SYS_CD_GRP_ID: 'USER_REQ_STAT', HIDDEN: false },
+                    { HEADER: '상태', ID: 'stat_nm', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '신청자', ID: 'sys_crt_usr_id', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '신청일시', ID: 'sys_crt_dt', WIDTH: '25', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '처리', ID: 'process_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: 'req_id', ID: 'req_id', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-                    { HEADER: 'stat_nm', ID: 'stat_nm', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
+                    { HEADER: 'stat_cd', ID: 'stat_cd', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true }
                 ]
             };
             let grid = formUtil.giGrid(header, paging, param.page_no, "reqUser_gi-Grid");
@@ -779,7 +779,7 @@
         $("#prc-stat_nm").text(row.stat_nm || "");
         $("#prc-crtr").text(row.sys_crt_usr_id || "");
         $("#prc_rsn").val("");
-        let isPending = row.stat_cd === "REQ";
+        let isPending = row.stat_cd === "1";
         ["#prc-approve-btn", "#prc-reject-btn", "#prc-cancel-btn"].forEach(function (sel) {
             $(sel).prop("disabled", !isPending).css("opacity", isPending ? "" : "0.5");
         });

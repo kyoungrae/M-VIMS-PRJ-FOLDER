@@ -52,7 +52,7 @@ public class SysUserReqController {
         return sysUserReqService.remove(request);
     }
 
-    /** 최종 신청 (작성중 DRAFT -> 신청 REQ) */
+    /** 최종 신청 (대기 0 -> 신청 완료 1) */
     @PostMapping("/submit")
     public int submit(@RequestBody SysUserReq request) throws Exception {
         return sysUserReqService.submit(request.getReq_id());

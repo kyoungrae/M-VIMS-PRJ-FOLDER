@@ -9,7 +9,7 @@
                 class="gi-flex gi-flex-align-items-center gi-grid-gap-16px gi-margin-bottom-16px">
                 <div class="gi-input-container" style="width: 180px;">
                     <label for="search_stat_cd" class="gi-input-label" data-focus-label="true">상태</label>
-                    <input gi-selectbox data-selectbox-field="USER_REQ_STAT" class="gi-input" id="search_stat_cd"
+                    <input gi-selectbox data-selectbox-field="SYS_USER_REG_STATUS" class="gi-input" id="search_stat_cd"
                         name="search_stat_cd" autocomplete="off" />
                 </div>
                 <div class="gi-input-container gi-flex-1">
@@ -129,11 +129,12 @@
                     { HEADER: '아이디', ID: 'user_id', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이메일', ID: 'eml', WIDTH: '30', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '이름', ID: 'fnm', WIDTH: '15', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
-                    { HEADER: '상태', ID: 'stat_cd', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', SYS_CD_GRP_ID: 'USER_REQ_STAT', HIDDEN: false },
+                    { HEADER: '상태', ID: 'stat_nm', WIDTH: '12', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
                     { HEADER: '신청일시', ID: 'sys_crt_dt', WIDTH: '20', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: false },
+                    { HEADER: 'stat_cd', ID: 'stat_cd', WIDTH: '1', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
                     { HEADER: 'stat_raw', ID: 'stat_raw', WIDTH: '1', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
-                    { HEADER: '수정', ID: 'edit_btn', WIDTH: '10', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: 'REQ' }, { stat_raw: 'APPR' }, { stat_raw: 'REJ' }, { stat_raw: 'CANCEL' }], HIDDEN: false },
-                    { HEADER: '최종 신청', ID: 'submit_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: 'REQ' }, { stat_raw: 'APPR' }, { stat_raw: 'REJ' }, { stat_raw: 'CANCEL' }], HIDDEN: false },
+                    { HEADER: '수정', ID: 'edit_btn', WIDTH: '10', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: '1' }, { stat_raw: '2' }, { stat_raw: '3' }], HIDDEN: false },
+                    { HEADER: '최종 신청', ID: 'submit_btn', WIDTH: '12', TYPE: 'button', FONT_SIZE: '12px', TEXT_ALIGN: 'center', VISIBLE_OPTION_BTN: [{ stat_raw: '1' }, { stat_raw: '2' }, { stat_raw: '3' }], HIDDEN: false },
                     { HEADER: 'req_id', ID: 'req_id', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
                     { HEADER: 'telno', ID: 'telno', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
                     { HEADER: 'role', ID: 'role', WIDTH: '10', TYPE: 'text', FONT_SIZE: '12px', TEXT_ALIGN: 'center', HIDDEN: true },
@@ -181,7 +182,7 @@
         return data;
     }
 
-    // 저장(임시저장): 신규=등록(DRAFT) / 기존=수정
+    // 저장(임시저장): 신규=등록(0 대기) / 기존=수정
     async function saveDraft() {
         let data = collectFormData();
         if (!data) return false;
@@ -201,10 +202,10 @@
         }
     }
 
-    // '최종 신청' 버튼(작성중 행에만 노출) 클릭 → 즉시 최종 신청(DRAFT -> REQ), 별도 확인 팝업 없음
+    // '최종 신청' 버튼(대기 행에만 노출) 클릭 → 0 -> 1
     function onFinalSubmitBtn(row) {
-        if (row.stat_cd !== "DRAFT") {
-            formUtil.toast("작성중인 신청만 최종 신청할 수 있습니다.", "info");
+        if (row.stat_cd !== "0") {
+            formUtil.toast("대기 상태인 신청만 최종 신청할 수 있습니다.", "info");
             return;
         }
         axios.post("/cms/common/sysUserReq/submit", { req_id: row.req_id }).then(response => {

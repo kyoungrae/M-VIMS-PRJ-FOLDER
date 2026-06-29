@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS SYS_USER_REQ (
     req_rsn         VARCHAR(500)  NULL                    COMMENT '신청 사유',
 
     -- 승인 워크플로우
-    stat_cd         VARCHAR(20)   NOT NULL DEFAULT 'REQ'  COMMENT '신청상태(공통코드 USER_REQ_STAT: REQ/APPR/REJ/CANCEL)',
+    stat_cd         VARCHAR(20)   NOT NULL DEFAULT '0'  COMMENT '신청상태(공통코드 SYS_USER_REG_STATUS: 0=대기/1=신청완료/2=승인/3=반려)',
     prc_usr_id      VARCHAR(50)   NULL                    COMMENT '처리자(승인/반려/취소) ID',
     prc_dt          DATETIME      NULL                    COMMENT '처리 일시',
     prc_rsn         VARCHAR(500)  NULL                    COMMENT '처리 사유(반려/취소 사유)',
@@ -52,15 +52,15 @@ CREATE TABLE IF NOT EXISTS SYS_USER_REQ (
 
 -- =====================================================================
 -- 신청 상태 공통코드 (SYS_CD_GRP / SYS_CD)
+-- DRAFT: 대기(0) → REQ: 신청 완료(1) → APPR/REJ: 승인(2)/반려(3)
 -- =====================================================================
 INSERT INTO SYS_CD_GRP (grp_id, grp_nm, use_yn, sys_gen_dt, sys_crt_usr_id)
-VALUES ('USER_REQ_STAT', '사용자 등록 신청 상태', '1', NOW(), 'system')
+VALUES ('SYS_USER_REG_STATUS', '사용자 등록 신청 상태', '1', NOW(), 'system')
 ON DUPLICATE KEY UPDATE grp_nm = VALUES(grp_nm), use_yn = VALUES(use_yn);
 
 INSERT INTO SYS_CD (cd_id, grp_id, cd_nm, cd_no, use_yn, sys_gen_dt, sys_crt_usr_id) VALUES
-    ('DRAFT',  'USER_REQ_STAT', '작성중', 0, '1', NOW(), 'system'),
-    ('REQ',    'USER_REQ_STAT', '신청', 1, '1', NOW(), 'system'),
-    ('APPR',   'USER_REQ_STAT', '승인', 2, '1', NOW(), 'system'),
-    ('REJ',    'USER_REQ_STAT', '반려', 3, '1', NOW(), 'system'),
-    ('CANCEL', 'USER_REQ_STAT', '취소', 4, '1', NOW(), 'system')
+    ('0', 'SYS_USER_REG_STATUS', '대기', 0, '1', NOW(), 'system'),
+    ('1', 'SYS_USER_REG_STATUS', '신청 완료', 1, '1', NOW(), 'system'),
+    ('2', 'SYS_USER_REG_STATUS', '승인', 2, '1', NOW(), 'system'),
+    ('3', 'SYS_USER_REG_STATUS', '반려', 3, '1', NOW(), 'system')
 ON DUPLICATE KEY UPDATE cd_nm = VALUES(cd_nm), cd_no = VALUES(cd_no), use_yn = VALUES(use_yn);

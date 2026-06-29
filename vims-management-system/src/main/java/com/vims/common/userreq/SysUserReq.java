@@ -41,7 +41,7 @@ public class SysUserReq extends Common {
     private String req_rsn;        // 신청 사유
 
     // 승인 워크플로우
-    private String stat_cd;        // 신청상태 (REQ/APPR/REJ/CANCEL)
+    private String stat_cd;        // 신청상태 (SYS_USER_REG_STATUS: 0=대기, 1=신청완료, 2=승인, 3=반려)
     private String prc_usr_id;     // 처리자 ID
     private Date prc_dt;           // 처리 일시
     private String prc_rsn;        // 처리 사유(반려/취소)
@@ -72,7 +72,7 @@ public class SysUserReq extends Common {
     private String _stat_cd;
     @Transient
     private String _sys_crt_usr_id;
-    // 관리자 목록에서 작성중(DRAFT) 제외 조회용 플래그
+    // 관리자 목록에서 대기(0) 제외 조회용 플래그
     @Transient
     private String not_draft;
 }
