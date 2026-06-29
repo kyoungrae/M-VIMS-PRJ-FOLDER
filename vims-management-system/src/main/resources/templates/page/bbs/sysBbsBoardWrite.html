@@ -100,8 +100,16 @@
                     <div class="gi-form-section">
                         <h3 class="gi-form-section-title">
                             [Page.Message].Message.Label.Array["SYS_BBS_BRD.SECTION.CONTENT"]</h3>
-                        <div class="gi-editor-wrapper">
+                        <div class="gi-editor-wrapper" id="bbs-editor-wrapper">
+                            <div id="editor-image-loading" class="gi-editor-image-loading gi-hidden" aria-hidden="true">
+                                <div class="gi-editor-image-loading-box">
+                                    <span class="gi-thmbnl-loading-spinner"></span>
+                                    <span class="gi-editor-image-loading-text">업로드 중...</span>
+                                </div>
+                            </div>
                             <div id="editor-container"></div>
+                            <div id="bbs-editor-resize-layer" class="gi-editor-resize-layer" aria-hidden="true"></div>
+                            <div id="bbs-editor-drop-caret" class="gi-editor-image-drop-caret" aria-hidden="true"></div>
                         </div>
                         <input type="hidden" data-field="cn" id="board_content" name="content" />
                         <input type="hidden" data-field="thmb_path" id="board_thmbnl" name="thmbnl" />
@@ -143,6 +151,13 @@
     var boardId = writeSessionData.pst_id; // 수정 모드일 때 존재
     var mode = writeSessionData.mode || 'register';
     var thumbnailBlobUrl = null;
+    var editorImageMoveState = null;
+    var editorImageResizeState = null;
+    var editorImageBehaviorBound = false;
+    var isSanitizingEditorImages = false;
+    var EDITOR_IMAGE_UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    var EDITOR_IMAGE_URL_PATTERN = /(?:https?:\/\/[^\s]*)?\/fms\/fileManager\/previewByFileId\?fileId=([0-9a-f-]{36})/i;
+    var EDITOR_IMAGE_LEGACY_URL_PATTERN = /(?:https?:\/\/[^\s]*)?\/fms\/fileManager\/previewByUuid\?fileUuid=([0-9a-f-]{36})/i;
 
     init();
 
@@ -179,6 +194,8 @@
             }
         });
 
+        setupQuillImageBehavior();
+
         // 에디터 이미지 업로드용 hidden input 추가
         if ($("#quill-image-input").length === 0) {
             $("body").append('<input type="file" id="quill-image-input" style="display: none;" accept="image/*">');
@@ -195,6 +212,10 @@
 
         // 5. 버튼 이벤트
         clickEvent();
+
+        $(".gi-editor-image-loading-text").text(
+            Message.Label.Array["SYS_BBS_BRD.IMAGE_UPLOADING"] || "업로드 중..."
+        );
     }
 
     /**
@@ -394,14 +415,696 @@
         formUtil.toast(Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_SET"]);
     };
 
+    function showEditorImageLoading() {
+        $("#editor-image-loading").removeClass("gi-hidden");
+    }
+
+    function hideEditorImageLoading() {
+        $("#editor-image-loading").addClass("gi-hidden");
+    }
+
+    function getEditorImageUrl(fileId) {
+        return '/fms/fileManager/previewByFileId?fileId=' + encodeURIComponent(fileId);
+    }
+
+    /**
+     * @title 에디터 내 이미지 공통 속성 적용
+     */
+    function prepareEditorImages() {
+        quill.root.querySelectorAll('img').forEach(function (img) {
+            img.style.maxWidth = '100%';
+            img.style.cursor = 'grab';
+            img.draggable = false;
+            img.setAttribute('draggable', 'false');
+            img.classList.remove('gi-editor-image-dragging');
+        });
+    }
+
+    function getImageUrlFromLeakedText(text) {
+        if (!text) return null;
+
+        const fileIdMatch = text.match(EDITOR_IMAGE_URL_PATTERN);
+        if (fileIdMatch) {
+            return getEditorImageUrl(fileIdMatch[1]);
+        }
+
+        const legacyMatch = text.match(EDITOR_IMAGE_LEGACY_URL_PATTERN);
+        if (legacyMatch) {
+            return '/fms/fileManager/previewByUuid?fileUuid=' + encodeURIComponent(legacyMatch[1]);
+        }
+
+        if (text.indexOf('previewByUuid') === -1 && text.indexOf('previewByFileId') === -1) return null;
+        const match = text.match(EDITOR_IMAGE_UUID_PATTERN);
+        if (!match) return null;
+        return getEditorImageUrl(match[0]);
+    }
+
+    function applyImageStyles(img, styles) {
+        if (!img || !styles) return;
+        if (styles.width) img.style.width = styles.width;
+        if (styles.height) img.style.height = styles.height;
+        if (styles.float) img.style.float = styles.float;
+    }
+
+    function getImageStyles(img) {
+        return {
+            width: img.style.width || img.getAttribute('width') || '',
+            height: img.style.height || img.getAttribute('height') || '',
+            float: img.style.cssFloat || img.style.float || ''
+        };
+    }
+
+    function moveEditorImage(fromIndex, dropIndex, src, styles) {
+        if (dropIndex === fromIndex || dropIndex === fromIndex + 1) return;
+
+        hideEditorImageResizeOverlay();
+
+        const docLength = quill.getLength();
+        dropIndex = Math.max(0, Math.min(dropIndex, docLength - 1));
+
+        quill.deleteText(fromIndex, 1, Quill.sources.SILENT);
+        let insertAt = dropIndex;
+        if (insertAt > fromIndex) {
+            insertAt -= 1;
+        }
+        insertAt = Math.max(0, Math.min(insertAt, quill.getLength() - 1));
+
+        quill.insertEmbed(insertAt, 'image', src, Quill.sources.SILENT);
+
+        setTimeout(function () {
+            prepareEditorImages();
+            quill.root.querySelectorAll('img').forEach(function (img) {
+                if (img.getAttribute('src') === src) {
+                    applyImageStyles(img, styles);
+                }
+            });
+        }, 0);
+    }
+
+    function disableEditorImagesPointerEvents() {
+        const disabled = [];
+        quill.root.querySelectorAll('img').forEach(function (img) {
+            disabled.push({
+                img: img,
+                pointerEvents: img.style.pointerEvents
+            });
+            img.style.pointerEvents = 'none';
+        });
+        return disabled;
+    }
+
+    function restoreEditorImagesPointerEvents(disabled) {
+        if (!disabled) return;
+        disabled.forEach(function (item) {
+            item.img.style.pointerEvents = item.pointerEvents || '';
+        });
+    }
+
+    function hideEditorImageDropCaret() {
+        const caret = document.getElementById('bbs-editor-drop-caret');
+        if (!caret) return;
+        caret.style.display = 'none';
+        caret.classList.remove('is-visible');
+        caret.setAttribute('aria-hidden', 'true');
+    }
+
+    function updateEditorImageDropCaret(clientX, clientY, fromIndex) {
+        const caret = document.getElementById('bbs-editor-drop-caret');
+        const container = getEditorOverlayContainer();
+        if (!caret || !container || !quill) return;
+
+        const dropPoint = getEditorDropPoint(clientX, clientY);
+        if (!dropPoint || dropPoint.index === fromIndex || dropPoint.index === fromIndex + 1) {
+            hideEditorImageDropCaret();
+            if (editorImageMoveState) {
+                editorImageMoveState.dropIndex = null;
+            }
+            return;
+        }
+
+        if (editorImageMoveState) {
+            editorImageMoveState.dropIndex = dropPoint.index;
+        }
+
+        const containerRect = container.getBoundingClientRect();
+
+        caret.style.display = 'block';
+        caret.style.left = (dropPoint.left - containerRect.left) + 'px';
+        caret.style.top = (dropPoint.top - containerRect.top) + 'px';
+        caret.style.height = Math.max(dropPoint.height, 20) + 'px';
+        caret.classList.add('is-visible');
+        caret.setAttribute('aria-hidden', 'false');
+    }
+
+    function endEditorImageDrag(state) {
+        if (!state) return;
+
+        hideEditorImageDropCaret();
+        document.body.style.cursor = '';
+        document.body.classList.remove('gi-editor-image-drag-active');
+        quill.root.classList.remove('gi-editor-image-dragging-mode');
+
+        restoreEditorImagesPointerEvents(state.disabledImages);
+
+        if (state.img) {
+            state.img.style.opacity = '';
+            state.img.style.outline = '';
+            state.img.style.cursor = '';
+            state.img.classList.remove('gi-editor-image-dragging');
+        }
+    }
+
+    function hideEditorImageResizeOverlay() {
+        unbindEditorImageResizeSync();
+        if (editorImageResizeState && editorImageResizeState.layer) {
+            editorImageResizeState.layer.innerHTML = '';
+            editorImageResizeState.layer.setAttribute('aria-hidden', 'true');
+        }
+        editorImageResizeState = null;
+    }
+
+    function getEditorResizeLayer() {
+        const layer = document.getElementById('bbs-editor-resize-layer');
+        if (layer) {
+            layer.innerHTML = '';
+        }
+        return layer;
+    }
+
+    function getEditorOverlayContainer() {
+        return document.getElementById('bbs-editor-wrapper');
+    }
+
+    function sanitizeEditorHtml(html) {
+        if (!html) return html;
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        temp.querySelectorAll('.gi-editor-image-resize-overlay, .gi-editor-resize-layer, #bbs-editor-resize-layer').forEach(function (el) {
+            el.remove();
+        });
+        return temp.innerHTML;
+    }
+
+    function getPageZoom() {
+        const zoom = parseFloat(document.body.style.zoom);
+        return isNaN(zoom) || zoom <= 0 ? 1 : zoom;
+    }
+
+    function getRectWithinAncestor(element, ancestor) {
+        const elementRect = element.getBoundingClientRect();
+        const ancestorRect = ancestor.getBoundingClientRect();
+
+        return {
+            left: elementRect.left - ancestorRect.left,
+            top: elementRect.top - ancestorRect.top,
+            width: elementRect.width,
+            height: elementRect.height
+        };
+    }
+
+    function bindEditorImageResizeSync() {
+        if (!editorImageResizeState || editorImageResizeState.syncBound) return;
+
+        const sync = function () {
+            updateEditorImageResizeOverlay();
+        };
+
+        editorImageResizeState.syncHandler = sync;
+        editorImageResizeState.syncBound = true;
+        window.addEventListener('scroll', sync, true);
+        window.addEventListener('resize', sync);
+    }
+
+    function unbindEditorImageResizeSync() {
+        if (!editorImageResizeState || !editorImageResizeState.syncHandler) return;
+
+        window.removeEventListener('scroll', editorImageResizeState.syncHandler, true);
+        window.removeEventListener('resize', editorImageResizeState.syncHandler);
+    }
+
+    function updateEditorImageResizeOverlay() {
+        if (!editorImageResizeState) return;
+
+        const img = editorImageResizeState.img;
+        const overlay = editorImageResizeState.overlay;
+        const label = editorImageResizeState.label;
+        const container = editorImageResizeState.container;
+        if (!img || !overlay || !container || !document.body.contains(img)) {
+            hideEditorImageResizeOverlay();
+            return;
+        }
+
+        const rect = getRectWithinAncestor(img, container);
+
+        overlay.style.left = rect.left + 'px';
+        overlay.style.top = rect.top + 'px';
+        overlay.style.width = rect.width + 'px';
+        overlay.style.height = rect.height + 'px';
+
+        if (label) {
+            label.textContent = Math.round(rect.width) + ' × ' + Math.round(rect.height);
+        }
+    }
+
+    function showEditorImageResizeOverlay(img) {
+        if (!img || !quill) return;
+
+        hideEditorImageResizeOverlay();
+
+        const container = getEditorOverlayContainer();
+        const layer = getEditorResizeLayer();
+        if (!container || !layer) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'gi-editor-image-resize-overlay';
+
+        const label = document.createElement('span');
+        label.className = 'gi-editor-image-resize-label';
+        overlay.appendChild(label);
+
+        const handle = document.createElement('div');
+        handle.className = 'gi-editor-image-resize-handle';
+        handle.title = Message.Label.Array["SYS_BBS_BRD.IMAGE_RESIZE_HINT"] || '드래그하여 크기 조절';
+        overlay.appendChild(handle);
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const startX = e.clientX;
+            const startWidth = img.getBoundingClientRect().width;
+            const zoom = getPageZoom();
+            const maxWidth = quill.root.clientWidth - 24;
+
+            function onResizeMove(ev) {
+                const delta = (ev.clientX - startX) / zoom;
+                const newWidth = Math.max(80, Math.min(startWidth + delta, maxWidth));
+                img.style.width = Math.round(newWidth) + 'px';
+                img.style.height = 'auto';
+                img.removeAttribute('height');
+                updateEditorImageResizeOverlay();
+            }
+
+            function onResizeUp() {
+                document.removeEventListener('mousemove', onResizeMove);
+                document.removeEventListener('mouseup', onResizeUp);
+            }
+
+            document.addEventListener('mousemove', onResizeMove);
+            document.addEventListener('mouseup', onResizeUp);
+        });
+
+        layer.appendChild(overlay);
+        layer.setAttribute('aria-hidden', 'false');
+
+        editorImageResizeState = {
+            img: img,
+            overlay: overlay,
+            label: label,
+            container: container,
+            layer: layer,
+            syncBound: false
+        };
+
+        bindEditorImageResizeSync();
+        requestAnimationFrame(updateEditorImageResizeOverlay);
+    }
+
+    function sanitizeLeakedImageUrls() {
+        if (!quill || isSanitizingEditorImages) return;
+
+        const text = quill.getText();
+        const leakPattern = /(?:https?:\/\/[^\s]*)?\/fms\/fileManager\/previewBy(?:FileId\?fileId=|Uuid\?fileUuid=)[0-9a-f-]{36}[^\s]*/gi;
+        const match = leakPattern.exec(text);
+        if (!match) return;
+
+        const imageUrl = getImageUrlFromLeakedText(match[0]);
+        if (!imageUrl) return;
+
+        isSanitizingEditorImages = true;
+        const index = match.index;
+        const length = match[0].length;
+        quill.deleteText(index, length, Quill.sources.SILENT);
+        quill.insertEmbed(index, 'image', imageUrl, Quill.sources.SILENT);
+        setTimeout(function () {
+            prepareEditorImages();
+            isSanitizingEditorImages = false;
+        }, 0);
+    }
+
+    function setupQuillClipboardMatchers() {
+        const Delta = Quill.import('delta');
+        const leakMatcher = function (node, delta) {
+            const text = (node.data || node.textContent || '').trim();
+            const imageUrl = getImageUrlFromLeakedText(text);
+            if (!imageUrl) return delta;
+            return new Delta().insert({ image: imageUrl });
+        };
+
+        quill.clipboard.addMatcher(Node.TEXT_NODE, leakMatcher);
+        quill.clipboard.addMatcher('A', function (node, delta) {
+            const imageUrl = getImageUrlFromLeakedText(node.getAttribute('href') || node.textContent || '');
+            if (!imageUrl) return delta;
+            return new Delta().insert({ image: imageUrl });
+        });
+    }
+
+    /**
+     * @title 에디터 이미지: URL 텍스트 삽입 방지 + 마우스로 위치 이동 + 리사이즈 모듈 연동
+     */
+    function setupQuillImageBehavior() {
+        if (editorImageBehaviorBound || !quill) return;
+
+        const editorRoot = quill.root;
+        const editorContainer = editorRoot.parentNode;
+
+        setupQuillClipboardMatchers();
+
+        quill.on('text-change', function (delta, oldDelta, source) {
+            if (source === Quill.sources.USER) {
+                setTimeout(sanitizeLeakedImageUrls, 0);
+            }
+            if (editorImageResizeState) {
+                requestAnimationFrame(updateEditorImageResizeOverlay);
+            }
+        });
+
+        editorRoot.addEventListener('click', function (e) {
+            const img = e.target.closest('img');
+            if (img && editorRoot.contains(img)) {
+                e.preventDefault();
+                e.stopPropagation();
+                showEditorImageResizeOverlay(img);
+                return;
+            }
+
+            if (!e.target.closest('#bbs-editor-resize-layer')) {
+                hideEditorImageResizeOverlay();
+            }
+        }, true);
+
+        editorRoot.addEventListener('dragstart', function (e) {
+            if (e.target && e.target.tagName === 'IMG') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+
+        editorRoot.addEventListener('drop', function (e) {
+            const plain = e.dataTransfer.getData('text/plain') || '';
+            const uri = e.dataTransfer.getData('text/uri-list') || '';
+            const html = e.dataTransfer.getData('text/html') || '';
+            const payload = plain + uri + html;
+            if (payload.indexOf('previewByFileId') !== -1 || payload.indexOf('previewByUuid') !== -1 || payload.indexOf('fileManager') !== -1) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        }, true);
+
+        editorRoot.addEventListener('mousedown', function (e) {
+            if (e.target.closest('#bbs-editor-resize-layer')) return;
+
+            const img = e.target.closest('img');
+            if (!img || !editorRoot.contains(img)) return;
+            if (e.button !== 0) return;
+
+            e.preventDefault();
+
+            const blot = Quill.find(img);
+            if (!blot) return;
+
+            editorImageMoveState = {
+                img: img,
+                index: quill.getIndex(blot),
+                src: img.getAttribute('src'),
+                styles: getImageStyles(img),
+                startX: e.clientX,
+                startY: e.clientY,
+                moved: false,
+                dropIndex: null
+            };
+        });
+
+        document.addEventListener('mousemove', onEditorImageMouseMove);
+        document.addEventListener('mouseup', onEditorImageMouseUp, true);
+
+        editorRoot.addEventListener('beforeinput', function (e) {
+            if (editorImageMoveState && editorImageMoveState.moved) {
+                e.preventDefault();
+            }
+        }, true);
+
+        editorRoot.addEventListener('mouseup', function (e) {
+            if (!editorImageMoveState || !editorImageMoveState.moved) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, true);
+
+        if (editorContainer) {
+            editorContainer.style.position = editorContainer.style.position || 'relative';
+            editorContainer.style.overflow = 'visible';
+        }
+
+        editorImageBehaviorBound = true;
+    }
+
+    function onEditorImageMouseMove(e) {
+        if (!editorImageMoveState) return;
+
+        const dx = Math.abs(e.clientX - editorImageMoveState.startX);
+        const dy = Math.abs(e.clientY - editorImageMoveState.startY);
+        if (!editorImageMoveState.moved && (dx > 6 || dy > 6)) {
+            editorImageMoveState.moved = true;
+            hideEditorImageResizeOverlay();
+
+            const img = editorImageMoveState.img;
+            img.classList.add('gi-editor-image-dragging');
+            img.style.opacity = '0.45';
+            img.style.outline = '2px dashed #3b82f6';
+            img.style.cursor = 'grabbing';
+            editorImageMoveState.disabledImages = disableEditorImagesPointerEvents();
+
+            document.body.style.cursor = 'grabbing';
+            document.body.classList.add('gi-editor-image-drag-active');
+            quill.root.classList.add('gi-editor-image-dragging-mode');
+        }
+
+        if (!editorImageMoveState.moved) return;
+
+        e.preventDefault();
+        updateEditorImageDropCaret(
+            e.clientX,
+            e.clientY,
+            editorImageMoveState.index
+        );
+    }
+
+    function onEditorImageMouseUp(e) {
+        if (!editorImageMoveState) return;
+
+        const state = editorImageMoveState;
+        editorImageMoveState = null;
+        const wasMoved = state.moved;
+
+        endEditorImageDrag(state);
+
+        if (!wasMoved) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const editorRoot = quill.root;
+        const preventResizeClick = function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            editorRoot.removeEventListener('click', preventResizeClick, true);
+        };
+        editorRoot.addEventListener('click', preventResizeClick, true);
+
+        const blot = Quill.find(state.img);
+        const fromIndex = blot ? quill.getIndex(blot) : state.index;
+        let dropIndex = state.dropIndex;
+
+        if (dropIndex === null || dropIndex === undefined) {
+            const dropPoint = getEditorDropPoint(e.clientX, e.clientY);
+            dropIndex = dropPoint ? dropPoint.index : null;
+        }
+
+        if (dropIndex === null || typeof dropIndex !== 'number') {
+            const editorRect = quill.root.getBoundingClientRect();
+            dropIndex = e.clientY > editorRect.top + editorRect.height / 2
+                ? quill.getLength() - 1
+                : 0;
+        }
+
+        if (dropIndex !== null && typeof dropIndex === 'number') {
+            moveEditorImage(fromIndex, dropIndex, state.src, state.styles);
+        }
+    }
+
+    function getEditorNativeRangeAtPoint(clientX, clientY) {
+        let nativeRange = null;
+
+        if (document.caretRangeFromPoint) {
+            nativeRange = document.caretRangeFromPoint(clientX, clientY);
+        } else if (document.caretPositionFromPoint) {
+            const caret = document.caretPositionFromPoint(clientX, clientY);
+            if (caret) {
+                nativeRange = document.createRange();
+                nativeRange.setStart(caret.offsetNode, caret.offset);
+                nativeRange.collapse(true);
+            }
+        }
+
+        if (!nativeRange || !quill.root.contains(nativeRange.startContainer)) {
+            return getEditorNativeRangeFromElements(clientX, clientY);
+        }
+
+        return nativeRange;
+    }
+
+    function getEditorNativeRangeFromElements(clientX, clientY) {
+        if (!document.elementsFromPoint) return null;
+
+        const elements = document.elementsFromPoint(clientX, clientY);
+        for (let i = 0; i < elements.length; i++) {
+            const el = elements[i];
+            if (!quill.root.contains(el)) continue;
+            if (el.tagName === 'IMG') continue;
+
+            const textNode = findNearestTextNode(el, clientX, clientY);
+            if (!textNode) continue;
+
+            const offset = getTextOffsetAtPoint(textNode, clientX);
+            const range = document.createRange();
+            range.setStart(textNode, offset);
+            range.collapse(true);
+            return range;
+        }
+
+        return null;
+    }
+
+    function findNearestTextNode(element, clientX, clientY) {
+        if (element.nodeType === Node.TEXT_NODE) {
+            return element;
+        }
+
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+        let bestNode = null;
+        let bestDistance = Infinity;
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            if (!quill.root.contains(node)) continue;
+
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            const rect = range.getBoundingClientRect();
+            if (!rect.width && !rect.height) continue;
+
+            const dy = clientY < rect.top ? rect.top - clientY : (clientY > rect.bottom ? clientY - rect.bottom : 0);
+            const dx = clientX < rect.left ? rect.left - clientX : (clientX > rect.right ? clientX - rect.right : 0);
+            const distance = dx + dy;
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestNode = node;
+            }
+        }
+
+        return bestNode;
+    }
+
+    function getTextOffsetAtPoint(textNode, clientX) {
+        const text = textNode.textContent || '';
+        if (!text.length) return 0;
+
+        const range = document.createRange();
+        let low = 0;
+        let high = text.length;
+
+        while (low < high) {
+            const mid = Math.floor((low + high) / 2);
+            range.setStart(textNode, mid);
+            range.setEnd(textNode, mid + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.left + rect.width / 2 < clientX) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+
+        return low;
+    }
+
+    function getEditorDropPoint(clientX, clientY) {
+        const nativeRange = getEditorNativeRangeAtPoint(clientX, clientY);
+        if (!nativeRange) return null;
+
+        const normalized = quill.selection.normalizeNative(nativeRange);
+        if (!normalized) return null;
+
+        const quillRange = quill.selection.normalizedToRange(normalized);
+        if (!quillRange || typeof quillRange.index !== 'number') return null;
+
+        const bounds = quill.selection.getBounds(quillRange.index, 0);
+        if (bounds) {
+            return {
+                index: quillRange.index,
+                left: bounds.left,
+                top: bounds.top,
+                height: Math.max(bounds.height, 20)
+            };
+        }
+
+        const rect = nativeRange.getBoundingClientRect();
+        const lineHeight = parseInt(window.getComputedStyle(quill.root).lineHeight, 10) || 20;
+
+        return {
+            index: quillRange.index,
+            left: rect.left,
+            top: rect.top,
+            height: Math.max(rect.height, lineHeight, 20)
+        };
+    }
+
+    function getEditorDropIndex(clientX, clientY) {
+        const dropPoint = getEditorDropPoint(clientX, clientY);
+        return dropPoint ? dropPoint.index : null;
+    }
+
     /**
      * @title 에디터에 이미지 삽입
      */
     window.insertImageToEditor = function (fileId) {
-        const imageUrl = `/fms/fileManager/download?fileId=${encodeURIComponent(fileId)}`;
+        const imageUrl = getEditorImageUrl(fileId);
         const range = quill.getSelection(true);
         quill.insertEmbed(range.index, 'image', imageUrl);
-        quill.setSelection(range.index + 1);
+
+        setTimeout(function () {
+            const imgs = quill.root.querySelectorAll('img');
+            const img = imgs[imgs.length - 1];
+            if (!img) return;
+
+            prepareEditorImages();
+
+            function applyDefaultWidth() {
+                if (!img.getAttribute('width') && !img.style.width && img.naturalWidth) {
+                    img.style.width = Math.min(img.naturalWidth, 480) + 'px';
+                }
+            }
+
+            if (img.complete) {
+                applyDefaultWidth();
+            } else {
+                img.onload = applyDefaultWidth;
+            }
+        }, 0);
     };
 
     /**
@@ -415,48 +1118,38 @@
             const file = input.files[0];
             if (!file) return;
 
-            // 이미지가 아닌 경우 체크
             if (!/^image\//.test(file.type)) {
                 formUtil.toast(Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"], "warn");
+                input.value = '';
                 return;
             }
 
             const formData = new FormData();
             formData.append('files', file);
-            formData.append('folder_name', 'bbs_attachments'); // 폴더명 지정
+            formData.append('folder_name', 'bbs_attachments');
 
-            // 기존 UUID가 있으면 함께 전송
             let currentUuid = $("#board_file_uuid").val();
             if (currentUuid) {
                 formData.append('file_uuid', currentUuid);
             }
 
+            showEditorImageLoading();
+
             try {
-                // 1. 파일 업로드
                 const uploadResponse = await axios.post('/fms/fileManager/upload', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
 
                 if (uploadResponse.status === 200 && uploadResponse.data.length > 0) {
                     let fileList = uploadResponse.data;
-                    let fileUuid = fileList[0].file_uuid; // 업로드된 파일 그룹 UUID
+                    let groupUuid = fileList[0].file_uuid;
+                    let fileId = fileList[0].file_id;
 
-                    // 만약 기존 UUID가 있었다면, 서버 로직에 따라 동일하게 유지되었을 것임.
-                    // 만약 없었다면 새로 생성된 UUID를 사용.
-
-                    // 2. 파일 정보 등록 (SYS_FILE_DTL)
-                    // FileUtils.js의 로직에 따르면 업로드 후 register를 호출해야 파일이 정식 등록됨
                     const registerResponse = await axios.post('/fms/common/file/sysFileDetail/register', fileList);
 
                     if (registerResponse.status === 200) {
-                        // 3. UUID 업데이트 및 파일 목록 갱신
-                        $("#board_file_uuid").val(fileUuid); // input 값 업데이트
-                        // fileUtil이 input change 이벤트를 바인딩하고 있으므로 트리거
+                        $("#board_file_uuid").val(groupUuid);
                         $("#board_file_uuid").trigger('change');
-
-                        // 4. 에디터에 이미지 삽입 (새로 등록된 파일 ID 사용)
-                        // fileList[0].file_id 사용
-                        const fileId = fileList[0].file_id;
                         insertImageToEditor(fileId);
                     }
                 }
@@ -467,10 +1160,10 @@
                 } else {
                     formUtil.toast(Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"], "error");
                 }
+            } finally {
+                hideEditorImageLoading();
+                input.value = '';
             }
-
-            // input 초기화 (동일 파일 재선택 가능하도록)
-            input.value = '';
         };
     }
 
@@ -495,7 +1188,9 @@
                 }
 
                 if (data.cn) {
-                    quill.root.innerHTML = data.cn;
+                    quill.root.innerHTML = sanitizeEditorHtml(data.cn);
+                    prepareEditorImages();
+                    sanitizeLeakedImageUrls();
                 }
 
                 commonTag.inputTagReset($(".gi-input"));
@@ -523,8 +1218,10 @@
     function saveBoard() {
         if (!formUtil.validationCheck("bbsBoardWriteForm", "SYS_BBS_BRD.CHECK.")) return;
 
+        hideEditorImageResizeOverlay();
+
         // 에디터 내용 추출
-        let content = quill.root.innerHTML;
+        let content = sanitizeEditorHtml(quill.root.innerHTML);
         if (quill.getText().trim().length === 0) {
             formUtil.toast(Message.Label.Array["SYS_BBS_BRD.CHECK.CONTENT"], "warn");
             return;

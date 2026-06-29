@@ -46,6 +46,8 @@ Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"] = "Жижиг зураг болг�
 Message.Label.Array["SYS_BBS_BRD.NO_THMBNL"] = "Жижиг зураг байхгүй";
 Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"] = "Зөвхөн зургийн файл оруулах боломжтой.";
 Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"] = "Зураг байршуулахад алдаа гарлаа.";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_UPLOADING"] = "Байршуулж байна...";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_RESIZE_HINT"] = "Чирж хэмжээг өөрчлөх";
 
 Message.Label.Array["SYS_BBS_BRD.WRITE"] = "Бичлэг оруулах";
 Message.Label.Array["SYS_BBS_BRD.DETAIL"] = "Бичлэгийн дэлгэрэнгүй";

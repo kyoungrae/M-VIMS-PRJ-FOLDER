@@ -63,6 +63,8 @@ Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"] = "Set as Thumbnail";
 Message.Label.Array["SYS_BBS_BRD.NO_THMBNL"] = "No Thumbnail";
 Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"] = "Only image files can be uploaded.";
 Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"] = "Failed to upload image.";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_UPLOADING"] = "Uploading...";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_RESIZE_HINT"] = "Drag to resize";
 
 Message.Label.Array["SYS_LAYOUT.CREATE_DATE"] = "Registration Time";
 Message.Label.Array["SYS_LAYOUT.TITLE"] = "Title";

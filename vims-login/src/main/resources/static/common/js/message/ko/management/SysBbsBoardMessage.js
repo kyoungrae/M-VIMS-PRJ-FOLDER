@@ -63,6 +63,8 @@ Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"] = "썸네일 설정";
 Message.Label.Array["SYS_BBS_BRD.NO_THMBNL"] = "썸네일 없음";
 Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"] = "이미지 파일만 업로드 가능합니다.";
 Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"] = "이미지 업로드에 실패했습니다.";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_UPLOADING"] = "업로드 중...";
+Message.Label.Array["SYS_BBS_BRD.IMAGE_RESIZE_HINT"] = "드래그하여 크기 조절";
 
 Message.Label.Array["SYS_LAYOUT.CREATE_DATE"] = "등록 일시";
 Message.Label.Array["SYS_LAYOUT.TITLE"] = "제목";
