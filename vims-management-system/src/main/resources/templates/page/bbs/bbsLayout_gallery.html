@@ -249,31 +249,26 @@
     }
 
     function createGalleryPreview(item, index) {
-        let meta = getGalleryPlaceholderMeta(index);
         let title = escapeHtml(item.ttl || getMessage("NO_TITLE", "제목 없음"));
 
         if (item.thmb_path) {
-            let imgSrc = "/fms/fileManager/downloadByUuid?fileUuid=" + encodeURIComponent(item.thmb_path);
+            let imgSrc = "/fms/fileManager/previewByUuid?fileUuid=" + encodeURIComponent(item.thmb_path);
             return `
                 <div class="gi-gallery-preview has-image">
-                    <img src="${imgSrc}" alt="${title}" onerror="this.closest('.gi-gallery-preview').outerHTML = createGalleryFallbackPreview(${index});">
+                    <img src="${imgSrc}" alt="${title}" onerror="this.closest('.gi-gallery-preview').outerHTML = createGalleryFallbackPreview();">
                 </div>
             `;
         }
 
-        return createGalleryFallbackPreview(index);
+        return createGalleryFallbackPreview();
     }
 
-    function createGalleryFallbackPreview(index) {
-        let meta = getGalleryPlaceholderMeta(index);
+    function createGalleryFallbackPreview() {
+        let label = getMessage("SYS_BBS_BRD.NO_THMBNL", "썸네일 없음");
 
         return `
-            <div class="gi-gallery-preview ${meta.variant}">
-                <div class="gi-gallery-illustration">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+            <div class="gi-gallery-preview no-thumbnail">
+                <span class="gi-gallery-no-thmbnl-badge">${escapeHtml(label)}</span>
             </div>
         `;
     }
@@ -309,20 +304,6 @@
         let text = stripHtml(item.cn || "");
         if (!text) return "게시물 내용을 확인해 주세요.";
         return text.length > 70 ? text.substring(0, 70) + "..." : text;
-    }
-
-    function getGalleryPlaceholderMeta(index) {
-        const items = [
-            { label: "프로젝트", variant: "variant-project" },
-            { label: "UI/UX", variant: "variant-ui" },
-            { label: "행사", variant: "variant-event" },
-            { label: "리포트", variant: "variant-report" },
-            { label: "모바일", variant: "variant-mobile" },
-            { label: "일반", variant: "variant-empty" },
-            { label: "현장", variant: "variant-field" },
-            { label: "개발", variant: "variant-dev" }
-        ];
-        return items[index % items.length];
     }
 
     function getWriterInitial(writer) {

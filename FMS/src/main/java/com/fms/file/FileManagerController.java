@@ -48,6 +48,12 @@ public class FileManagerController {
             throws Exception {
         fileManagerService.fileDownloadByUuid(fileUuid, response);
     }
+
+    @GetMapping("/previewByUuid")
+    public void previewByUuid(@RequestParam("fileUuid") String fileUuid, HttpServletResponse response)
+            throws Exception {
+        fileManagerService.filePreviewByUuid(fileUuid, response);
+    }
     // @PostMapping("/downloadZipFile")
     // public void downloadZipFile(@RequestBody List<Map<String,Object>> param ,
     // HttpServletResponse response) throws Exception{

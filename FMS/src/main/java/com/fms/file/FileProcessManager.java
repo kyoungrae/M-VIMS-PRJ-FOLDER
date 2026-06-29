@@ -209,6 +209,18 @@ public class FileProcessManager implements FileProcessManagerImpl {
 
     @Override
     public void downloadFile(Map<String, Object> param, HttpServletResponse response) throws IOException {
+        writeFileResponse(param, response, false);
+    }
+
+    /**
+     * 이미지 등 브라우저 inline 표시용 응답 (Content-Disposition: inline, 적절한 MIME 타입)
+     */
+    public void previewFile(Map<String, Object> param, HttpServletResponse response) throws IOException {
+        writeFileResponse(param, response, true);
+    }
+
+    private void writeFileResponse(Map<String, Object> param, HttpServletResponse response, boolean inline)
+            throws IOException {
         String filePath = (String) param.get("file_path");
         String fileId = (String) param.get("file_id");
         String extension = (String) param.get("file_ext");
@@ -221,8 +233,10 @@ public class FileProcessManager implements FileProcessManagerImpl {
         if (file.exists()) {
             String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8).replaceAll("\\+",
                     "%20");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
-            response.setContentType("application/octet-stream");
+            String contentType = inline ? resolveContentType(extension) : "application/octet-stream";
+            String disposition = inline ? "inline" : "attachment";
+            response.setHeader("Content-Disposition", disposition + "; filename=\"" + encodedFileName + "\"");
+            response.setContentType(contentType);
             response.setContentLength((int) file.length());
 
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -236,6 +250,22 @@ public class FileProcessManager implements FileProcessManagerImpl {
             System.err.println("File not found: " + path.toString());
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    private String resolveContentType(String extension) {
+        if (extension == null || extension.isBlank()) {
+            return "application/octet-stream";
+        }
+        return switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "svg" -> "image/svg+xml";
+            case "webp" -> "image/webp";
+            case "bmp" -> "image/bmp";
+            case "ico" -> "image/x-icon";
+            default -> "application/octet-stream";
+        };
     }
     //
     // @Override

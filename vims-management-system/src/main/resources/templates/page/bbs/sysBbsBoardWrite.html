@@ -71,10 +71,14 @@
                             [Page.Message].Message.Label.Array["SYS_BBS_BRD.SECTION.THMBNL"]</h3>
                         <div class="gi-flex gi-flex-column gi-grid-gap-10px">
                             <div class="gi-flex gi-grid-gap-10px gi-align-center">
-                                <div id="thmbnl-preview-area" class="gi-hidden"
+                                <div id="thmbnl-preview-area" class="gi-thmbnl-preview-area gi-hidden"
                                     style="width: 200px; height: 150px; border: 1px solid #e2e8f0; padding: 4px; background: #fff; border-radius: 4px;">
-                                    <img id="thmbnl-preview-img" src=""
+                                    <img id="thmbnl-preview-img" src="" alt=""
                                         style="width: 100%; height: 100%; object-fit: contain;">
+                                    <div id="thmbnl-preview-loading" class="gi-thmbnl-preview-loading gi-hidden"
+                                        aria-hidden="true">
+                                        <span class="gi-thmbnl-loading-spinner"></span>
+                                    </div>
                                 </div>
                                 <div class="gi-input-container" style="width: 300px;">
                                     <label for="thmbnl_preview_name" class="gi-input-label"
@@ -138,11 +142,15 @@
     var targetBbsId = writeSessionData.bbs_id;
     var boardId = writeSessionData.pst_id; // 수정 모드일 때 존재
     var mode = writeSessionData.mode || 'register';
+    var thumbnailBlobUrl = null;
 
     init();
 
     async function init() {
-        new PageInit();
+        const pageInit = new PageInit();
+        if (pageInit.fileInitPromise) {
+            await pageInit.fileInitPromise;
+        }
 
         // 1. BBS 설정 확인 (파일 첨부 가능 여부 등)
         await checkBbsConfiguration();
@@ -178,16 +186,84 @@
 
         // 4. 데이터 로드 (수정 모드)
         if (mode === 'modify' && boardId) {
-            fetchBoardData();
+            await fetchBoardData();
         } else {
             // 작성자 이름 기본값 세팅
             $("#board_writer").val(JwtUtils.getUserEmailFromJWT().split('@')[0]);
+            commonTag.inputTagReset($(".gi-input"));
         }
 
         // 5. 버튼 이벤트
         clickEvent();
+    }
 
-        commonTag.inputTagReset($(".gi-input"));
+    /**
+     * @title 썸네일 이미지 URL 생성
+     */
+    function getThumbnailImageUrl(fileUuid) {
+        return '/fms/fileManager/previewByUuid?fileUuid=' + encodeURIComponent(fileUuid);
+    }
+
+    /**
+     * @title 썸네일 파일명 입력 + 라벨 상태 갱신
+     */
+    function setThumbnailFileName(fileName) {
+        const $input = $("#thmbnl_preview_name");
+        $input.val(fileName || "");
+        commonTag.inputTagReset($input);
+    }
+
+    /**
+     * @title 썸네일 미리보기 이미지 갱신
+     */
+    function updateThumbnailPreviewImage(src) {
+        const $area = $("#thmbnl-preview-area");
+        const $img = $("#thmbnl-preview-img");
+
+        if (!src) {
+            $img.attr("src", "");
+            $area.addClass("gi-hidden");
+            return;
+        }
+
+        $img.attr("src", src);
+        $area.removeClass("gi-hidden");
+    }
+
+    function showThumbnailLoading() {
+        $("#thmbnl-preview-area").removeClass("gi-hidden");
+        $("#thmbnl-preview-loading").removeClass("gi-hidden");
+    }
+
+    function hideThumbnailLoading() {
+        $("#thmbnl-preview-loading").addClass("gi-hidden");
+    }
+
+    function revokeThumbnailBlobUrl() {
+        if (thumbnailBlobUrl) {
+            URL.revokeObjectURL(thumbnailBlobUrl);
+            thumbnailBlobUrl = null;
+        }
+    }
+
+    /**
+     * @title 서버 썸네일을 blob URL로 미리보기
+     */
+    async function loadThumbnailPreviewFromServer(fileUuid) {
+        if (!fileUuid) {
+            updateThumbnailPreviewImage("");
+            return;
+        }
+
+        try {
+            const response = await axios.get(getThumbnailImageUrl(fileUuid), { responseType: 'blob' });
+            revokeThumbnailBlobUrl();
+            thumbnailBlobUrl = URL.createObjectURL(response.data);
+            updateThumbnailPreviewImage(thumbnailBlobUrl);
+        } catch (e) {
+            console.error("Thumbnail preview load failed", e);
+            updateThumbnailPreviewImage("");
+        }
     }
 
     /**
@@ -196,15 +272,11 @@
     async function restoreThumbnail(fileUuid) {
         if (!fileUuid) return;
         try {
-            // FileUtils의 조회 API 활용하거나 직접 호출
             var response = await axios.post("/fms/common/file/sysFileDetail/find", { file_uuid: fileUuid });
             if (response.status === 200 && response.data.length > 0) {
                 var file = response.data[0];
-                $("#thmbnl_preview_name").val(file.file_nm);
-                const imageUrl = `/fms/fileManager/download?fileId=${encodeURIComponent(file.file_id)}`;
-                $("#thmbnl-preview-img").attr("src", imageUrl);
-                $("#thmbnl-preview-area").removeClass("gi-hidden");
-                commonTag.inputTagReset($(".gi-input"));
+                setThumbnailFileName(file.file_nm);
+                await loadThumbnailPreviewFromServer(fileUuid);
             }
         } catch (e) {
             console.error("Thumbnail restore failed", e);
@@ -241,7 +313,7 @@
         if (!file) return;
 
         if (!/^image\//.test(file.type)) {
-            formUtil.toast(Message.Label.Array["CHECK.FILE_TYPE"], "warn"); // 이미지 파일만 가능합니다.
+            formUtil.toast(Message.Label.Array["CHECK.FILE_TYPE"], "warn");
             return;
         }
 
@@ -249,8 +321,10 @@
         formData.append('files', file);
         formData.append('folder_name', 'bbs_thmbnls');
 
-        // 기존 썸네일 UUID가 있어도, 썸네일은 단일 파일이므로 새로 업로드하고 UUID를 교체하는 방식이 단순함.
-        // 혹은 같은 그룹으로 묶고 싶다면 UUID 사용. 여기서는 독립적으로 관리.
+        showThumbnailLoading();
+        revokeThumbnailBlobUrl();
+        thumbnailBlobUrl = URL.createObjectURL(file);
+        updateThumbnailPreviewImage(thumbnailBlobUrl);
 
         try {
             const uploadResponse = await axios.post('/fms/fileManager/upload', formData, {
@@ -259,32 +333,28 @@
 
             if (uploadResponse.status === 200 && uploadResponse.data.length > 0) {
                 const fileInfo = uploadResponse.data[0];
-
-                // 파일 등록 (SYS_FILE_DTL)
                 const registerResponse = await axios.post('/fms/common/file/sysFileDetail/register', uploadResponse.data);
 
                 if (registerResponse.status === 200) {
-                    // UI 업데이트
-                    $("#thmbnl_preview_name").val(fileInfo.file_nm);
-                    const imageUrl = `/fms/fileManager/download?fileId=${encodeURIComponent(fileInfo.file_id)}`;
-                    $("#thmbnl-preview-img").attr("src", imageUrl);
-                    $("#thmbnl-preview-area").removeClass("gi-hidden");
-
-                    // Hidden Input 설정 (DB 저장용)
+                    setThumbnailFileName(fileInfo.file_nm);
+                    updateThumbnailPreviewImage(thumbnailBlobUrl);
                     $("#board_thmbnl").val(fileInfo.file_uuid);
                     formUtil.toast(Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_UPLOAD"]);
                 }
             }
         } catch (error) {
             console.error("Thumbnail upload failed:", error);
+            revokeThumbnailBlobUrl();
+            updateThumbnailPreviewImage("");
             if (error.response && error.response.status === 413) {
                 formUtil.toast(Message.Label.Array["FAIL.UPLOAD.SIZE_EXCEEDED"], "error");
             } else {
                 formUtil.toast(Message.Label.Array["FAIL.UPLOAD"], "error");
             }
+        } finally {
+            hideThumbnailLoading();
+            input.value = '';
         }
-
-        input.value = ''; // 초기화
     };
 
     /**
@@ -313,15 +383,14 @@
     /**
      * @title 썸네일 설정 처리
      */
-    window.setAsThumbnail = function (btn, uuid) {
+    window.setAsThumbnail = async function (btn, uuid) {
         const $btn = $(btn);
 
-        // 시각적 상태 업데이트
         $(".gi-thmbnl-btn").removeClass("active").text(Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"]);
         $btn.addClass("active").text(Message.Label.Array["SYS_BBS_BRD.THMBNL.ACTIVE"]);
 
-        // 값 바인딩
         $("#board_thmbnl").val(uuid);
+        await restoreThumbnail(uuid);
         formUtil.toast(Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_SET"]);
     };
 
@@ -405,28 +474,36 @@
         };
     }
 
-    function fetchBoardData() {
+    async function fetchBoardData() {
         let url = "/cms/common/sysBbsBoard/find";
-        axios.post(url, { pst_id: boardId }).then(response => {
+        try {
+            const response = await axios.post(url, { pst_id: boardId });
             if (response.status === 200 && response.data.length > 0) {
                 let data = response.data[0];
                 $("#board_title").val(data.ttl);
                 $("#board_writer").val(data.wrtr_nm);
-                $("#board_file_uuid").val(data.file_uuid).trigger('change');
+
+                if (data.file_uuid) {
+                    $("#board_file_uuid").val(data.file_uuid);
+                    await fileUtil.bindFileUuid("file-attachment-section", data.file_uuid);
+                }
 
                 // 썸네일 복원
                 if (data.thmb_path) {
                     $("#board_thmbnl").val(data.thmb_path);
-                    // 썸네일 이미지 정보를 가져오기 위해 FMS 호출 필요, 하지만 UUID만으로는 파일명/ID를 바로 알기 어려울 수 있음.
-                    // 간단히 미리보기만 복원하려면 UUID로 다운로드 URL을 구성하거나, 추가 조회가 필요함.
-                    // 여기서는 썸네일 UUID를 통해 파일 상세 정보를 조회하여 미리보기를 설정하는 로직을 추가.
-                    restoreThumbnail(data.thmb_path);
+                    await restoreThumbnail(data.thmb_path);
+                }
+
+                if (data.cn) {
+                    quill.root.innerHTML = data.cn;
                 }
 
                 commonTag.inputTagReset($(".gi-input"));
-                quill.root.innerHTML = data.cn;
             }
-        });
+        } catch (e) {
+            console.error("Board data fetch failed", e);
+            formUtil.toast(Message.Label.Array["FAIL.SELECT_NO_DATA"], "error");
+        }
     }
 
     function clickEvent() {

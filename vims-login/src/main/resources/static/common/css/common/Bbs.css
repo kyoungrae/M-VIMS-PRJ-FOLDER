@@ -370,300 +370,36 @@
 .gi-gallery-preview.has-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
 }
 
-.gi-gallery-illustration {
-    position: absolute;
-    inset: 0;
-}
-
-.gi-gallery-illustration span {
-    position: absolute;
-    display: block;
-}
-
-.gi-gallery-preview.variant-project {
-    background: radial-gradient(circle at 78% 6%, rgba(255, 255, 255, 0.08) 0 84px, transparent 85px),
-        linear-gradient(135deg, #21134f, #704be6);
-}
-
-.variant-project .gi-gallery-illustration span:nth-child(1) {
-    left: 13%;
-    bottom: 32%;
-    width: 58%;
-    height: 38%;
-    border: 4px solid #8fe4ff;
-    border-right-color: transparent;
-    border-bottom-color: #8fe4ff;
-    border-radius: 90px 28px 16px 24px;
-    transform: skewX(-18deg);
-}
-
-.variant-project .gi-gallery-illustration span:nth-child(2) {
-    left: 32%;
-    top: 30%;
-    width: 35%;
-    height: 34%;
-    border: 3px solid #bfb7ff;
-    transform: skewX(22deg);
-}
-
-.variant-project .gi-gallery-illustration span:nth-child(3) {
-    left: 28%;
-    bottom: 20%;
-    width: 58%;
-    height: 4px;
-    border-radius: 999px;
-    background-color: rgba(143, 228, 255, 0.72);
-}
-
-.gi-gallery-preview.variant-ui {
-    background: linear-gradient(135deg, #c8ebff, #75bcff);
-}
-
-.variant-ui .gi-gallery-illustration {
-    inset: 28px 44px;
-    border-radius: 18px;
-    background-color: rgba(255, 255, 255, 0.88);
-}
-
-.variant-ui .gi-gallery-illustration::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 28px;
-    border-radius: 18px 18px 0 0;
-    background-color: #edf6ff;
-}
-
-.variant-ui .gi-gallery-illustration span:nth-child(1) {
-    left: 22px;
-    bottom: 26px;
-    width: 76px;
-    height: 64px;
-    border-radius: 10px;
-    background-color: #5a82f6;
-}
-
-.variant-ui .gi-gallery-illustration span:nth-child(2) {
-    left: 114px;
-    top: 52px;
-    width: 68px;
-    height: 28px;
-    border-radius: 8px;
-    background-color: #d8e4ff;
-}
-
-.variant-ui .gi-gallery-illustration span:nth-child(3) {
-    left: 114px;
-    bottom: 28px;
-    width: 150px;
-    height: 28px;
-    border-radius: 8px;
-    background-color: #eef2f8;
-}
-
-.gi-gallery-preview.variant-event {
-    background: linear-gradient(135deg, #ffe5c7, #ff9381);
-}
-
-.variant-event .gi-gallery-illustration span {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background-color: #ffffff;
-}
-
-.variant-event .gi-gallery-illustration span:nth-child(1) {
-    left: 17%;
-    top: 36%;
-}
-
-.variant-event .gi-gallery-illustration span:nth-child(2) {
-    left: 43%;
-    top: 30%;
-}
-
-.variant-event .gi-gallery-illustration span:nth-child(3) {
-    right: 14%;
-    top: 38%;
-}
-
-.gi-gallery-preview.variant-report {
-    background: linear-gradient(135deg, #163665, #0b70bd);
-}
-
-.variant-report .gi-gallery-illustration {
-    inset: 28px 36px 24px;
-    border-radius: 16px;
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-.variant-report .gi-gallery-illustration span:nth-child(1) {
-    left: 28px;
-    top: 58px;
-    width: 64%;
-    height: 4px;
-    border-radius: 999px;
-    background-color: #4f86f7;
-    transform: rotate(-18deg);
-}
-
-.variant-report .gi-gallery-illustration span:nth-child(2) {
-    left: 48px;
-    top: 72px;
-    width: 64%;
-    height: 4px;
-    border-radius: 999px;
-    background-color: #4f86f7;
-    transform: rotate(14deg);
-}
-
-.variant-report .gi-gallery-illustration span:nth-child(3) {
-    left: 35px;
-    top: 36px;
-    width: 74px;
-    height: 36px;
-    border-radius: 8px;
-    background-color: #dce9ff;
-}
-
-.gi-gallery-preview.variant-mobile {
-    background: radial-gradient(circle at 13% 77%, rgba(255, 255, 255, 0.18) 0 70px, transparent 71px),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.18) 0 82px, transparent 83px),
-        linear-gradient(135deg, #d3c5ff, #957bff);
-}
-
-.variant-mobile .gi-gallery-illustration {
-    top: 28px;
-    left: 50%;
-    width: 94px;
-    height: 118px;
-    border: 9px solid #20203d;
-    border-radius: 28px;
-    background-color: #ffffff;
-    transform: translateX(-50%);
-}
-
-.variant-mobile .gi-gallery-illustration span:nth-child(1) {
-    left: 24px;
-    top: 30px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background-color: #765cf5;
-}
-
-.variant-mobile .gi-gallery-illustration span:nth-child(2) {
-    left: 18px;
-    bottom: 34px;
-    width: 40px;
-    height: 7px;
-    border-radius: 999px;
-    background-color: #dfe3ef;
-}
-
-.variant-mobile .gi-gallery-illustration span:nth-child(3) {
-    left: 28px;
-    bottom: 20px;
-    width: 36px;
-    height: 6px;
-    border-radius: 999px;
-    background-color: #765cf5;
-}
-
-.gi-gallery-preview.variant-empty {
-    background: radial-gradient(circle at 12% 8%, rgba(118, 92, 245, 0.12) 0 76px, transparent 77px),
-        radial-gradient(circle at 94% 84%, rgba(31, 142, 216, 0.12) 0 76px, transparent 77px),
-        linear-gradient(135deg, #f2f5ff, #dff2ff);
-}
-
-.variant-empty .gi-gallery-illustration {
-    top: 44px;
-    left: 50%;
-    width: 126px;
-    height: 82px;
-    border-radius: 18px;
-    background-color: rgba(255, 255, 255, 0.86);
-    transform: translateX(-50%);
-}
-
-.variant-empty .gi-gallery-illustration::after {
-    content: "이미지 준비 중";
-    position: absolute;
-    inset: 0;
+/* 썸네일 없음: 연한 배경 + 중앙 뱃지 */
+.gi-gallery-preview.no-thumbnail {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6b7280;
-    font-size: 12px;
-    font-weight: 800;
+    background:
+        radial-gradient(circle at 12% 10%, rgba(147, 197, 253, 0.42) 0 72px, transparent 73px),
+        radial-gradient(circle at 88% 82%, rgba(196, 181, 253, 0.38) 0 68px, transparent 69px),
+        radial-gradient(circle at 68% 18%, rgba(191, 219, 254, 0.32) 0 54px, transparent 55px),
+        linear-gradient(135deg, #eef4ff 0%, #e8f0fe 45%, #f0ecff 100%);
 }
 
-.gi-gallery-preview.variant-field {
-    background: linear-gradient(135deg, #bff5df, #69c9a3);
-}
-
-.variant-field .gi-gallery-illustration span {
-    bottom: 0;
-    width: 42%;
-    height: 58%;
-    background-color: #1c604f;
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-
-.variant-field .gi-gallery-illustration span:nth-child(1) {
-    left: 4%;
-}
-
-.variant-field .gi-gallery-illustration span:nth-child(2) {
-    left: 35%;
-    height: 50%;
-    background-color: #287863;
-}
-
-.variant-field .gi-gallery-illustration span:nth-child(3) {
-    right: 2%;
-    height: 42%;
-    background-color: #2e8d73;
-}
-
-.gi-gallery-preview.variant-dev {
-    background: linear-gradient(135deg, #161b37, #303861);
-}
-
-.variant-dev .gi-gallery-illustration {
-    inset: 34px 44px 26px;
-    border-radius: 12px;
-    background-color: #11182d;
-}
-
-.variant-dev .gi-gallery-illustration span {
-    left: 24px;
-    height: 5px;
-    border-radius: 999px;
-}
-
-.variant-dev .gi-gallery-illustration span:nth-child(1) {
-    top: 28px;
-    width: 42%;
-    background-color: #6bc8ec;
-}
-
-.variant-dev .gi-gallery-illustration span:nth-child(2) {
-    top: 52px;
-    width: 70%;
-    background-color: #9b7ef4;
-}
-
-.variant-dev .gi-gallery-illustration span:nth-child(3) {
-    top: 76px;
-    width: 58%;
-    background-color: #6bc8ec;
+.gi-gallery-no-thmbnl-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+    color: #334155;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .gi-gallery-card-body {
@@ -1027,15 +763,16 @@
 }
 
 /* ========================================================================
-   게시판 상세/등록/수정 페이지: 스크롤 없이 한 화면에 맞춤
-   - 페이지 자체 스크롤 제거, 여백 컴팩트화
-   - 본문(에디터/상세내용)만 남은 높이만큼 차지하고 내부 스크롤
+   게시판 상세/등록/수정 페이지: 기본은 한 화면에 맞추되, 내용이 길어지면 스크롤
+   - 페이지 자체가 남은 높이를 차지하고, 넘칠 때만 세로 스크롤(overflow-y: auto)
+   - 내용이 짧으면 스크롤바 없이 한 화면에 표시됨
+   - 본문/에디터는 내부 스크롤을 두지 않고 자연스럽게 늘어나 페이지 스크롤로 처리
    - 두 페이지로 범위를 한정하여 다른 폼(.gi-form-*)에는 영향 없음
    ======================================================================== */
 #sysBbsBoardDetailPage,
 #sysBbsBoardWritePage {
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 
@@ -1074,15 +811,44 @@
     padding-top: 14px;
 }
 
-/* 본문(에디터) 영역: 남은 높이만큼만 차지하고 내부 스크롤 */
+/* 본문(에디터/상세내용) 영역: 내용에 따라 자연스럽게 늘어나고, 넘치면 페이지가 스크롤됨
+   - 내부 자체 스크롤(max-height + overflow)을 제거하여 중첩 스크롤을 방지 */
 #sysBbsBoardWritePage .ql-editor {
-    min-height: 0 !important;
-    max-height: calc(100vh - 420px);
-    overflow-y: auto;
+    min-height: 240px;
 }
 
 #sysBbsBoardDetailPage #detail-content {
     min-height: 0 !important;
-    max-height: calc(100vh - 360px);
-    overflow-y: auto;
+    height: auto !important;
+}
+
+/* 갤러리 게시판 썸네일 미리보기 / 업로드 로딩 */
+#sysBbsBoardWritePage .gi-thmbnl-preview-area {
+    position: relative;
+    overflow: hidden;
+}
+
+#sysBbsBoardWritePage .gi-thmbnl-preview-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.82);
+    z-index: 2;
+}
+
+#sysBbsBoardWritePage .gi-thmbnl-loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e2e8f0;
+    border-top-color: var(--background-color-btn-blue, #2563eb);
+    border-radius: 50%;
+    animation: gi-thmbnl-spin 0.8s linear infinite;
+}
+
+@keyframes gi-thmbnl-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

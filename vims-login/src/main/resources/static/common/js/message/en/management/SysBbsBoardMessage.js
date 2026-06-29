@@ -60,6 +60,7 @@ Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_UPLOAD"] = "Thumbnail has been 
 Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_SET"] = "Successfully set as thmbnl.";
 Message.Label.Array["SYS_BBS_BRD.THMBNL.ACTIVE"] = "Thumbnail";
 Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"] = "Set as Thumbnail";
+Message.Label.Array["SYS_BBS_BRD.NO_THMBNL"] = "No Thumbnail";
 Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"] = "Only image files can be uploaded.";
 Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"] = "Failed to upload image.";
 

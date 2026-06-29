@@ -60,6 +60,7 @@ Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_UPLOAD"] = "썸네일이 업로
 Message.Label.Array["SYS_BBS_BRD.COMPLETE.THMBNL_SET"] = "썸네일로 설정되었습니다.";
 Message.Label.Array["SYS_BBS_BRD.THMBNL.ACTIVE"] = "썸네일";
 Message.Label.Array["SYS_BBS_BRD.THMBNL.SET"] = "썸네일 설정";
+Message.Label.Array["SYS_BBS_BRD.NO_THMBNL"] = "썸네일 없음";
 Message.Label.Array["SYS_BBS_BRD.CHECK.IMAGE_ONLY"] = "이미지 파일만 업로드 가능합니다.";
 Message.Label.Array["SYS_BBS_BRD.FAIL.IMAGE_UPLOAD"] = "이미지 업로드에 실패했습니다.";
 
