@@ -160,19 +160,61 @@ class file {
     }
 
     /**
+     * @title 파일 다운로드 로딩 표시
+     */
+    showFileDownloadLoading() {
+        let $loading = $('#gi-file-download-loading');
+        if (!$loading.length) {
+            $('body').append(`
+                <div id="gi-file-download-loading" class="gi-file-download-loading gi-hidden" aria-hidden="true" aria-live="polite">
+                    <div class="gi-file-download-loading-box">
+                        <span class="gi-file-download-loading-spinner" aria-hidden="true"></span>
+                        <span class="gi-file-download-loading-text">다운로드 중...</span>
+                    </div>
+                </div>
+            `);
+            $loading = $('#gi-file-download-loading');
+        }
+        $loading.removeClass('gi-hidden').attr('aria-hidden', 'false');
+    }
+
+    /**
+     * @title 파일 다운로드 로딩 숨김
+     */
+    hideFileDownloadLoading() {
+        $('#gi-file-download-loading').addClass('gi-hidden').attr('aria-hidden', 'true');
+    }
+
+    /**
      * @title 파일 다운로드
      * @param fileId 파일 ID
      * @param fileName 파일 이름
      */
-    downloadFile(fileId, fileName) {
+    async downloadFile(fileId, fileName) {
         const downloadUrl = `/fms/fileManager/download?fileId=${encodeURIComponent(fileId)}`;
-        // 새 탭 또는 다운로드 링크 생성
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        this.showFileDownloadLoading();
+        try {
+            const response = await axios.get(downloadUrl, { responseType: 'blob' });
+            const blob = response.data;
+
+            if (blob.type && blob.type.includes('application/json')) {
+                formUtil.toast('파일 다운로드에 실패했습니다.', 'error');
+                return;
+            }
+
+            const objectUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = objectUrl;
+            link.download = fileName || 'download';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+            formUtil.toast('파일 다운로드에 실패했습니다.', 'error');
+        } finally {
+            this.hideFileDownloadLoading();
+        }
     }
 
     /**
