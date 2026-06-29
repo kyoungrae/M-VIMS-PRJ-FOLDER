@@ -819,6 +819,7 @@
 
 #sysBbsBoardWritePage .ql-editor img {
     max-width: 100%;
+    height: auto !important;
     cursor: grab;
     display: inline-block;
     vertical-align: top;

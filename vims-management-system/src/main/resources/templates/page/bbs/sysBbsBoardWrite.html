@@ -432,7 +432,7 @@
      */
     function prepareEditorImages() {
         quill.root.querySelectorAll('img').forEach(function (img) {
-            img.style.maxWidth = '100%';
+            normalizeEditorImageBox(img);
             img.style.cursor = 'grab';
             img.draggable = false;
             img.setAttribute('draggable', 'false');
@@ -610,15 +610,55 @@
         return isNaN(zoom) || zoom <= 0 ? 1 : zoom;
     }
 
+    function normalizeEditorImageBox(img) {
+        if (!img) return;
+
+        const renderedWidth = img.getBoundingClientRect().width;
+        if (renderedWidth > 0) {
+            img.style.width = Math.round(renderedWidth) + 'px';
+        }
+
+        img.style.height = 'auto';
+        img.style.maxWidth = '100%';
+        img.removeAttribute('height');
+        img.removeAttribute('width');
+    }
+
+    function getEditorImageOverlayRect(img, ancestor) {
+        normalizeEditorImageBox(img);
+
+        const zoom = getPageZoom();
+        const imgRect = img.getBoundingClientRect();
+        const ancestorRect = ancestor.getBoundingClientRect();
+
+        let width = imgRect.width / zoom;
+        let height = imgRect.height / zoom;
+
+        if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+            const expectedHeight = (imgRect.width / img.naturalWidth) * img.naturalHeight / zoom;
+            if (height - expectedHeight > 2) {
+                height = expectedHeight;
+            }
+        }
+
+        return {
+            left: (imgRect.left - ancestorRect.left) / zoom,
+            top: (imgRect.top - ancestorRect.top) / zoom,
+            width: width,
+            height: height
+        };
+    }
+
     function getRectWithinAncestor(element, ancestor) {
+        const zoom = getPageZoom();
         const elementRect = element.getBoundingClientRect();
         const ancestorRect = ancestor.getBoundingClientRect();
 
         return {
-            left: elementRect.left - ancestorRect.left,
-            top: elementRect.top - ancestorRect.top,
-            width: elementRect.width,
-            height: elementRect.height
+            left: (elementRect.left - ancestorRect.left) / zoom,
+            top: (elementRect.top - ancestorRect.top) / zoom,
+            width: elementRect.width / zoom,
+            height: elementRect.height / zoom
         };
     }
 
@@ -654,7 +694,7 @@
             return;
         }
 
-        const rect = getRectWithinAncestor(img, container);
+        const rect = getEditorImageOverlayRect(img, container);
 
         overlay.style.left = rect.left + 'px';
         overlay.style.top = rect.top + 'px';
@@ -670,6 +710,7 @@
         if (!img || !quill) return;
 
         hideEditorImageResizeOverlay();
+        normalizeEditorImageBox(img);
 
         const container = getEditorOverlayContainer();
         const layer = getEditorResizeLayer();
@@ -1094,8 +1135,10 @@
             prepareEditorImages();
 
             function applyDefaultWidth() {
-                if (!img.getAttribute('width') && !img.style.width && img.naturalWidth) {
+                normalizeEditorImageBox(img);
+                if (!img.style.width && img.naturalWidth) {
                     img.style.width = Math.min(img.naturalWidth, 480) + 'px';
+                    img.style.height = 'auto';
                 }
             }
 
